@@ -1,0 +1,372 @@
+//
+//  Window.cpp
+//  lanUI
+//
+//  Created by René Descartes Domingos Muala on 22/06/21.
+//  Copyright © 2021 René Descartes Domingos Muala. All rights reserved.
+//
+
+#include "Window.hpp"
+#include "core.hpp"
+#include <thread>
+#include <iostream>
+
+Window::Window(const char * title, float width, float height){
+    if(!CoreData::WAS_INIT){
+        Core::init();
+    }
+    
+    for(int i = 0 ; i < (WinRequests::totalRequests) ; i++){
+        winRequests[i].leave();
+        winRequests[i].set(false);
+    }
+    
+    for(int i = 0 ; i < (CallBacks::totalCallBacks) ; i++){
+        callbacks[i].leave();
+        callbacks[i].set(false);
+    }
+    
+    sdlWindowClearColor.set({15, 15, 15, 255});
+    
+    create(title, width, height);
+    
+    set_title(title);
+    
+    shouldClose.set(false);
+    
+    Core::subscribe(this);
+}
+
+Window::~Window(){
+    if(!CoreData::programWindowsCount.get()){
+        Core::close();
+    } CoreData::programWindowsCount.leave();
+}
+
+void Window::create(const char *title, float width, float height){
+    if(!(sdlWindow.data = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (size.data.w = width), (size.data.h = height), SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE)))
+        Core::log(Core::Error, "Unable to create window");
+    else
+        if(!(sdlRenderer.data = SDL_CreateRenderer(sdlWindow.data, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)))
+            Core::log(Core::Error, "Unable to create window renderer");
+    SDL_SetRenderDrawBlendMode(sdlRenderer.data, SDL_BLENDMODE_BLEND);
+    sdlWindowId.data = SDL_GetWindowID(sdlWindow.data);
+}
+
+void Window::handle_events(){
+    while (SDL_WaitEventTimeout(&sdlEvent.data, 2) != 0) {
+        if(sdlEvent.data.window.windowID == sdlWindowId.data){
+            switch (sdlEvent.data.window.event) {
+                case SDL_QUIT:
+                case SDL_WINDOWEVENT_CLOSE: shouldClose.data = true; break;
+                case SDL_WINDOWEVENT_ENTER: hasMouseFocus.set(true); break;
+                case SDL_WINDOWEVENT_LEAVE: hasMouseFocus.set(false); break;
+                case SDL_WINDOWEVENT_FOCUS_GAINED: hasKeyboardFocus.set(true); break;
+                case SDL_WINDOWEVENT_FOCUS_LOST:   hasKeyboardFocus.set(false); break;
+                case SDL_WINDOWEVENT_EXPOSED:
+                case SDL_WINDOWEVENT_SHOWN: isShown.set(true); isMinimixed.set(false);  break;
+                case SDL_WINDOWEVENT_HIDDEN: isShown.set(false); break;
+                case SDL_WINDOWEVENT_MINIMIZED: isMinimixed.set(true); isMaximized.set(false); break;
+                case SDL_WINDOWEVENT_MAXIMIZED: isMaximized.set(true); fullscreen.set(true); isMinimixed.set(true); break;
+                case SDL_WINDOWEVENT_SIZE_CHANGED:
+                case SDL_WINDOWEVENT_RESIZED:
+                    size.get();
+                    size.data.w = (sdlEvent.data.window.data1);
+                    size.data.h = (sdlEvent.data.window.data2);
+                    size.leave();
+                    fullscreen.set(false);
+                    break;
+                default:
+                    break;
+            }
+            handle_callBacks(sdlEvent.data.window.event, sdlEvent.data.type);
+        }
+    }
+}
+
+void Window::handle_requests(){
+    if(winRequests[WinRequests::Title].get()) {
+        SDL_SetWindowTitle(sdlWindow.get(), title.get().c_str());
+        sdlWindow.leave();
+        title.leave();
+    } if(winRequests[WinRequests::Opacity].get()) {
+        SDL_SetWindowOpacity(sdlWindow.get(), opacity.get());
+        opacity.leave();
+        sdlWindow.leave();
+    } if(winRequests[WinRequests::WindowClearColor].get()) {
+        sdlWindowClearColor.set(windowClearColor.get());
+        windowClearColor.leave();
+    } if(winRequests[WinRequests::FullScreen].get()) {
+        SDL_SetWindowFullscreen(sdlWindow.get(), SDL_WINDOW_FULLSCREEN_DESKTOP);
+        fullscreen.set(true);
+        sdlWindow.leave();
+    } if(winRequests[WinRequests::NoFullScreen].get()) {
+        SDL_SetWindowFullscreen(sdlWindow.get(), 0);
+        fullscreen.set(false);
+        sdlWindow.leave();
+    } if(winRequests[WinRequests::Focus].get()) {
+        SDL_RaiseWindow(sdlWindow.get());
+        sdlWindow.leave();
+    } if(winRequests[WinRequests::Maximize].get()) {
+        SDL_MaximizeWindow(sdlWindow.get());
+        sdlWindow.leave();
+    } if(winRequests[WinRequests::Minimize].get()) {
+        SDL_MinimizeWindow(sdlWindow.get());
+        sdlWindow.leave();
+    }
+    // we are not reseting the busy state in ths if's
+    for(int i = 0 ; i < (WinRequests::totalRequests) ; i++){
+        winRequests[i].leave();
+        winRequests[i].set(false);
+    }
+}
+
+void Window::handle_callBacks(const uint8_t window_event, const uint32_t input_event){
+    if(callbacks[OnStart].get()){
+        on_start_callback.hold();
+        on_start_callback.data();
+        on_start_callback.leave();
+        // disable after first use
+        callbacks[OnStart].data = false;
+    } if(callbacks[OnClosed].get() && shouldClose.data){
+        on_closed_callback.hold();
+        on_closed_callback.data();
+        on_closed_callback.leave();
+        shouldClose.set(false);
+    } if(callbacks[OnFocusGained].get() && window_event == SDL_WINDOWEVENT_FOCUS_GAINED){
+        on_focus_gained_callback.hold();
+        on_focus_gained_callback.data();
+        on_focus_gained_callback.leave();
+    } if(callbacks[OnFocusLost].get() && window_event == SDL_WINDOWEVENT_FOCUS_LOST){
+        on_focus_lost_callback.hold();
+        on_focus_lost_callback.data();
+        on_focus_lost_callback.leave();
+    } if(callbacks[OnMouseGained].get() && window_event == SDL_WINDOWEVENT_ENTER){
+        on_mouse_gained_callback.hold();
+        on_mouse_gained_callback.data();
+        on_mouse_gained_callback.leave();
+    } if(callbacks[OnMouseLost].get() && window_event == SDL_WINDOWEVENT_LEAVE){
+        on_mouse_lost_callback.hold();
+        on_mouse_lost_callback.data();
+        on_mouse_lost_callback.leave();
+    } if(callbacks[OnHidden].get() && window_event == SDL_WINDOWEVENT_HIDDEN){
+        on_hidden_callback.hold();
+        on_hidden_callback.data();
+        on_hidden_callback.leave();
+    } if(callbacks[OnShown].get() && window_event == SDL_WINDOWEVENT_SHOWN){
+        on_shown_callback.hold();
+        on_shown_callback.data();
+        on_shown_callback.leave();
+    } if(callbacks[OnMinimized].get() && window_event == SDL_WINDOWEVENT_MINIMIZED){
+        on_minimized_callback.hold();
+        on_minimized_callback.data();
+        on_minimized_callback.leave();
+    } if(callbacks[OnMaximized].get() && window_event == SDL_WINDOWEVENT_MAXIMIZED){
+        on_maximized_callback.hold();
+        on_maximized_callback.data();
+        on_maximized_callback.leave();
+    } if(callbacks[OnResized].get() && (window_event == SDL_WINDOWEVENT_RESIZED || window_event == SDL_WINDOWEVENT_SIZE_CHANGED)){
+        on_resized_callback.hold();
+        on_resized_callback.data();
+        on_resized_callback.leave();
+    } if(input_event == SDL_MOUSEBUTTONDOWN && callbacks[OnMouseButtonDown].get()){
+        on_mouse_button_down_callback.hold();
+        on_mouse_button_down_callback.data();
+        on_mouse_button_down_callback.leave();
+    } if(input_event == SDL_MOUSEBUTTONUP && callbacks[OnMouseButtonUp].get()){
+        on_mouse_button_up_callback.hold();
+        on_mouse_button_up_callback.data();
+        on_mouse_button_up_callback.leave();
+    }  if(input_event == SDL_KEYDOWN && callbacks[OnKeyDown].get()){
+        on_key_down_callback.hold();
+        on_key_down_callback.data();
+        on_key_down_callback.leave();
+    } if(input_event == SDL_KEYUP && callbacks[OnKeyUp].get()){
+        on_key_up_callback.hold();
+        on_key_up_callback.data();
+        on_key_up_callback.leave();
+    }
+    
+    hasMouseFocus.leave();
+    // we are not reseting the busy state in ths if's
+    for(int i = 0 ; i < (CallBacks::totalCallBacks) ; i++){
+        callbacks[i].leave();
+    }
+}
+
+void Window::clear(){
+    hasKeyboardFocus.leave();
+    sdlWindowClearColor.hold();
+    SDL_SetRenderDrawColor(sdlRenderer.get(), sdlWindowClearColor.data.r,sdlWindowClearColor.data.g,sdlWindowClearColor.data.b, sdlWindowClearColor.data.a);
+    sdlWindowClearColor.leave();
+    sdlRenderer.leave();
+    
+    SDL_RenderClear(sdlRenderer.get());
+    sdlRenderer.leave();
+}
+
+void Window::render(){
+    hasKeyboardFocus.leave();
+    sdlRenderer.hold();
+    if(nextInZ.get())
+        nextInZ.data->render(sdlRenderer.data, 0.0, 0.0);
+    nextInZ.leave();
+    SDL_RenderPresent(sdlRenderer.data);
+    sdlRenderer.leave();
+}
+
+Semaphore<Object*> Window::view(){
+    if(!nextInZ.get()) Core::log(Core::Error, "A window view must do be declared befure using window.view()");
+    nextInZ.leave();
+    return nextInZ;
+}
+
+Window& Window::set_title(const char *title){
+    winRequests[WinRequests::Title].set(true);
+    this->title.set(title);
+    return (*this);
+}
+
+Window& Window::set_size(const float w, const float h){
+    if(!fullscreen.get()){
+        size.set({0,0,w,h});
+        size.hold();
+        SDL_SetWindowSize(sdlWindow.get(), size.data.w, size.data.h);
+        size.leave();
+        sdlWindow.leave();
+    } fullscreen.leave();
+    return (*this);
+}
+
+Window& Window::set_opacity(float opacity){
+    winRequests[WinRequests::Opacity].set(true);
+    this->opacity.set(opacity);
+    return (*this);
+}
+
+Window& Window::set_window_clear_color(Color color){
+    winRequests[WinRequests::WindowClearColor].set(true);
+    this->windowClearColor.set(color);
+    return (*this);
+}
+
+Window& Window::set_fullscreen(bool fullscreen){
+    winRequests[WinRequests::FullScreen].set(true);
+    this->fullscreen.set(fullscreen);
+    return (*this);
+}
+
+Window& Window::set_focus(){
+    winRequests[WinRequests::Focus].set(true);
+    return (*this);
+}
+
+Window& Window::set_view(Object & view){
+    embedInZ(view);
+    return (*this);
+}
+
+Window& Window::hide(){
+    winRequests[WinRequests::Hide].set(true);
+    return (*this);
+}
+
+Window& Window::maximize(){
+    winRequests[WinRequests::Maximize].set(true);
+    return (*this);
+}
+
+Window& Window::minimize(){
+    winRequests[WinRequests::Minimize].set(true);
+    return (*this);
+}
+
+Window& Window::on_start(VoidCallback callback){
+    callbacks[CallBacks::OnStart].set(true);
+    this->on_start_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_closed(VoidCallback callback){
+    callbacks[CallBacks::OnClosed].set(true);
+    this->on_closed_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_focus_gained(VoidCallback callback){
+    callbacks[CallBacks::OnFocusGained].set(true);
+    this->on_focus_gained_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_focus_lost(VoidCallback callback){
+    callbacks[CallBacks::OnFocusLost].set(true);
+    this->on_focus_lost_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_mouse_gained(VoidCallback callback){
+    callbacks[CallBacks::OnMouseGained].set(true);
+    this->on_mouse_gained_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_mouse_lost(VoidCallback callback){
+    callbacks[CallBacks::OnMouseLost].set(true);
+    this->on_mouse_lost_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_hidden(VoidCallback callback){
+    callbacks[CallBacks::OnHidden].set(true);
+    this->on_hidden_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_shown(VoidCallback callback){
+    callbacks[CallBacks::OnShown].set(true);
+    this->on_shown_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_minimized(VoidCallback callback){
+    callbacks[CallBacks::OnMinimized].set(true);
+    this->on_minimized_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_maximized(VoidCallback callback){
+    callbacks[CallBacks::OnMaximized].set(true);
+    this->on_maximized_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_resized(VoidCallback callback){
+    callbacks[CallBacks::OnResized].set(true);
+    this->on_resized_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_mouse_button_down(VoidCallback callback){
+    callbacks[CallBacks::OnMouseButtonDown].set(true);
+    this->on_mouse_button_down_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_mouse_button_up(VoidCallback callback){
+    callbacks[CallBacks::OnMouseButtonUp].set(true);
+    this->on_mouse_button_up_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_key_down(VoidCallback callback){
+    callbacks[CallBacks::OnKeyDown].set(true);
+    this->on_key_down_callback.set(callback);
+    return (*this);
+}
+
+Window& Window::on_key_up(VoidCallback callback){
+    callbacks[CallBacks::OnKeyUp].set(true);
+    this->on_key_up_callback.set(callback);
+    return (*this);
+}
