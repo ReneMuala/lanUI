@@ -37,13 +37,15 @@ public:
     
     static void log(LogLevel ,const char * );
     static void init();
-    static void init_SDL_VIDEO();
+    static void init_SDL();
     static void events();
     static void render();
     static void close();
     static void close_SDL();
-    static void subscribe(void*);
-    static void unsubscribe(void*);
+    static bool subscribe(void*);
+    static bool unsubscribe(void*);
+    void load_fonts();
+    static void free_all_fonts();
     void set_sleep_time(std::chrono::milliseconds);
     void terminate();
 };

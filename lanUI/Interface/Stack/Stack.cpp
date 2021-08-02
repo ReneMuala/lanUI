@@ -9,12 +9,6 @@
 #include "Stack.hpp"
 #include "../../Core/Core.hpp"
 
-const int Stack::lenght(){
-    const int len = count.get();
-    count.leave();
-    return len;
-}
-
 Stack::Stack(){
     DrawableObject();
     fromColorScheme(Colors::Transparent, Colors::Transparent);
@@ -24,10 +18,11 @@ void VStack::fromList(std::list<Object*> objects){
     Object * last(nullptr);
     float width(0), height(0);
     for(auto row : objects){
+        row->rootType.set(Object::VStackRoot);
         row->set_alignment(Object::Alignment::None);
-        row->useRootBounds();
+        row->_useRootBounds();
         width= (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
-        height+= row->size.data.h + row->padding.data.top + row->padding.data.top;
+        height+= row->size.data.h + row->padding.data.top + row->padding.data.bottom;
         row->size.leave();
         row->padding.leave();
         if(!last) embedInZ(*row);
@@ -41,8 +36,9 @@ void HStack::fromList(std::list<Object*> objects){
     Object * last(nullptr);
     float width(0), height(0);
     for(auto row : objects){
+        row->rootType.set(Object::HStackRoot);
         row->set_alignment(Object::Alignment::None);
-        row->useRootBounds();
+        row->_useRootBounds();
         width+= row->size.get().w + row->padding.get().left + row->padding.data.right;
         height= (height < row->size.data.h + row->padding.data.top + row->padding.data.top) ? row->size.data.h + row->padding.data.top + row->padding.data.top : height;
         row->size.leave();
@@ -57,8 +53,8 @@ void ZStack::fromList(std::list<Object*> objects){
     Object * last(nullptr);
     float width(0), height(0);
     for(auto row : objects){
-        row->set_alignment(Object::Alignment::None);
-        row->useRootBounds();
+        row->rootType.set(Object::ZStackRoot);
+        row->_useRootBounds();
         width= (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
         height= (height < row->size.data.h + row->padding.data.top + row->padding.data.top) ? row->size.data.h + row->padding.data.top + row->padding.data.top : height;
         row->size.leave();

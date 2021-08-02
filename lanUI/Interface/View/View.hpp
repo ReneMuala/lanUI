@@ -15,13 +15,11 @@
 
 /// Base to create Views
 class View: public DrawableObject {
-public:
-
     Window * window;
-    DrawableObject content;
-    
+    DrawableObject some_content;
+public:
     virtual DrawableObject& body(Window&){
-        return content;
+        return some_content;
     };
         
     void create(Window & win){

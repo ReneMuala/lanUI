@@ -14,7 +14,7 @@ int main() {
     
     // uma rocha
     DrawableObject rock;
-    rock.fromFile("rock.png", myWindow.sdlRenderer.get());
+    rock.fromFile("lanUi.Bundle/System/Resources/rock.png", myWindow.sdlRenderer.get());
     rock.set_size(300, 300);
     rock.set_alignment(Object::Alignment::Center);
     myWindow.sdlRenderer.leave();

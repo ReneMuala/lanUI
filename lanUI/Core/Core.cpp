@@ -8,25 +8,44 @@
 
 #include "Core.hpp"
 #include "../Interface/Window/Window.hpp"
-#include <SDL2/SDL.h>
+#include "../Interface/Font/Font.hpp"
+#include "../Project/CustomFonts.hpp"
+
 #include <vector>
+#include <list>
 #include <map>
 #include <iostream>
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+
 
 namespace CoreData
 {
 bool running;
 bool WAS_INIT;
+/*! number of supported windows, you may increase this in faster computers */
+const short maxProgramWindows = 16 ;
 Semaphore<short> programWindowsCount = 0;
-Semaphore<Window*> programWindows[256 /*number of supported windows, you may increase this in faster computers*/] = {0};
+Semaphore<Window*> programWindows[maxProgramWindows] = {0};
 // std::thread eventHandler;
 std::thread renderHandler;
 Semaphore<std::chrono::milliseconds> sleepTime = (std::chrono::milliseconds)20;
-Semaphore<std::map<const char *, SDL_Surface*>> surfaces;
+}
+
+namespace DrawableObjectsData {
+    extern Semaphore<std::map<const char *, SDL_Surface*>> surfaces;
+}
+
+namespace Fonts {
+    extern std::list<Font*> allFonts;
+    extern Font DejaVuSans;
 }
 
 Core::Core(){
     init();
+    load_fonts();
     CoreData::running = true;
     //CoreData::eventHandler = std::thread(Core::events);
     CoreData::renderHandler = std::thread(Core::render);
@@ -55,24 +74,36 @@ void Core::log(Core::LogLevel level, const char * message){
 }
 
 void Core::init(){
-    init_SDL_VIDEO();
+    for(short i = 0 ; i < CoreData::maxProgramWindows; i++)
+        CoreData::programWindows[i].data = nullptr;
+    
+    init_SDL();
+    
     CoreData::programWindowsCount.set(0);
     CoreData::WAS_INIT = true;
 }
 
-void Core::init_SDL_VIDEO(){
-    if(SDL_Init(SDL_Init(SDL_INIT_VIDEO)) != 0)
+void Core::init_SDL(){
+    if(SDL_Init(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) != 0)
         log(LogLevel::Error, "Core: Unable to init SDL VIDEO");
+    if(IMG_Init(IMG_INIT_PNG | IMG_INIT_PNG | IMG_INIT_TIF) != (IMG_INIT_PNG | IMG_INIT_PNG | IMG_INIT_TIF))
+        log(LogLevel::Error, "Core: Unable to init SDL Image");
+    if(TTF_Init() == -1)
+        log(LogLevel::Error, "Core: Unable to init SDL ttf");
 }
 
 void Core::events(){
     while(CoreData::running){
-        short size = CoreData::programWindowsCount.get();
+        static short size (0);
+        size = CoreData::programWindowsCount.get();
         CoreData::programWindowsCount.leave();
-        for(short i = 0 ; i < size; i++){
-            if(CoreData::programWindows[i].isBusy)continue;
-            CoreData::programWindows[i].data->handle_requests();
-            CoreData::programWindows[i].data->handle_events();
+        for(short i = 0 ; i < size;){
+            if(CoreData::programWindows[i].data){
+                if(CoreData::programWindows[i].isBusy)continue;
+                CoreData::programWindows[i].data->_handle_requests();
+                CoreData::programWindows[i].data->_handle_events();
+                i++;
+            }
         } std::this_thread::sleep_for(CoreData::sleepTime.get());
         CoreData::sleepTime.leave();
     }
@@ -80,18 +111,21 @@ void Core::events(){
 
 void Core::render(){
     while (CoreData::running) {
-        short size = CoreData::programWindowsCount.get();
+        static short size (0);
+        size = CoreData::programWindowsCount.get();
         CoreData::programWindowsCount.leave();
-        for(short i = 0 ; i < size; i++){
-            if(!CoreData::programWindows[i].isBusy) {
-                if(!CoreData::programWindows[i].data->hasKeyboardFocus.get()) {
-                    std::this_thread::sleep_for(CoreData::sleepTime.get());
-                    CoreData::sleepTime.leave();
+        for(short i = 0 ; i < size;){
+            if(CoreData::programWindows[i].data){
+                if(!CoreData::programWindows[i].isBusy) {
+                    if(!CoreData::programWindows[i].data->hasKeyboardFocus.get()) {
+                        std::this_thread::sleep_for(CoreData::sleepTime.get());
+                        CoreData::sleepTime.leave();
+                    }
+                    CoreData::programWindows[i].data->hasKeyboardFocus.leave();
+                    CoreData::programWindows[i].data->_clear();
+                    CoreData::programWindows[i].data->_render();
                 }
-                CoreData::programWindows[i].data->hasKeyboardFocus.leave();
-                CoreData::programWindows[i].data->hasKeyboardFocus.leave();
-                CoreData::programWindows[i].data->clear();
-                CoreData::programWindows[i].data->render();
+                i++;
             }
         }
     }
@@ -104,16 +138,56 @@ void Core::close(){
 
 void Core::close_SDL(){
     SDL_Quit();
+    IMG_Quit();
+    free_all_fonts();
+    TTF_Quit();
 }
 
-void Core::subscribe(void * address){
+bool Core::subscribe(void * address){
     CoreData::programWindowsCount.hold();
-    CoreData::programWindows[CoreData::programWindowsCount.data++] = (Window*)address;
+    for(short i = 0 ; i < CoreData::maxProgramWindows; i++){
+        if(!CoreData::programWindows[i].data){
+            CoreData::programWindows[i].data = (Window*)address;
+            CoreData::programWindowsCount.data++;
+            CoreData::programWindowsCount.leave();
+            return true;
+        }
+    }
     CoreData::programWindowsCount.leave();
+    log(Error, "Unable to subscribe window, all buffers are busy.");
+    return false;
 }
 
-void Core::unsubscribe(void *){
-    
+bool Core::unsubscribe(void * address){
+    CoreData::programWindowsCount.hold();
+    for(short i = 0 ; i < CoreData::programWindowsCount.data; i++){
+        if(CoreData::programWindows[i].data == (Window*)address){
+            CoreData::programWindows[i].data = nullptr;
+            CoreData::programWindowsCount.leave();
+            return true;
+        }
+    } CoreData::programWindowsCount.data--;
+    CoreData::programWindowsCount.leave();
+    log(Error, "Unable to unsubscribe window, unknowon address.");
+    return false;
+}
+
+void Core::load_fonts(){
+    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSans.ttf", Font::Style::Regular);
+    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSans-Bold.ttf", Font::Style::Bold);
+    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSans-BoldOblique.ttf", Font::Style::BoldOblique);
+    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSans-ExtraLight.ttf", Font::Style::ExtraLight);
+    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSans-Oblique.ttf", Font::Style::Oblique);
+    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSansCondensed-Bold.ttf", Font::Style::Condensed_Bold);
+    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSansCondensed-BoldOblique.ttf", Font::Style::Condensed_BoldOblique);
+    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSansCondensed.ttf", Font::Style::Condensed);
+    CustomFonts::_loadCustomFonts();
+}
+
+void Core::free_all_fonts(){
+    for (auto & it : Fonts::allFonts) {
+        it->free();
+    }
 }
 
 void Core::set_sleep_time(std::chrono::milliseconds sleepTime){
@@ -122,7 +196,8 @@ void Core::set_sleep_time(std::chrono::milliseconds sleepTime){
 
 void Core::terminate(){
     CoreData::running = false;
-    for (auto &test : CoreData::surfaces.get()) {
+    close_SDL();
+    for (auto &test : DrawableObjectsData::surfaces.get()) {
         SDL_FreeSurface(test.second);
     }
 }

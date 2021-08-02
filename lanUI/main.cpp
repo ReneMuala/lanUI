@@ -19,8 +19,11 @@
 class MyHomeView : public View {
 public:
     
-    DrawableObject rock[5];
-    VStack myStack;
+    DrawableObject rock[5], test;
+    Text myText[4];
+    Container myTextContainer;
+    VStack mainStack;
+    HStack rocksStack;
     
     MyHomeView(Window & win){
         create(win);
@@ -28,19 +31,47 @@ public:
 
     DrawableObject& body(Window& window) override {
         for(int i = 0 ; i < 5 ; i ++){
-            rock[i].fromFile("rock.png", window.sdlRenderer.get());
+            rock[i].fromFile("lanUi.Bundle/System/Resources/rock.png", window.sdlRenderer.get());
             window.sdlRenderer.leave();
             rock[i].set_size(200, 200);
         }
-                
-        myStack.fromList((std::list<Object*>){
-            &rock[0], &rock[1], &rock[2], &rock[3], &rock[4]});
-//        myStack.set_size(300, 120);
-//        myStack.set_size(120, 450);
-        //myStack.set_primary_color(Colors::fromColorA(Colors::Black, 10));
-        myStack.set_alignment(Object::Alignment::Bottom);
         
-        return myStack;
+        test.set_size(100, 50);
+        
+        myText[0].from_string("Header", window.sdlRenderer.get());
+        window.sdlRenderer.leave();
+        
+        myText[0].set_font(CustomFonts::Lobster);
+        
+        myText[0].set_style(TextStyles::Header);
+        
+        myText[1].from_string("Default text", window.sdlRenderer.get());
+        window.sdlRenderer.leave();
+                
+        myText[1].set_style(TextStyles::Default);
+        
+        myText[2].from_string("Caption text", window.sdlRenderer.get());
+        window.sdlRenderer.leave();
+                
+        myText[2].set_style(TextStyles::Caption);
+        
+        myText[3].from_string("Footer text", window.sdlRenderer.get());
+        window.sdlRenderer.leave();
+                
+        myText[3].set_style(TextStyles::Default);
+        
+        rocksStack.fromList((std::list<Object*>){
+            &rock[0], &rock[1]/*,&rock[2], &rock[3], &rock[4]*/});
+        
+        mainStack.fromList((std::list<Object*>){&myText[0], &myText[1], &myText[2], &myText[3]});
+        
+        mainStack.set_secondary_color(Colors::Lemon_chiffon);
+        
+        mainStack.set_alignment(Alignment::Top);
+        
+        // mainStack.set_size(300, 400);
+        
+        return mainStack;
     }
 };
 
@@ -52,7 +83,7 @@ public:
 int main(int argc, const char * argv[]) {
     // insert code here...
     Core LanUi;
-    Window window("hello world", 700, 650);
+    Window window("hello world", 350, 500, Window::HighDefinition);
     
     auto Home = MyHomeView(window);
             
@@ -60,15 +91,11 @@ int main(int argc, const char * argv[]) {
     
     Home.fromColorScheme();
     
-    Home.fromFile("forest.png", window.sdlRenderer.get());
+    Home.fromFile("lanUi.Bundle/System/Resources/forest.png", window.sdlRenderer.get());
     window.sdlRenderer.leave();
         
-    Home.set_size(600, 600);
-    
-    /// turn it better by disabling the border when its not necessary
-    Home.set_border_color(Colors::fromColorA(Colors::White, 100));
-    //Home.set_primary_color(Colors::Alice_blue);
-    
+    Home.set_size(500, 500);
+            
     window
         
     .on_start(
@@ -183,7 +210,7 @@ int main(int argc, const char * argv[]) {
     .set_title("LanUi Demo");
     
     //.embedInZ(box[0]);
-        
+    
     Core::events();
     
     std::cout << "Hello, World!\n";

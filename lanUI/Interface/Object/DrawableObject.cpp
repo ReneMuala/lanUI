@@ -11,20 +11,95 @@
 #include <SDL2/SDL_image.h>
 #include <map>
 
-namespace CoreData {
-extern Semaphore<std::map<const char *, SDL_Surface*>> surfaces;
+namespace DrawableObjectsData {
+    Semaphore<std::map<const char *, SDL_Surface*>> surfaces;
 }
 
 SDL_Surface * get_surface(const char * source){
     SDL_Surface * surfc = nullptr;
-    if((surfc = CoreData::surfaces.get()[source])){
-        CoreData::surfaces.leave();
+    if((surfc = DrawableObjectsData::surfaces.get()[source])){
+        DrawableObjectsData::surfaces.leave();
     } else if((surfc = IMG_Load(source))){
-        CoreData::surfaces.data[source] = surfc;
+        DrawableObjectsData::surfaces.data[source] = surfc;
     } else {
         Core::log(Core::Warning, (std::string("Unable to load image source from path: ") + source).c_str());
-    } CoreData::surfaces.leave();
+    } DrawableObjectsData::surfaces.leave();
     return surfc;
+}
+
+void DrawableObject::_render__border(SDL_Renderer * renderer, Rect * rect){
+    secondaryColor.hold();
+    SDL_SetRenderDrawColor(renderer, secondaryColor.data.r, secondaryColor.data.g, secondaryColor.data.b, secondaryColor.data.a);
+    secondaryColor.leave();
+    SDL_RenderDrawRectF(renderer, rect);
+}
+
+void DrawableObject::_render__image(SDL_Renderer * renderer, float x, float y, const float dpiK){
+    rect_buffer.hold();
+    rect_buffer.data = {
+        (x + padding.get().left)*dpiK,
+        (y + padding.data.top)*dpiK,
+        (size.get().w)*dpiK,
+        (size.data.h)*dpiK
+    };
+    padding.leave();
+    size.leave();
+    SDL_RenderCopyF(renderer, image.get(), NULL, &rect_buffer.data);
+    image.leave();
+    if(withBorder)
+        _render__border(renderer, (Rect*)&rect_buffer.data);
+    rect_buffer.leave();
+}
+
+void DrawableObject::_render__colorScheme(SDL_Renderer * renderer, float x, float y, const float dpiK){
+    size.hold(); padding.hold();
+    Rect rect =
+    {
+        (x + padding.data.left)*dpiK,
+        (y + padding.data.top)*dpiK,
+        (size.data.w)*dpiK,
+        (size.data.h)*dpiK,
+    };
+    size.leave(); padding.leave();
+    primaryColor.hold();
+    SDL_SetRenderDrawColor(renderer, primaryColor.data.r, primaryColor.data.g, primaryColor.data.b, primaryColor.data.a);
+    primaryColor.leave();
+    SDL_RenderFillRectF(renderer, &rect);
+    _render__border(renderer, &rect);
+}
+
+void DrawableObject::_render__default(SDL_Renderer * renderer, float x, float y, const float dpiK) {
+    size.hold(); padding.hold();
+    Rect rect =
+    {
+        (x + padding.data.left)*dpiK,
+        (y + padding.data.top)*dpiK,
+        (size.data.w)*dpiK,
+        (size.data.h)*dpiK,
+    };
+    size.leave(); padding.leave();
+    _render__colorScheme(renderer, x, y, dpiK);
+    SDL_RenderDrawLineF(renderer, rect.x, rect.y, rect.x + rect.w, rect.y + rect.h);
+    SDL_RenderDrawLineF(renderer, rect.x, rect.y + rect.h, rect.x + rect.w, rect.y);
+}
+
+
+DrawableObject::DrawableObject(): image(nullptr), withBorder(false), primaryColor(Colors::Primary), secondaryColor(Colors::Secondary), drawMode(DrawMode::DefaultMode) {
+    Object();
+    properties[Properties::isDrawable].set(true);
+}
+
+DrawableObject::~DrawableObject(){
+    if (image.get())
+        SDL_DestroyTexture(image.data);
+    image.leave();
+}
+
+void DrawableObject::_freeImage(){
+    if (image.get())
+        SDL_DestroyTexture(image.data);
+    image.data = nullptr;
+    image.leave();
 }
 
 DrawableObject& DrawableObject::fromFile(const char *filename, Renderer * renderer){
@@ -69,77 +144,26 @@ DrawableObject& DrawableObject::set_border_color(const Color color){
     return (*this);
 }
 
-void DrawableObject::_render__border(SDL_Renderer * renderer, Rect * rect){
-    secondaryColor.hold();
-    SDL_SetRenderDrawColor(renderer, secondaryColor.data.r, secondaryColor.data.g, secondaryColor.data.b, secondaryColor.data.a);
-    secondaryColor.leave();
-    SDL_RenderDrawRectF(renderer, rect);
-}
-
-void DrawableObject::render__colorScheme(SDL_Renderer * renderer, float x, float y){
-    size.hold(); padding.hold();
-    Rect rect =
-    {
-        (x + padding.data.left),
-        (y + padding.data.top),
-        size.data.w,
-        size.data.h,
-    };
-    size.leave(); padding.leave();
-    primaryColor.hold();
-    SDL_SetRenderDrawColor(renderer, primaryColor.data.r, primaryColor.data.g, primaryColor.data.b, primaryColor.data.a);
-    primaryColor.leave();
-    SDL_RenderFillRectF(renderer, &rect);
-    _render__border(renderer, &rect);
-}
-
-void DrawableObject::render__image(SDL_Renderer * renderer, float x, float y){
-    rect_buffer.hold();
-    rect_buffer.data = {x + padding.get().left, y + padding.data.top, size.get().w, size.data.h};
-    padding.leave();
-    size.leave();
-    SDL_RenderCopyF(renderer, image.get(), NULL, &rect_buffer.data);
-    image.leave();
-    if(withBorder)
-        _render__border(renderer, (Rect*)&rect_buffer.data);
-    rect_buffer.leave();
-}
-
-void DrawableObject::render__default(SDL_Renderer * renderer, float x, float y) {
-    size.hold(); padding.hold();
-    Rect rect =
-    {
-        (x + padding.data.left),
-        (y + padding.data.top),
-        size.data.w,
-        size.data.h,
-    };
-    size.leave(); padding.leave();
-    render__colorScheme(renderer, x, y);
-    SDL_RenderDrawLineF(renderer, rect.x, rect.y, rect.x + rect.w, rect.y + rect.h);
-    SDL_RenderDrawLineF(renderer, rect.x, rect.y + rect.h, rect.x + rect.w, rect.y);
-}
-
-void DrawableObject::render(SDL_Renderer * renderer, float x, float y){
-    if(inRootBounds(x, y)){
-        align(x, y);
+void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){
+    if(_inRootBounds(x, y)){
+        _align(x, y);
         size.hold(); size.data.x = x; size.data.y = y; size.leave();
         switch (drawMode.get()) {
             case DrawMode::ImageMode:
                 if(renderer == this->renderer.get()){
                     this->renderer.leave();
-                    render__image(renderer, x, y);
+                    _render__image(renderer, x, y, dpiK);
                 } else {
                     this->renderer.leave();
-                    render__default(renderer, x, y);
+                    _render__default(renderer, x, y, dpiK);
                 } break;
             case DrawMode::ColorSchemeMode:
-                render__colorScheme(renderer, x, y);
+                _render__colorScheme(renderer, x, y, dpiK);
                 break;
             default:
-                render__default(renderer, x, y);
+                _render__default(renderer, x, y, dpiK);
                 break;
         } drawMode.leave();
-        renderEmbedded(renderer, x, y);
+        _renderEmbedded(renderer, x, y, dpiK);
     }
 }

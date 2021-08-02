@@ -15,6 +15,19 @@
 #include <list>
 
 class Object {
+    
+    void __align_center(float & x, float & y);
+    
+    void __align_top(float & x, float & y);
+
+    void __align_bottom(float & x, float & y);
+
+    void __align_left(float & x, float & y);
+    
+    void __align_right(float & x, float & y);
+        
+    void __renderEmbedded_routine(SDL_Renderer*, Object * embedded, const float x, const float y, const float dpiK);
+    
 public:
     /// SDL_FRect
     typedef SDL_FRect Rect;
@@ -44,6 +57,13 @@ public:
         totalRequests
     } Requests;
     
+    typedef enum {
+        OtherRoot,
+        VStackRoot,
+        HStackRoot,
+        ZStackRoot,
+    } RootType;
+    
 public:
     // base data
     Semaphore<bool> properties[Properties::totalProperties];
@@ -52,6 +72,7 @@ public:
     Semaphore<bool> requests[Requests::totalRequests];
     Semaphore<Alignment> aligment;
     Semaphore<bool> usingRootBounds;
+    Semaphore<RootType> rootType;
     
     // embedded objects & root
     Semaphore<Object*> root;
@@ -63,7 +84,9 @@ public:
 public:
     virtual Object& operator=(Object&);
     
+    void _sync_root_size(const float &wDif, const float & hDif);
     virtual Object& set_size(const float w, const float h);
+    void _fix_size(const float w, const float h);
     Object& set_relative_size(const float w, const float h, const float w_correction = 0, const float h_corretion = 0);
     Object& set_padding(Padding padding);
     Object& set_alignment(Alignment alignment);
@@ -76,34 +99,35 @@ public:
     Object& switchE(Object&);
     Object& replaceE(Object&);
     
-    bool inRootBounds(float x, float y);
+    bool _inRootBounds(float x, float y);
     
-    void useRootBounds();
+    void _useRootBounds();
     
     /// alias to renderEmbedded(SDL_Renderer*, float x, float y).       ||      Fixes object-compatibility issues
-    virtual void render(SDL_Renderer*, float x, float y);
+    virtual void _render(SDL_Renderer*, float x, float y, float dpiK);
     
-    void __align_center(float & x, float & y);
+    void _align(float & x, float & y);
     
-    void __align_top(float & x, float & y);
-
-    void __align_bottom(float & x, float & y);
-
-    void __align_left(float & x, float & y);
-    
-    void __align_right(float & x, float & y);
-    
-    void align(float & x, float & y);
-    
-    void __renderEmbedded_routine(SDL_Renderer*, Object * embedded, const float x, const float y);
-    
-    void renderEmbedded(SDL_Renderer*, const float x, const float y);
+    void _renderEmbedded(SDL_Renderer*, const float x, const float y, float dpiK);
     
     Object();
 };
 
 class DrawableObject: public Object {
+    
+    /// images only
+    bool withBorder;
+        
+    void _render__image(SDL_Renderer*, float x, float y, const float dpiK);
+    
+    void _render__colorScheme(SDL_Renderer*, float x, float y, const float dpiK);
+        
+    void _render__default(SDL_Renderer*, float x, float y, const float dpiK);
+    
 public:
+    
+    void _render__border(SDL_Renderer*, Rect*);
+
     typedef SDL_Texture Texture;
     typedef SDL_Surface Surface;
     typedef SDL_Renderer Renderer;
@@ -121,13 +145,13 @@ public:
     Semaphore<Texture*> image;
     Semaphore<Renderer*> renderer;
     Semaphore<Color> primaryColor, secondaryColor;
-    /// images only
-    bool withBorder;
     
-    DrawableObject(): image(nullptr), withBorder(false), primaryColor(Colors::Primary), secondaryColor(Colors::Secondary), drawMode(DrawMode::DefaultMode) {
-        Object();
-        properties[Properties::isDrawable].set(true);
-    }
+    DrawableObject();
+    
+    ~DrawableObject();
+    
+    // deletes the current loaded image
+    void _freeImage();
     
     DrawableObject& fromFile(const char *, Renderer *);
     
@@ -135,22 +159,14 @@ public:
     
     DrawableObject& fromColorScheme(const Color color = Colors::Primary, const Color border = Colors::Secondary);
     
-    DrawableObject& set_primary_color(const Color);
+    virtual DrawableObject& set_primary_color(const Color);
     
-    DrawableObject& set_secondary_color(const Color);
+    virtual DrawableObject& set_secondary_color(const Color);
     
     /// set_secondary_color(...)
     DrawableObject& set_border_color(const Color);
     
-    void _render__border(SDL_Renderer*, Rect*);
-    
-    void render__colorScheme(SDL_Renderer*, float x, float y);
-    
-    void render__image(SDL_Renderer*, float x, float y);
-    
-    void render__default(SDL_Renderer*, float x, float y);
-    
-    void render(SDL_Renderer*, float x, float y) override;
+    void _render(SDL_Renderer*, float x, float y, float dpiK) override;
     
 };
 

@@ -10,6 +10,57 @@
 #include "../../Core/Core.hpp"
 #include <iostream>
 
+void Object::__align_center(float &x, float &y){
+    root.get()->size.get();
+    size.hold();
+    padding.hold();
+    x += (root.data->size.data.w / 2 - ((size.data.w + padding.data.left + padding.data.right)/2));
+    y += (root.data->size.data.h / 2 - ((size.data.h + padding.data.top + padding.data.bottom)/2));
+    padding.leave();
+    size.leave();
+    root.data->size.leave();
+    root.leave();
+}
+
+void Object::__align_left(float &x, float &y){
+    static float initial_x(0);
+    initial_x = x;
+    __align_center(x, y);
+    x = initial_x;
+}
+
+void Object::__align_right(float &x, float &y){
+    static float initial_x(0);
+    padding.hold();
+    initial_x = x + (root.get()->size.get().w - size.get().w) - (padding.data.right + padding.data.left);
+    padding.leave();
+    root.data->size.leave();
+    root.leave();
+    size.leave();
+    __align_center(x, y);
+    x = initial_x;
+}
+
+void Object::__align_top(float &x, float &y){
+    static float initial_y(0);
+    initial_y = y;
+    padding.leave();
+    __align_center(x, y);
+    y = initial_y;
+}
+
+void Object::__align_bottom(float &x, float &y){
+    static float initial_y(0);
+    padding.hold();
+    initial_y = y + (root.get()->size.get().h - size.get().h) - (padding.data.bottom + padding.data.top);
+    padding.leave();
+    root.data->size.leave();
+    root.leave();
+    size.leave();
+    __align_center(x, y);
+    y = initial_y;
+}
+
 Object& Object::operator=(Object & other){
     for(int i = 0 ; i < Properties::totalProperties ; i++)
         properties[i] = other.properties[i];
@@ -18,17 +69,72 @@ Object& Object::operator=(Object & other){
     return (*this);
 }
 
+void Object::_sync_root_size(const float &wDif, const float & hDif){
+    // update the root size to avoid errors with _inRootBounds(...)
+    switch (rootType.get()){
+        case VStackRoot:
+            if(root.get() && hDif) {
+                root.data->_fix_size(0, hDif);
+            } root.leave();
+            break;
+        case HStackRoot:
+            if(root.get()) {
+                root.data->_fix_size(wDif, 0);
+            } root.leave();
+            break;
+        case ZStackRoot:
+            if(root.get()) {
+                if(size.get().w >= root.data->size.get().w || size.data.h >= root.data->size.data.w) {
+                    root.data->size.leave();
+                    root.data->_fix_size(wDif, hDif);
+                } else {
+                    printf("foo");
+                }
+                
+                root.data->size.leave();
+                size.leave();
+            } root.leave();
+            break;
+        default:break;
+    }
+}
+
 Object& Object::set_size(const float size_w, const float size_h){
-    size.set({0,0, size_w, size_h});
+    static float wDif(0);
+    static float hDif(0);
+    
+    wDif = size.get().w;
+    hDif = size.data.h;
+
+    size.data = {0,0, size_w, size_h};
+    
+    /// get the difference bettwen the actual with, and the last one
+    wDif = size.data.w - wDif;
+    hDif = size.data.h - hDif;
+    
+    size.leave();
+    
+    if(rootType.get()){
+        rootType.leave();
+        _sync_root_size(wDif, hDif);
+    } rootType.leave();
+    
     return (*this);
+}
+
+void Object::_fix_size(const float w, const float h){
+    size.get();
+    size.data.w += w;
+    size.data.h += h;
+    size.leave();
 }
 
 Object& Object::set_relative_size(const float size_w, const float size_h, const float w_correction, const float h_correction){
     if(!root.get()) Core::log(Core::Error, "set_relative_size(...) must to be used in embedded objects.");
     root.data->size.hold();
-    size.set({0,0,
-        (root.data->size.data.w * size_w) + w_correction,
-        (root.data->size.data.h * size_h) + h_correction});
+    set_size(
+             (root.data->size.data.w * size_w) + w_correction,
+             (root.data->size.data.h * size_h) + h_correction );
     root.data->size.leave();
     root.leave();
     return (*this);
@@ -95,7 +201,7 @@ Object& Object::replaceE(Object & other){
     return (*this);
 }
 
-bool Object::inRootBounds(float x, float y){
+bool Object::_inRootBounds(float x, float y){
     // ignore root bounds
     if(!usingRootBounds.get()) {
         usingRootBounds.leave();
@@ -114,70 +220,19 @@ bool Object::inRootBounds(float x, float y){
     return inBounds;
 }
 
-void Object::useRootBounds(){
+void Object::_useRootBounds(){
     usingRootBounds.set(true);
 }
 
-void Object::render(SDL_Renderer * renderer, float x, float y) {
-    if(inRootBounds(x, y)){
-        align(x, y);
+void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK) {
+    if(_inRootBounds(x, y)){
+        _align(x, y);
         size.hold(); size.data.x = x; size.data.y = y; size.leave();
-        renderEmbedded(renderer, x, y);
+        _renderEmbedded(renderer, x, y, dpiK);
     }
 }
 
-void Object::__align_center(float &x, float &y){
-    root.get()->size.get();
-    size.hold();
-    padding.hold();
-    x += (root.data->size.data.w / 2 - ((size.data.w + padding.data.left + padding.data.right)/2));
-    y += (root.data->size.data.h / 2 - ((size.data.h + padding.data.top + padding.data.bottom)/2));
-    padding.leave();
-    size.leave();
-    root.data->size.leave();
-    root.leave();
-}
-
-void Object::__align_left(float &x, float &y){
-    static float initial_x(0);
-    initial_x = x;
-    __align_center(x, y);
-    x = initial_x;
-}
-
-void Object::__align_right(float &x, float &y){
-    static float initial_x(0);
-    padding.hold();
-    initial_x = x + (root.get()->size.get().w - size.get().w) - (padding.data.right + padding.data.left);
-    padding.leave();
-    root.data->size.leave();
-    root.leave();
-    size.leave();
-    __align_center(x, y);
-    x = initial_x;
-}
-
-void Object::__align_top(float &x, float &y){
-    static float initial_y(0);
-    initial_y = y;
-    padding.leave();
-    __align_center(x, y);
-    y = initial_y;
-}
-
-void Object::__align_bottom(float &x, float &y){
-    static float initial_y(0);
-    padding.hold();
-    initial_y = y + (root.get()->size.get().h - size.get().h) - (padding.data.bottom + padding.data.top);
-    padding.leave();
-    root.data->size.leave();
-    root.leave();
-    size.leave();
-    __align_center(x, y);
-    y = initial_y;
-}
-
-void Object::align(float &x, float &y){
+void Object::_align(float &x, float &y){
     if(root.get()){
         root.leave();
         switch (aligment.get()){
@@ -192,36 +247,39 @@ void Object::align(float &x, float &y){
     } root.leave();
 }
 
-void Object::__renderEmbedded_routine(SDL_Renderer * renderer, Object * embedded, const float x, const float y){
+void Object::__renderEmbedded_routine(SDL_Renderer * renderer, Object * embedded, const float x, const float y, float dpiK){
     if(embedded->properties[Properties::isDrawable].get())
-        ((DrawableObject*)embedded)->render(renderer, x, y);
+        ((DrawableObject*)embedded)->_render(renderer, x, y, dpiK);
     else
-        embedded->renderEmbedded(renderer, x, y);
+        embedded->_renderEmbedded(renderer, x, y, dpiK);
     embedded->properties[Properties::isDrawable].leave();
 }
 
-void Object::renderEmbedded(SDL_Renderer * renderer, const float x, const float y){
+void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float y, float dpiK){
     padding.hold();
     if(nextInZ.get())
         __renderEmbedded_routine(renderer, nextInZ.data,
                                  x + padding.data.left,
-                                 y + padding.data.top);
+                                 y + padding.data.top,
+                                 dpiK);
     nextInZ.leave();
     size.hold();
     if(nextInX.get())
         __renderEmbedded_routine(renderer, nextInX.data,
                                  x + size.data.w + padding.data.left + padding.data.right,
-                                 y);
+                                 y,
+                                 dpiK);
     nextInX.leave();
     if(nextInY.get())
         __renderEmbedded_routine(renderer, nextInY.data, x,
-                                 y + size.data.h + padding.data.top + padding.data.bottom);
+                                 y + size.data.h + padding.data.top + padding.data.bottom,
+                                 dpiK);
     nextInY.leave();
     size.leave();
     padding.leave();
 }
 
-Object::Object(): size({0,0,50,50}), padding({5.0,5.0,5.0,5.0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false) {
+Object::Object(): size({0,0,50,50}), padding({5.0,5.0,5.0,5.0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), rootType(OtherRoot) {
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
         requests[i].leave();

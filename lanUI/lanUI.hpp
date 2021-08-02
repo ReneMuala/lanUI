@@ -17,5 +17,9 @@
 #include "Interface/Window/Window.hpp"
 #include "Interface/View/View.hpp"
 #include "Interface/Stack/Stack.hpp"
+#include "Interface/Text/Text.hpp"
+#include "Interface/Container/Container.hpp"
+#include "Project/CustomFonts.hpp"
+#include "Project/CustomTextStyles.hpp"
 
 #endif /* lanUI_h */
