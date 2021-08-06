@@ -17,14 +17,16 @@ Font DejaVuSans;
 Font::Font(){
     Fonts::allFonts.push_back(this);
     style = Regular;
+    ready = false;
     child = nullptr;
     for(int i = 0 ; i < totalStyles ; i++)
     path_copy[i] = "";
 }
 
 void Font::free(){
-    if(child) TTF_CloseFont(child);
-    child = nullptr;
+    ready = false;
+    if(child.get()) TTF_CloseFont(child.data); child.data = nullptr;
+    child.leave();
 }
 
 bool Font::_test(const char *path){
@@ -36,7 +38,10 @@ bool Font::_test(const char *path){
 }
 
 bool Font::_load(const char *path, const int size){
-    if(!(child = TTF_OpenFont(path, size))) Core::log(Core::Error, ("Unable to open font file: " + std::string(path)).c_str());
+    free();
+    if(!(child.get() = TTF_OpenFont(path, size))) Core::log(Core::Error, ("Unable to open font file: " + std::string(path)).c_str());
+    child.leave();
+    ready = true;
     return true;
 }
 
@@ -53,6 +58,7 @@ const void Font::operator=(Font &other){
 Font& Font::set_style(const Style new_style, const int new_size){
     size = new_size;
     if(!path_copy[new_style].empty()) {
+        style = new_style;
         _load(path_copy[new_style].c_str(), new_size);
     } else if(!path_copy[Regular].empty()) {
         Core::log(Core::Warning, "set_style(...) must to be used with a valid font style. Using Regular...");

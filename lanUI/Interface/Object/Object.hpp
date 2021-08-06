@@ -13,6 +13,7 @@
 #include "../Color/Color.hpp"
 #include <SDL2/SDL.h>
 #include <list>
+#include <functional>
 
 class Object {
     
@@ -131,6 +132,7 @@ public:
     typedef SDL_Texture Texture;
     typedef SDL_Surface Surface;
     typedef SDL_Renderer Renderer;
+    typedef double Angle;
     
     /// Object behavior
     typedef enum {
@@ -144,6 +146,7 @@ public:
     Semaphore<DrawMode> drawMode;
     Semaphore<Texture*> image;
     Semaphore<Renderer*> renderer;
+    Semaphore<Angle> angle;
     Semaphore<Color> primaryColor, secondaryColor;
     
     DrawableObject();
@@ -155,7 +158,7 @@ public:
     
     DrawableObject& fromFile(const char *, Renderer *);
     
-    DrawableObject& fromSurface(Surface*, Renderer *);
+    DrawableObject& fromSurface(Surface*, Renderer *, const bool reset_secondaryColor = true);
     
     DrawableObject& fromColorScheme(const Color color = Colors::Primary, const Color border = Colors::Secondary);
     
@@ -171,6 +174,83 @@ public:
 };
 
 class InterativeObject: public Object {
+public:
+    typedef std::function<void()> VoidCallback;
+    typedef SDL_Event Event;
+private:
+    // callbacks
+    VoidCallback on_start_callback;
+    VoidCallback on_focus_gained_callback;
+    VoidCallback on_focus_lost_callback;
+    VoidCallback on_shown_callback;
+    VoidCallback on_resized_callback;
+    VoidCallback on_click_callback;
+    VoidCallback on_double_click_callback;
+    VoidCallback on_secondary_click_callback;
+    VoidCallback on_mouse_button_down_callback;
+    VoidCallback on_mouse_button_up_callback;
+    VoidCallback on_key_down_callback;
+    VoidCallback on_key_up_callback;
+    VoidCallback on_scroll_callback;
+    VoidCallback main_activity;
+    
+public:
+    
+    typedef enum {
+        OnStart,
+        OnFocusGained,
+        OnFocusLost,
+        OnShown,
+        OnClick,
+        OnDoubleClick,
+        OnResized,
+        OnMouseButtonDown,
+        OnMouseButtonUp,
+        OnKeyDown,
+        OnKeyUp,
+        OnScroll,
+        totalCallBacks
+    } CallBacks;
+    
+    Semaphore<bool> callbacks[CallBacks::totalCallBacks];
+    
+    InterativeObject(VoidCallback mainActivity);
+
+    bool _has_focus();
+    
+    bool _has_focus(Object*);
+    
+    void _handle_others_routine(Event&, Object*);
+    
+    void _handle_others(Event&);
+    
+    void _handle(Event&);
+    
+    InterativeObject& on_start(VoidCallback);
+    
+    InterativeObject& on_focus_gained(VoidCallback);
+    
+    InterativeObject& on_focus_lost(VoidCallback);
+    
+    InterativeObject& on_shown(VoidCallback);
+    
+    InterativeObject& on_resized(VoidCallback);
+    
+    InterativeObject& on_click(VoidCallback);
+    
+    InterativeObject& on_double_click(VoidCallback);
+    
+    InterativeObject& on_secondary_click(VoidCallback);
+    
+    InterativeObject& on_mouse_button_down(VoidCallback);
+    
+    InterativeObject& on_mouse_button_up(VoidCallback);
+    
+    InterativeObject& on_key_down(VoidCallback);
+    
+    InterativeObject& on_key_up(VoidCallback);
+    
+    InterativeObject& on_scroll(VoidCallback);
     
 };
 

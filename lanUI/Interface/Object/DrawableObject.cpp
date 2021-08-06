@@ -44,8 +44,10 @@ void DrawableObject::_render__image(SDL_Renderer * renderer, float x, float y, c
     };
     padding.leave();
     size.leave();
-    SDL_RenderCopyF(renderer, image.get(), NULL, &rect_buffer.data);
+    SDL_RenderCopyExF(renderer, image.get(), NULL, &rect_buffer.data, angle.get(), NULL, SDL_FLIP_NONE);
+    //SDL_RenderCopyF(renderer, image.get(), NULL, &rect_buffer.data);
     image.leave();
+    angle.leave();
     if(withBorder)
         _render__border(renderer, (Rect*)&rect_buffer.data);
     rect_buffer.leave();
@@ -84,7 +86,7 @@ void DrawableObject::_render__default(SDL_Renderer * renderer, float x, float y,
 }
 
 
-DrawableObject::DrawableObject(): image(nullptr), withBorder(false), primaryColor(Colors::Primary), secondaryColor(Colors::Secondary), drawMode(DrawMode::DefaultMode) {
+DrawableObject::DrawableObject(): image(nullptr), withBorder(false), primaryColor(Colors::Primary), secondaryColor(Colors::Secondary), angle(0), drawMode(DrawMode::DefaultMode) {
     Object();
     properties[Properties::isDrawable].set(true);
 }
@@ -107,14 +109,15 @@ DrawableObject& DrawableObject::fromFile(const char *filename, Renderer * render
     return (*this);
 }
 
-DrawableObject& DrawableObject::fromSurface(Surface * surfc, Renderer * renderer){
+DrawableObject& DrawableObject::fromSurface(Surface * surfc, Renderer * renderer, const bool reset_secondaryColor){
     if(surfc) {
         this->image.set(SDL_CreateTextureFromSurface(renderer, surfc));
         this->renderer.set(renderer);
         size.set({0,0,(float)surfc->w, (float)surfc->h});
         drawMode.set(DrawMode::ImageMode);
         // ocultes the border / secondary color
-        secondaryColor.set(Colors::Transparent);
+        if(reset_secondaryColor)
+            secondaryColor.set(Colors::Transparent);
     } else {
         Core::log(Core::Warning, "Unable to load image from image source (nullptr)");
     }

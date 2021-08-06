@@ -38,6 +38,10 @@ namespace DrawableObjectsData {
     extern Semaphore<std::map<const char *, SDL_Surface*>> surfaces;
 }
 
+namespace InteractiveObjecsData {
+    extern Semaphore<SDL_FPoint> cursor;
+}
+
 namespace Fonts {
     extern std::list<Font*> allFonts;
     extern Font DejaVuSans;
@@ -104,8 +108,7 @@ void Core::events(){
                 CoreData::programWindows[i].data->_handle_events();
                 i++;
             }
-        } std::this_thread::sleep_for(CoreData::sleepTime.get());
-        CoreData::sleepTime.leave();
+        }
     }
 }
 

@@ -12,7 +12,6 @@
 #include "../Object/Object.hpp"
 #include "../Window/Window.hpp"
 
-
 /// Base to create Views
 class View: public DrawableObject {
     Window * window;
@@ -21,11 +20,15 @@ public:
     virtual DrawableObject& body(Window&){
         return some_content;
     };
-        
-    void create(Window & win){
+    
+    void create_silently(Window & win){
         DrawableObject();
         win.set_view(*this);
         window = &win;
+    }
+    
+    void create(Window & win){
+        create_silently(win);
         embedInZ(body(win));
     }
 };

@@ -34,11 +34,22 @@ class Text: public DrawableObject {
     Font font;
 public:
     
+    typedef enum {
+        /// TTF_RenderUTF8_Blended(...)
+        NormalMode,
+        /// TTF_RenderUTF8_Shaded(...)
+        RenderShadedMode,
+        /// TTF_RenderUTF8_Solid(...)
+        RenderSolidMode,
+    } CompatibilityRenderMode;
+    
+    const CompatibilityRenderMode compatibilityMode = NormalMode;
+    
     Text(const std::string source = "", Font& font = Fonts::DejaVuSans);
     
     /// Creates a text image from std::string, set renderer when an imediate text output is required
     Text& from_string(const std::string source , Renderer * renderer = nullptr);
-        
+    
     void tryCompile();
     
     void _adjustTextDPI();
@@ -48,7 +59,11 @@ public:
     void _render_background(SDL_Renderer*, Rect*);
     
     void _render(SDL_Renderer*, float x, float y, const float dpiK) override;
-        
+    
+    // may be useful when using RenderShadedMode
+    /// use root primary color as this->secondaryColor
+    Text& inherit_secondaryColor();
+    
     Text& set_style(TextStyle);
     
     Text& set_font(Font &);
@@ -57,21 +72,21 @@ public:
     
     Text& set_background_color(const Color);
     
-    Text& regular(const int = 0);
+    Text& regular(const int = 12);
     
-    Text& bold(const int = 0);
+    Text& bold(const int = 12);
     
-    Text& boldOblique(const int = 0);
+    Text& boldOblique(const int = 12);
     
-    Text& extraLight(const int = 0);
+    Text& extraLight(const int = 12);
     
-    Text& oblique(const int = 0);
+    Text& oblique(const int = 12);
     
-    Text& condensed_Bold(const int = 0);
+    Text& condensed_Bold(const int = 12);
     
-    Text& condensed_BoldOblique(const int = 0);
+    Text& condensed_BoldOblique(const int = 12);
     
-    Text& condensed_Oblique(const int = 0);
+    Text& condensed_Oblique(const int = 12);
     
     Text& condensed(const int = 0);
         

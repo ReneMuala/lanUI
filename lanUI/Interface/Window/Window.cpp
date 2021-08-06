@@ -56,7 +56,7 @@ void Window::_create(const char *title, Definition definition, float width, floa
 }
 
 void Window::_handle_events(){
-    while (SDL_WaitEventTimeout(&sdlEvent.data, 2) != 0) {
+    while (SDL_WaitEventTimeout(&sdlEvent.data, 5) != 0) {
         if(sdlEvent.data.type == SDL_DISPLAYEVENT)
             _compute_DPIConstant();
         if(sdlEvent.data.window.windowID == sdlWindowId.data){

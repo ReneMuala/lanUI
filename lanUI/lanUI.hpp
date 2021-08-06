@@ -19,7 +19,11 @@
 #include "Interface/Stack/Stack.hpp"
 #include "Interface/Text/Text.hpp"
 #include "Interface/Container/Container.hpp"
+#include "Interface/Spacer/Spacer.hpp"
+#include "Interface/Image/Image.hpp"
+
 #include "Project/CustomFonts.hpp"
 #include "Project/CustomTextStyles.hpp"
+
 
 #endif /* lanUI_h */

@@ -32,12 +32,14 @@ private:
     std::string path_copy[Style::totalStyles];
     // all childrens are nullptrs
 public:
+      
+    bool ready;
     
     int size;
     
     Style style;
 
-    TTF_Font* child;
+    Semaphore<TTF_Font*> child;
     
     Font();
     

@@ -15,6 +15,7 @@ Text::Text(const std::string source, Font& font): source(source), fontVirtualSiz
     secondaryColor.set(Colors::White);
     wasCompiled = false;
     dpiK = 1;
+    from_string(source);
 }
 
 Text& Text::from_string(const std::string source, Renderer * renderer){
@@ -39,7 +40,6 @@ void Text::_adjustTextDPI(){
 }
 
 bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
-    _freeImage();
     if(renderer && source.get().length()){
         source.leave();
         static float wDif(0);
@@ -50,25 +50,40 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         size.leave();
         
         drawMode.set(DrawMode::ImageMode);
-        
-        if(!font.child)
+                
+        if(!font.child.get())
             Core::log(Core::Error, "Text: Invalid font style.");
         
-        SDL_Surface * surfc = nullptr;
+        static SDL_Surface * surfc = nullptr;
         
-        if(!(surfc = TTF_RenderUTF8_Blended(font.child, source.get().data(), (SDL_Color)primaryColor.get()))){
-            Core::log(Core::Warning, "Text: Renderization failed.");
+        if(!compatibilityMode) {
+             if(!(surfc=TTF_RenderUTF8_Blended(font.child.data, source.get().data(), (SDL_Color)primaryColor.get())))
+                 Core::log(Core::Warning, "Text: Render failed.");
+        } else {
+            switch (compatibilityMode) {
+                case RenderShadedMode:
+                    if(!(surfc=TTF_RenderUTF8_Shaded(font.child.data, source.get().data(), (SDL_Color)primaryColor.get(), (SDL_Color)secondaryColor.get())))
+                        Core::log(Core::Warning, "Text (CompatibilityMode[RenderShadedMode]): Render failed.");
+                    break;
+                case RenderSolidMode:
+                    if(!(surfc=TTF_RenderUTF8_Solid(font.child.data, source.get().data(), (SDL_Color)primaryColor.get())))
+                        Core::log(Core::Warning, "Text (CompatibilityMode[RenderSolidMode]): Render failed.");
+                    break;
+                default:break;
+            }
         }
+        
+        font.child.leave();
         
         source.leave();
         primaryColor.leave();
-        
+        secondaryColor.leave();
         if(internCall){
             this->image.set(SDL_CreateTextureFromSurface(renderer, surfc));
             if(!fixCall)
                 set_size(surfc->w, surfc->h);
         } else {
-            fromSurface(surfc, renderer);
+            fromSurface(surfc, renderer, false);
         }
         
         if(!fixCall) {
@@ -81,7 +96,7 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
                 _sync_root_size(wDif, hDif);
             } rootType.leave();
         }
-        
+                
         SDL_FreeSurface(surfc);
         source.leave();
         return true;
@@ -139,7 +154,19 @@ void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){
     }
 };
 
-
+Text& Text::inherit_secondaryColor(){
+    if(root.get()){
+        if(root.data->properties[Properties::isDrawable].get()){
+            secondaryColor.set(((DrawableObject*)root.data)->primaryColor.get());
+            ((DrawableObject*)root.data)->primaryColor.leave();
+        } else {
+            Core::log(Core::Warning, "Using inherit_secondaryColor(...) without a Drawable root.");
+        } root.data->properties[Properties::isDrawable].leave();
+    } else
+        Core::log(Core::Warning, "Using inherit_secondaryColor(...) without a root. (nullptr)");
+    root.leave();
+    return (*this);
+}
 
 Text& Text::set_style(TextStyle preset){
     fontVirtualSize = preset.size;

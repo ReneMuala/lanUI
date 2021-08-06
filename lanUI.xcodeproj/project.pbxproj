@@ -7,14 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1734118626BAB77300444E40 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1734118426BAB77300444E40 /* Image.cpp */; };
 		173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 173504D626B859FF00359EF5 /* CustomFonts.cpp */; };
 		1746B21926AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */; };
 		1746B21A26AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		174F1F0A268252AE009B8159 /* libSDL2-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 174F1F09268252AE009B8159 /* libSDL2-2.0.0.dylib */; };
 		174F1F0B268252AE009B8159 /* libSDL2-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 174F1F09268252AE009B8159 /* libSDL2-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		174F1F0F268252F9009B8159 /* View.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 174F1F0D268252F9009B8159 /* View.cpp */; };
 		174F1F132682533B009B8159 /* Window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 174F1F112682533B009B8159 /* Window.cpp */; };
 		174F1F1826825427009B8159 /* Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 174F1F1626825427009B8159 /* Core.cpp */; };
+		17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17734DA526BDD31E00212851 /* InteractiveObject.cpp */; };
 		179819D12687CA4500CCBC43 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 179819CF2687CA4500CCBC43 /* Object.cpp */; };
 		17BE74A426AC0364009A3D8C /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A326AC0364009A3D8C /* Color.cpp */; };
 		17BE74AA26AC5B87009A3D8C /* DrawableObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A926AC5B87009A3D8C /* DrawableObject.cpp */; };
@@ -53,18 +54,21 @@
 
 /* Begin PBXFileReference section */
 		17241E2126B6EDF8009912C9 /* Container.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Container.hpp; sourceTree = "<group>"; };
+		1734118426BAB77300444E40 /* Image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Image.cpp; sourceTree = "<group>"; };
+		1734118526BAB77300444E40 /* Image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Image.hpp; sourceTree = "<group>"; };
 		173504D426B843E600359EF5 /* CustomFonts.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CustomFonts.hpp; sourceTree = "<group>"; };
 		173504D526B843FA00359EF5 /* CustomTextStyles.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CustomTextStyles.hpp; sourceTree = "<group>"; };
 		173504D626B859FF00359EF5 /* CustomFonts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CustomFonts.cpp; sourceTree = "<group>"; };
+		173504D926B89A9400359EF5 /* Spacer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Spacer.hpp; sourceTree = "<group>"; };
 		1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL2_image-2.0.0.dylib"; path = "../../../../../opt/local/lib/libSDL2_image-2.0.0.dylib"; sourceTree = "<group>"; };
 		174F1F09268252AE009B8159 /* libSDL2-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL2-2.0.0.dylib"; path = "../../../../../usr/local/Cellar/sdl2/2.0.14_1/lib/libSDL2-2.0.0.dylib"; sourceTree = "<group>"; };
-		174F1F0D268252F9009B8159 /* View.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = View.cpp; sourceTree = "<group>"; };
 		174F1F0E268252F9009B8159 /* View.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = View.hpp; sourceTree = "<group>"; };
 		174F1F112682533B009B8159 /* Window.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Window.cpp; sourceTree = "<group>"; };
 		174F1F122682533B009B8159 /* Window.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Window.hpp; sourceTree = "<group>"; };
 		174F1F1426825399009B8159 /* Semaphore.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Semaphore.hpp; sourceTree = "<group>"; };
 		174F1F1626825427009B8159 /* Core.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Core.cpp; sourceTree = "<group>"; };
 		174F1F1726825427009B8159 /* Core.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Core.hpp; sourceTree = "<group>"; };
+		17734DA526BDD31E00212851 /* InteractiveObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = InteractiveObject.cpp; sourceTree = "<group>"; };
 		1792B90A260328B200836D7A /* lanUI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lanUI; sourceTree = BUILT_PRODUCTS_DIR; };
 		1792B90D260328B200836D7A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		179819CE2687B71A00CCBC43 /* Color.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Color.hpp; sourceTree = "<group>"; };
@@ -81,6 +85,7 @@
 		17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL2_ttf-2.0.0.dylib"; path = "../../../../../opt/local/lib/libSDL2_ttf-2.0.0.dylib"; sourceTree = "<group>"; };
 		17D997C526B3282A00219F36 /* Font.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Font.cpp; sourceTree = "<group>"; };
 		17D997C626B3282A00219F36 /* Font.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Font.hpp; sourceTree = "<group>"; };
+		17DAC97526BC902B005D70D2 /* demo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = demo.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +110,15 @@
 			path = Container;
 			sourceTree = "<group>";
 		};
+		1734118326BAB73700444E40 /* Image */ = {
+			isa = PBXGroup;
+			children = (
+				1734118426BAB77300444E40 /* Image.cpp */,
+				1734118526BAB77300444E40 /* Image.hpp */,
+			);
+			path = Image;
+			sourceTree = "<group>";
+		};
 		173504D326B8439500359EF5 /* Project */ = {
 			isa = PBXGroup;
 			children = (
@@ -113,6 +127,14 @@
 				173504D526B843FA00359EF5 /* CustomTextStyles.hpp */,
 			);
 			path = Project;
+			sourceTree = "<group>";
+		};
+		173504DB26B89A9900359EF5 /* Spacer */ = {
+			isa = PBXGroup;
+			children = (
+				173504D926B89A9400359EF5 /* Spacer.hpp */,
+			);
+			path = Spacer;
 			sourceTree = "<group>";
 		};
 		174F1F08268252AE009B8159 /* Frameworks */ = {
@@ -131,11 +153,13 @@
 				17BE74A526AC03C5009A3D8C /* Color */,
 				17BE74A626AC04D9009A3D8C /* Window */,
 				178838DA26A61E39003B122A /* Object */,
+				1734118326BAB73700444E40 /* Image */,
 				17D997B226B2B6B100219F36 /* Stack */,
 				17BE74A726AC04FC009A3D8C /* View */,
 				17D997C826B3283000219F36 /* Font */,
 				17D997BB26B3187D00219F36 /* Text */,
 				17241E2326B6EDFD009912C9 /* Container */,
+				173504DB26B89A9900359EF5 /* Spacer */,
 			);
 			path = Interface;
 			sourceTree = "<group>";
@@ -152,6 +176,7 @@
 		178838DA26A61E39003B122A /* Object */ = {
 			isa = PBXGroup;
 			children = (
+				17734DA526BDD31E00212851 /* InteractiveObject.cpp */,
 				17BE74A926AC5B87009A3D8C /* DrawableObject.cpp */,
 				179819CF2687CA4500CCBC43 /* Object.cpp */,
 				179819D02687CA4500CCBC43 /* Object.hpp */,
@@ -211,7 +236,6 @@
 		17BE74A726AC04FC009A3D8C /* View */ = {
 			isa = PBXGroup;
 			children = (
-				174F1F0D268252F9009B8159 /* View.cpp */,
 				174F1F0E268252F9009B8159 /* View.hpp */,
 			);
 			path = View;
@@ -221,6 +245,7 @@
 			isa = PBXGroup;
 			children = (
 				17D997AF26B2AAB000219F36 /* hello_rock.cpp */,
+				17DAC97526BC902B005D70D2 /* demo.cpp */,
 			);
 			path = Examples;
 			sourceTree = "<group>";
@@ -312,14 +337,15 @@
 			files = (
 				17D997BA26B3186E00219F36 /* Text.cpp in Sources */,
 				17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */,
-				174F1F0F268252F9009B8159 /* View.cpp in Sources */,
 				17BE74A426AC0364009A3D8C /* Color.cpp in Sources */,
 				17D997C726B3282A00219F36 /* Font.cpp in Sources */,
 				174F1F132682533B009B8159 /* Window.cpp in Sources */,
 				174F1F1826825427009B8159 /* Core.cpp in Sources */,
 				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,
 				179819D12687CA4500CCBC43 /* Object.cpp in Sources */,
+				1734118626BAB77300444E40 /* Image.cpp in Sources */,
 				17D997B726B2EE0100219F36 /* main.cpp in Sources */,
+				17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */,
 				17BE74AA26AC5B87009A3D8C /* DrawableObject.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

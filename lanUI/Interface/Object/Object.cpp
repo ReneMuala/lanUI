@@ -87,11 +87,7 @@ void Object::_sync_root_size(const float &wDif, const float & hDif){
                 if(size.get().w >= root.data->size.get().w || size.data.h >= root.data->size.data.w) {
                     root.data->size.leave();
                     root.data->_fix_size(wDif, hDif);
-                } else {
-                    printf("foo");
-                }
-                
-                root.data->size.leave();
+                } root.data->size.leave();
                 size.leave();
             } root.leave();
             break;
@@ -132,11 +128,13 @@ void Object::_fix_size(const float w, const float h){
 Object& Object::set_relative_size(const float size_w, const float size_h, const float w_correction, const float h_correction){
     if(!root.get()) Core::log(Core::Error, "set_relative_size(...) must to be used in embedded objects.");
     root.data->size.hold();
-    set_size(
-             (root.data->size.data.w * size_w) + w_correction,
-             (root.data->size.data.h * size_h) + h_correction );
+    static float w(0), h(0);
+    w = root.data->size.data.w * size_w;
+    h = root.data->size.data.h * size_h;
     root.data->size.leave();
     root.leave();
+    set_size((w) + w_correction,
+             (h) + h_correction);
     return (*this);
 }
 

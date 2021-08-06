@@ -1,8 +1,8 @@
 //
-//  main.cpp
+//  demo.cpp
 //  lanUI
 //
-//  Created by René Descartes Domingos Muala on 17/03/21.
+//  Created by René Descartes Domingos Muala on 05/08/21.
 //  Copyright © 2021 René Descartes Domingos Muala. All rights reserved.
 //
 
@@ -19,48 +19,75 @@
 class MyHomeView : public View {
 public:
     
-    Image linearGradient;
-    ZStack mainArea;
-    Text mainText;
+    DrawableObject rock[5];
+    Spacer spacer;
+    Text text[5];
+    Container textContainer;
+    VStack mainStack;
+    VStack textStack;
+    HStack rocksStack;
     
     MyHomeView(Window & win){
         create(win);
-        
-//        fromFile("lanUi.Bundle/System/Resources/forest.png", win.sdlRenderer.get());
-//        win.sdlRenderer.leave();
-        fromColorScheme(Colors::Transparent, Colors::Transparent);
-        
-        set_size(460, 460);
-        
-        set_alignment(Object::Alignment::Center);
-        
     }
 
     DrawableObject& body(Window& window) override {
-        linearGradient
-        .set_alignment(Alignment::Top)
-        .set_size(250, 200);
+        for(int i = 0 ; i < 5 ; i ++){
+            rock[i].fromFile("lanUi.Bundle/System/Resources/rock.png", window.sdlRenderer.get());
+            window.sdlRenderer.leave();
+            rock[i].set_size(100, 100);
+        }
         
-        linearGradient.fromRadialGradient({0, 0}, 200,Image::GradientElement({Colors::Gray, 1.0}), Image::GradientElement({Colors::Black, 1.0}), window.sdlRenderer.get(), window.sdlWindow.get());
-        
-        
-        
-        linearGradient.set_angle(180);
+        rocksStack.fromList((std::list<Object*>){
+            &rock[0], &rock[1]/*,&rock[2], &rock[3], &rock[4]*/});
+
+        text[0].from_string("Lib LanUI (C++)", window.sdlRenderer.get());
         window.sdlRenderer.leave();
-        window.sdlWindow.leave();
-        mainText.set_font(CustomFonts::Lobster);
-        mainText.bold(64);
-        mainText.set_primary_color(Colors::White);
+
+        text[0].set_font(CustomFonts::Lobster);
+
+        text[0].set_style(TextStyles::Header);
         
-        mainText.from_string("omada", window.sdlRenderer.get());
+        text[1].from_string("Header", window.sdlRenderer.get());
         window.sdlRenderer.leave();
-        mainText.set_alignment(Alignment::Center);
+
+        text[1].set_style(TextStyles::Header);
+
+        text[2].from_string("Default text", window.sdlRenderer.get());
+        window.sdlRenderer.leave();
+
+        text[2].set_style(TextStyles::Default);
+
+        text[3].from_string("Caption text", window.sdlRenderer.get());
+        window.sdlRenderer.leave();
+
+        text[3].set_style(TextStyles::Caption);
+
+        text[4].from_string("Footer text", window.sdlRenderer.get());
+        window.sdlRenderer.leave();
+
+        text[4].set_style(TextStyles::Footer);
+
+        spacer.set_size(0, 200);
+
+        textStack.fromList((std::list<Object*>){&text[0], &text[1], &text[2], &text[3], &text[4]});
+
+        textStack.set_alignment(Alignment::Center);
+
+        textContainer.set_content(textStack);
+
+        textContainer.size.set({0,0, rocksStack.size.get().w, textContainer.size.data.w});
+        rocksStack.size.leave();
         
-        mainArea.fromList((std::list<Object *>){&linearGradient, &mainText});
+        mainStack.fromList((std::list<Object*>){&textContainer, &spacer, &rocksStack});
+
+        // mainStack.set_secondary_color(Colors::Lemon_chiffon);
+
+        mainStack.set_alignment(Alignment::Bottom);
+
+        // mainStack.set_size(300, 400);
         
-        mainArea.set_alignment(Alignment::Center);
-        
-        return mainArea;
+        return mainStack;
     }
 };
 
@@ -72,12 +99,21 @@ public:
 int main(int argc, const char * argv[]) {
     // insert code here...
     Core LanUi;
-    Window window("Window 1", 350, 500, Window::HighDefinition);
-
+    Window window("hello world", 350, 500, Window::HighDefinition);
+    
     auto Home = MyHomeView(window);
-
+            
+    Home.set_alignment(Object::Alignment::Center);
+    
+    Home.fromColorScheme();
+    
+    Home.fromFile("lanUi.Bundle/System/Resources/forest.png", window.sdlRenderer.get());
+    window.sdlRenderer.leave();
+        
+    Home.set_size(460, 460);
+            
     window
-
+        
     .on_start(
               CallbackExpr(
                            // box[0].set_primary_color(Colors::White);
@@ -85,7 +121,7 @@ int main(int argc, const char * argv[]) {
                            // box[0].set_relative_size(1.0/3.0, 1.0/3.0);
                            )
               )
-
+    
     .on_closed(
                CallbackExpr(
                             std::cout << "window closed" << std::endl;
@@ -110,15 +146,15 @@ int main(int argc, const char * argv[]) {
 
     .on_focus_gained(
                      CallbackExpr(
-//                                  window
-//                                  .set_window_clear_color(Colors::Light_gray);
+                                  window
+                                  .set_window_clear_color(Colors::Light_gray);
                                   )
                      )
 
     .on_focus_lost(
                    CallbackExpr(
-//                                window
-//                                .set_window_clear_color(Colors::Dim_gray);
+                                window
+                                .set_window_clear_color(Colors::Dim_gray);
                                 )
                    )
 
@@ -128,6 +164,11 @@ int main(int argc, const char * argv[]) {
                              window.size.leave();
                              std::cout << ", " << window.size.get().h << std::endl;
                              window.size.leave();
+//                             Home.set_relative_size(1, 1, -10, -10);
+//                             Home.nextInZ.get()->set_relative_size(0.5, 0.5);
+//                             Home.nextInZ.data->nextInZ.get()->set_relative_size(0.5, 0.5);
+//                             Home.nextInZ.data->nextInZ.leave();
+//                             Home.nextInZ.leave();
                              )
                 )
 
@@ -181,11 +222,11 @@ int main(int argc, const char * argv[]) {
                                //window.set_window_clear_color(Colors::Pink);
                                )
                   )
-
+    
     .set_title("LanUi Demo");
-
+    
     //.embedInZ(box[0]);
-
+    
     Core::events();
     
     std::cout << "Hello, World!\n";
