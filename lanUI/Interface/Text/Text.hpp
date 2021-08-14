@@ -13,7 +13,6 @@
 #include "../Object/Object.hpp"
 #include "../Font/Font.hpp"
 
-
 typedef struct {
     Font::Style font_style;
     int size;
@@ -51,6 +50,8 @@ public:
     Text& from_string(const std::string source , Renderer * renderer = nullptr);
     
     void tryCompile();
+    
+    void _resetDPI();
     
     void _adjustTextDPI();
     

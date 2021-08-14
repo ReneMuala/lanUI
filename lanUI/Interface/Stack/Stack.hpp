@@ -21,11 +21,13 @@ public:
 
 class VStack : public Stack {
 public:
+    VStack& reload() override;
     void fromList(std::list<Object*>) override;
 };
 
 class HStack : public Stack {
 public:
+    HStack& reload() override;
     void fromList(std::list<Object*>) override;
 };
 
@@ -33,6 +35,7 @@ public:
 /// Embeds  objects in the Z axis  (can't embed more than one Text, VStack or HStack)
 class ZStack : public Stack {
 public:
+    ZStack& reload() override;
     void fromList(std::list<Object*>) override;
 };
 

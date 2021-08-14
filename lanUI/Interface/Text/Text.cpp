@@ -8,13 +8,13 @@
 
 #include "Text.hpp"
 
-Text::Text(const std::string source, Font& font): source(source), fontVirtualSize(12){
+Text::Text(const std::string source, Font& font): wasCompiled(false), withBackground(false), source(source), fontVirtualSize(12){
     DrawableObject();
     this->font = font;
     primaryColor.set(Colors::Black);
-    secondaryColor.set(Colors::White);
-    wasCompiled = false;
+    secondaryColor.set(Colors::Red);
     dpiK = 1;
+    if(source.size())
     from_string(source);
 }
 
@@ -22,6 +22,7 @@ Text& Text::from_string(const std::string source, Renderer * renderer){
     this->renderer.set(renderer);
     this->source.set(source);
     wasCompiled = false;
+    _resetDPI();
     if(renderer) compile(renderer);
     return (*this);
 }
@@ -32,29 +33,33 @@ void Text::tryCompile(){
     renderer.leave();
 }
 
+void Text::_resetDPI(){
+    dpiK = 1;
+    font.set_style(font.style, fontVirtualSize.get()*(1));
+    fontVirtualSize.leave();
+}
+
 void Text::_adjustTextDPI(){
     font.set_style(font.style, fontVirtualSize.get()*(dpiK));
     //TTF_SetFontOutline(font.children[font.style], 1);
     // TTF_SetFontHinting(font.children[font.style], TTF_HINTING_NORMAL);
     fontVirtualSize.leave();
 }
-
+#include <iostream>
 bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
-    if(renderer && source.get().length()){
+    if(renderer){
         source.leave();
-        static float wDif(0);
-        static float hDif(0);
-        
-        wDif = size.get().w;
-        hDif = size.data.h;
-        size.leave();
         
         drawMode.set(DrawMode::ImageMode);
-                
+        
         if(!font.child.get())
             Core::log(Core::Error, "Text: Invalid font style.");
         
         static SDL_Surface * surfc = nullptr;
+        
+        surfc = nullptr;
+        
+        _freeImage();
         
         if(!compatibilityMode) {
              if(!(surfc=TTF_RenderUTF8_Blended(font.child.data, source.get().data(), (SDL_Color)primaryColor.get())))
@@ -84,17 +89,14 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
                 set_size(surfc->w, surfc->h);
         } else {
             fromSurface(surfc, renderer, false);
+            std::cout << size.get().w << " * " << size.data.h << std::endl;
+            size.leave();
         }
         
         if(!fixCall) {
-            // get the difference bettwen the actual with, and the last one
-            wDif = size.get().w - wDif;
-            hDif = size.data.h - hDif;
-            size.leave();
-            if(rootType.get()){
-                rootType.leave();
-                _sync_root_size(wDif, hDif);
-            } rootType.leave();
+            if(root.get()){
+                root.data->reload();
+            } root.leave();
         }
                 
         SDL_FreeSurface(surfc);
@@ -129,26 +131,29 @@ void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){
             wasCompiled = compile(renderer, true, true);
         }
 
+        size.hold();
         rect_buffer.data = {
             (x + padding.get().left)*dpiK,
             (y + padding.data.top)*dpiK,
-            ((size.data.w)*dpiK),
-            ((size.data.h)*dpiK)
+            (size.data.w)*dpiK,
+            (size.data.h) *dpiK
         };
+        size.leave();
         
         padding.leave();
-        size.leave();
 
         if(withBackground)
             _render_background(renderer, &rect_buffer.data);
         
-        SDL_RenderCopyF(renderer, image.get(), NULL, &rect_buffer.data);
+        SDL_RenderCopyExF(renderer, image.get(), NULL, &rect_buffer.data, angle.get(), NULL, SDL_FLIP_NONE);
+        //SDL_RenderCopyF(renderer, image.get(), NULL, );
         image.leave();
+        angle.leave();
         rect_buffer.leave();
         _renderEmbedded(renderer, x, y, dpiK);
     } else {
-        Core::log(Core::Warning, ("Text outside root bounds (" + std::to_string(x) + "VS"
-                                   + std::to_string(root.get()->size.get().x) +":" + std::to_string(y) + ")").c_str());
+        Core::log(Core::Warning, "Text outside root bounds.");
+        size.leave();
         root.data->size.leave();
         root.leave();
     }

@@ -14,21 +14,46 @@ Stack::Stack(){
     fromColorScheme(Colors::Transparent, Colors::Transparent);
 }
 
+VStack& VStack::reload(){
+    float width(0), height(0);
+    for(Object* row = nextInZ.data; row ; row=row->nextInY.data)
+    {
+        width = (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
+        height+= row->size.data.h + row->padding.data.top + row->padding.data.bottom;
+        row->size.leave();
+        row->padding.leave();
+    } set_size(width, height);//({0,0,width, height});
+    return (*this);
+}
+
 void VStack::fromList(std::list<Object*> objects){
     Object * last(nullptr);
     float width(0), height(0);
     for(auto row : objects){
-        row->rootType.set(Object::VStackRoot);
+        //row->rootType.set(Object::VStackRoot);
         row->set_alignment(Object::Alignment::None);
         row->_useRootBounds();
-        width= (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
+        width = (width < row->size.get().w + row->padding.get().left + row->padding.data.right)
+        ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
         height+= row->size.data.h + row->padding.data.top + row->padding.data.bottom;
         row->size.leave();
         row->padding.leave();
         if(!last) embedInZ(*row);
         else last->embedInY(*row);
         last = row;
-    } size.set({0,0,width, height});
+    } set_size(width, height);
+}
+
+HStack& HStack::reload(){
+    float width(0), height(0);
+    for(Object* row = nextInZ.data; row ; row=row->nextInX.data)
+    {
+        width+= row->size.get().w + row->padding.get().left + row->padding.data.right;
+        height= (height < row->size.data.h + row->padding.data.top + row->padding.data.top) ? row->size.data.h + row->padding.data.top + row->padding.data.top : height;
+        row->size.leave();
+        row->padding.leave();
+    } set_size(width, height);
+    return (*this);
 }
 
 void HStack::fromList(std::list<Object*> objects){
@@ -36,31 +61,43 @@ void HStack::fromList(std::list<Object*> objects){
     Object * last(nullptr);
     float width(0), height(0);
     for(auto row : objects){
-        row->rootType.set(Object::HStackRoot);
+        //row->rootType.set(Object::HStackRoot);
         row->set_alignment(Object::Alignment::None);
         row->_useRootBounds();
         width+= row->size.get().w + row->padding.get().left + row->padding.data.right;
-        height= (height < row->size.data.h + row->padding.data.top + row->padding.data.top) ? row->size.data.h + row->padding.data.top + row->padding.data.top : height;
+        height= (height < row->size.data.h + row->padding.data.top + row->padding.data.bottom) ? row->size.data.h + row->padding.data.top + row->padding.data.bottom : height;
         row->size.leave();
         row->padding.leave();
         if(!last) embedInZ(*row);
         else last->embedInX(*row);
         last = row;
-    } size.set({0,0,width, height});
+    } set_size(width, height);
+}
+
+ZStack& ZStack::reload(){
+    float width(0), height(0);
+    for(Object* row = nextInZ.data; row ; row=row->nextInY.data)
+    {
+        width = (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
+        height = (height < row->size.data.h + row->padding.data.top + row->padding.data.bottom) ? row->size.data.h + row->padding.data.top + row->padding.data.bottom : height;
+        row->size.leave();
+        row->padding.leave();
+    } set_size(width, height);
+    return (*this);
 }
 
 void ZStack::fromList(std::list<Object*> objects){
     Object * last(nullptr);
     float width(0), height(0);
     for(auto row : objects){
-        row->rootType.set(Object::ZStackRoot);
+        //row->rootType.set(Object::ZStackRoot);
         row->_useRootBounds();
-        width= (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
-        height= (height < row->size.data.h + row->padding.data.top + row->padding.data.top) ? row->size.data.h + row->padding.data.top + row->padding.data.top : height;
+        width=(width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
+        height=(height < row->size.data.h + row->padding.data.top + row->padding.data.top) ? row->size.data.h + row->padding.data.top + row->padding.data.top : height;
         row->size.leave();
         row->padding.leave();
-        if(!last) embedInZ(*row);
+        if(!last)embedInZ(*row);
         else last->embedInZ(*row);
         last = row;
-    } size.set({0,0,width, height});
+    } set_size(width, height);
 }

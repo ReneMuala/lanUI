@@ -59,7 +59,6 @@ Image& Image::fromRadialGradient(Point center, double radius, GradientElement fi
     _freeImage();
     image.set(SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, size.get().w, size.data.h));
     size.leave();
-    SDL_RenderPresent(renderer);
     SDL_RenderClear(renderer);
     SDL_SetRenderTarget(renderer, image.data);
     int _w = size.get().w, _h = size.data.h; size.leave();

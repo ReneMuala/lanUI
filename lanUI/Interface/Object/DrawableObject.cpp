@@ -12,7 +12,7 @@
 #include <map>
 
 namespace DrawableObjectsData {
-    Semaphore<std::map<const char *, SDL_Surface*>> surfaces;
+Semaphore<std::map<const char *, SDL_Surface*>> surfaces;
 }
 
 SDL_Surface * get_surface(const char * source){
@@ -27,19 +27,13 @@ SDL_Surface * get_surface(const char * source){
     return surfc;
 }
 
-void DrawableObject::_render__border(SDL_Renderer * renderer, Rect * rect){
-    secondaryColor.hold();
-    SDL_SetRenderDrawColor(renderer, secondaryColor.data.r, secondaryColor.data.g, secondaryColor.data.b, secondaryColor.data.a);
-    secondaryColor.leave();
-    SDL_RenderDrawRectF(renderer, rect);
-}
-
 void DrawableObject::_render__image(SDL_Renderer * renderer, float x, float y, const float dpiK){
+    size.hold();
     rect_buffer.hold();
     rect_buffer.data = {
-        (x + padding.get().left)*dpiK,
-        (y + padding.data.top)*dpiK,
-        (size.get().w)*dpiK,
+        (size.data.x)*dpiK,
+        (size.data.y)*dpiK,
+        (size.data.w)*dpiK,
         (size.data.h)*dpiK
     };
     padding.leave();
@@ -54,11 +48,11 @@ void DrawableObject::_render__image(SDL_Renderer * renderer, float x, float y, c
 }
 
 void DrawableObject::_render__colorScheme(SDL_Renderer * renderer, float x, float y, const float dpiK){
-    size.hold(); padding.hold();
+    size.hold();
     Rect rect =
     {
-        (x + padding.data.left)*dpiK,
-        (y + padding.data.top)*dpiK,
+        (size.data.x)*dpiK,
+        (size.data.y)*dpiK,
         (size.data.w)*dpiK,
         (size.data.h)*dpiK,
     };
@@ -74,8 +68,8 @@ void DrawableObject::_render__default(SDL_Renderer * renderer, float x, float y,
     size.hold(); padding.hold();
     Rect rect =
     {
-        (x + padding.data.left)*dpiK,
-        (y + padding.data.top)*dpiK,
+        (size.data.x)*dpiK,
+        (size.data.y)*dpiK,
         (size.data.w)*dpiK,
         (size.data.h)*dpiK,
     };
@@ -85,16 +79,17 @@ void DrawableObject::_render__default(SDL_Renderer * renderer, float x, float y,
     SDL_RenderDrawLineF(renderer, rect.x, rect.y + rect.h, rect.x + rect.w, rect.y);
 }
 
-
 DrawableObject::DrawableObject(): image(nullptr), withBorder(false), primaryColor(Colors::Primary), secondaryColor(Colors::Secondary), angle(0), drawMode(DrawMode::DefaultMode) {
     Object();
+    _clear_properties();
     properties[Properties::isDrawable].set(true);
+    default_animation.get()._using = false;
+    default_animation.data.delay = 0;
+    default_animation.leave();
 }
 
 DrawableObject::~DrawableObject(){
-    if (image.get())
-        SDL_DestroyTexture(image.data);
-    image.leave();
+    _freeImage();
 }
 
 void DrawableObject::_freeImage(){
@@ -111,6 +106,7 @@ DrawableObject& DrawableObject::fromFile(const char *filename, Renderer * render
 
 DrawableObject& DrawableObject::fromSurface(Surface * surfc, Renderer * renderer, const bool reset_secondaryColor){
     if(surfc) {
+        _freeImage();
         this->image.set(SDL_CreateTextureFromSurface(renderer, surfc));
         this->renderer.set(renderer);
         size.set({0,0,(float)surfc->w, (float)surfc->h});
@@ -147,10 +143,17 @@ DrawableObject& DrawableObject::set_border_color(const Color color){
     return (*this);
 }
 
+void DrawableObject::_render__border(SDL_Renderer * renderer, Rect * rect){
+    secondaryColor.hold();
+    SDL_SetRenderDrawColor(renderer, secondaryColor.data.r, secondaryColor.data.g, secondaryColor.data.b, secondaryColor.data.a);
+    secondaryColor.leave();
+    SDL_RenderDrawRectF(renderer, rect);
+}
+
 void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){
     if(_inRootBounds(x, y)){
         _align(x, y);
-        size.hold(); size.data.x = x; size.data.y = y; size.leave();
+        size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
         switch (drawMode.get()) {
             case DrawMode::ImageMode:
                 if(renderer == this->renderer.get()){
@@ -167,6 +170,30 @@ void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const fl
                 _render__default(renderer, x, y, dpiK);
                 break;
         } drawMode.leave();
-        _renderEmbedded(renderer, x, y, dpiK);
+        _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
+    } _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInX_Y);
+}
+
+void DrawableObject::_run_default_animation(){
+    static FrameCount delay(0);
+    default_animation.hold();
+    
+    if(default_animation.data._using){
+        if(delay >= default_animation.data.delay){
+            delay = 0;
+            //default_animation.data._using =
+            default_animation.data.callback();
+        } delay++;
     }
+    default_animation.leave();
+    _run_others_default_animation();
+}
+
+DrawableObject& DrawableObject::set_default_animation(const FrameCount delay, BoolCallback callback){
+    default_animation.hold();
+    default_animation.data._using = true;
+    default_animation.data.delay = delay;
+    default_animation.data.callback = callback;
+    default_animation.leave();
+    return (*this);
 }

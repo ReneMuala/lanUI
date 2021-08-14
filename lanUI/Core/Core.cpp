@@ -9,7 +9,7 @@
 #include "Core.hpp"
 #include "../Interface/Window/Window.hpp"
 #include "../Interface/Font/Font.hpp"
-#include "../Project/CustomFonts.hpp"
+#include "../Project/CustomFonts/CustomFonts.hpp"
 
 #include <vector>
 #include <list>
@@ -39,7 +39,7 @@ namespace DrawableObjectsData {
 }
 
 namespace InteractiveObjecsData {
-    extern Semaphore<SDL_FPoint> cursor;
+    extern Semaphore<SDL_Point> cursor;
 }
 
 namespace Fonts {
@@ -47,7 +47,7 @@ namespace Fonts {
     extern Font DejaVuSans;
 }
 
-Core::Core(){
+Core::Core(): terminated(false){
     init();
     load_fonts();
     CoreData::running = true;
@@ -56,9 +56,20 @@ Core::Core(){
 }
 
 Core::~Core(){
-    close();
-    //CoreData::eventHandler.join();
-    CoreData::renderHandler.join();
+    if(!terminated) {
+        CoreData::programWindowsCount.set(0);
+        CoreData::WAS_INIT = false;
+        CoreData::running = false;
+        //CoreData::eventHandler.join();
+        CoreData::renderHandler.join();
+        
+        for (auto &test : DrawableObjectsData::surfaces.get()) {
+            SDL_FreeSurface(test.second);
+        }
+        
+        close_SDL();
+        terminated = true;
+    }
 }
 
 void Core::log(Core::LogLevel level, const char * message){
@@ -125,6 +136,7 @@ void Core::render(){
                         CoreData::sleepTime.leave();
                     }
                     CoreData::programWindows[i].data->hasKeyboardFocus.leave();
+                    CoreData::programWindows[i].data->_run_default_animation();
                     CoreData::programWindows[i].data->_clear();
                     CoreData::programWindows[i].data->_render();
                 }
@@ -132,11 +144,6 @@ void Core::render(){
             }
         }
     }
-}
-
-void Core::close(){
-    CoreData::WAS_INIT = false;
-    close_SDL();
 }
 
 void Core::close_SDL(){
@@ -166,12 +173,14 @@ bool Core::unsubscribe(void * address){
     for(short i = 0 ; i < CoreData::programWindowsCount.data; i++){
         if(CoreData::programWindows[i].data == (Window*)address){
             CoreData::programWindows[i].data = nullptr;
+            CoreData::programWindowsCount.data--;
             CoreData::programWindowsCount.leave();
             return true;
         }
-    } CoreData::programWindowsCount.data--;
+    }
     CoreData::programWindowsCount.leave();
-    log(Error, "Unable to unsubscribe window, unknowon address.");
+    if(CoreData::programWindowsCount.data)
+        log(Error, "Unable to unsubscribe window, unknowon address.");
     return false;
 }
 
@@ -198,10 +207,6 @@ void Core::set_sleep_time(std::chrono::milliseconds sleepTime){
 }
 
 void Core::terminate(){
-    CoreData::running = false;
-    close_SDL();
-    for (auto &test : DrawableObjectsData::surfaces.get()) {
-        SDL_FreeSurface(test.second);
-    }
+    this->~Core();
 }
 

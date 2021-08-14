@@ -110,8 +110,10 @@ public:
     void _handle_events();
     
     void _handle_requests();
-    
+        
     void _handle_callBacks(const uint8_t, const uint32_t);
+    
+    void _run_default_animation() override;
     
     void _compute_DPIConstant();
     

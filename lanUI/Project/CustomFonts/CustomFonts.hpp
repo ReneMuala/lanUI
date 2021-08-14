@@ -9,7 +9,7 @@
 #ifndef Fonts_h
 #define Fonts_h
 
-#include "../Interface/Font/Font.hpp"
+#include "../../Interface/Font/Font.hpp"
 
 namespace CustomFonts
 {

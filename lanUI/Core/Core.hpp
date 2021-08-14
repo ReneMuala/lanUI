@@ -13,10 +13,10 @@
 #include <thread>
 #include <string>
 #include "../Semaphore.hpp"
+#include <SDL2/SDL.h>
 
 /// Lambda body to be passed as a function argument
 #define CallbackExpr(x) [&]{x}
-
 #define lanUI "landia user interface builder"
 #define lanUIVersion "lanUI 0.1"
 
@@ -30,6 +30,8 @@ public:
         Message,
     } LogLevel;
     
+    bool terminated;
+    
 public:
     
     Core();
@@ -40,7 +42,6 @@ public:
     static void init_SDL();
     static void events();
     static void render();
-    static void close();
     static void close_SDL();
     static bool subscribe(void*);
     static bool unsubscribe(void*);
@@ -50,10 +51,14 @@ public:
     void terminate();
 };
 
-namespace CoreData
-{
+namespace CoreData {
     extern bool WAS_INIT;
     extern Semaphore<short> programWindowsCount;
+}
+
+namespace InteractiveObjecsData{
+    /// cursor position (DPI Enabled)
+    extern Semaphore<SDL_Point> cursor;
 }
 
 #endif /* Core_hpp */

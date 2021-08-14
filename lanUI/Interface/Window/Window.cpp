@@ -60,6 +60,13 @@ void Window::_handle_events(){
         if(sdlEvent.data.type == SDL_DISPLAYEVENT)
             _compute_DPIConstant();
         if(sdlEvent.data.window.windowID == sdlWindowId.data){
+            if(sdlEvent.data.type == SDL_MOUSEMOTION){
+                InteractiveObjecsData::cursor.get().x = sdlEvent.data.motion.x * DPIConstant.get();
+                InteractiveObjecsData::cursor.data.y = sdlEvent.data.motion.y * DPIConstant.data;
+                InteractiveObjecsData::cursor.leave();
+                DPIConstant.leave();
+            }
+            
             switch (sdlEvent.data.window.event) {
                 case SDL_QUIT:
                 case SDL_WINDOWEVENT_CLOSE: shouldClose.data = true; break;
@@ -84,6 +91,11 @@ void Window::_handle_events(){
                     break;
             }
             _handle_callBacks(sdlEvent.data.window.event, sdlEvent.data.type);
+            
+            if(nextInZ.get())
+                _handle_others_routine(sdlEvent.data, nextInZ.data, DPIConstant.get());
+            DPIConstant.leave();
+            nextInZ.leave();
         }
     }
 }
@@ -168,8 +180,15 @@ void Window::_handle_callBacks(const uint8_t window_event, const uint32_t input_
     }
 }
 
+void Window::_run_default_animation(){
+    if(nextInZ.get()) {
+        nextInZ.leave();
+        nextInZ.data->_run_default_animation();
+    } nextInZ.leave();
+}
+
 void Window::_compute_DPIConstant(){
-    int realw, realh;
+    static int realw, realh;
     SDL_GL_GetDrawableSize(sdlWindow.get(), &realw, &realh);
     DPIConstant.set((float)realw/size.get().w);
     size.leave();
@@ -179,21 +198,21 @@ void Window::_compute_DPIConstant(){
 void Window::_clear(){
     hasKeyboardFocus.leave();
     sdlWindowClearColor.hold();
+    // hold renderer
     SDL_SetRenderDrawColor(sdlRenderer.get(), sdlWindowClearColor.data.r,sdlWindowClearColor.data.g,sdlWindowClearColor.data.b, sdlWindowClearColor.data.a);
     sdlWindowClearColor.leave();
-    sdlRenderer.leave();
-    SDL_RenderClear(sdlRenderer.get());
+    SDL_RenderClear(sdlRenderer.data);
     sdlRenderer.leave();
 }
 
 void Window::_render(){
-    hasKeyboardFocus.leave();
-    sdlRenderer.hold();
+    _run_default_animation();
     if(nextInZ.get())
         nextInZ.data->_render(sdlRenderer.data, 0.0, 0.0, DPIConstant.get());
     DPIConstant.leave();
     nextInZ.leave();
-    SDL_RenderPresent(sdlRenderer.data);
+    SDL_RenderPresent(sdlRenderer.get());
+    // leave renderer
     sdlRenderer.leave();
 }
 

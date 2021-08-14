@@ -20,46 +20,66 @@ class MyHomeView : public View {
 public:
     
     Image linearGradient;
-    ZStack mainArea;
+    HStack mainArea;
+    InterativeObject interative;
+    DrawableObject example;
+    ZStack myList;
     Text mainText;
+    Text mainText2;
+    List listDemo;
+    Container contTest;
     
-    MyHomeView(Window & win){
+    MyHomeView(Window & win) {
         create(win);
         
 //        fromFile("lanUi.Bundle/System/Resources/forest.png", win.sdlRenderer.get());
 //        win.sdlRenderer.leave();
-        fromColorScheme(Colors::Transparent, Colors::Transparent);
+        fromColorScheme(Colors::Dark_gray, Colors::White);
         
-        set_size(460, 460);
+        set_size(340, 490);
         
-        set_alignment(Object::Alignment::Center);
-        
+        //set_alignment(Object::Alignment::Center);
     }
 
     DrawableObject& body(Window& window) override {
-        linearGradient
-        .set_alignment(Alignment::Top)
-        .set_size(250, 200);
         
-        linearGradient.fromRadialGradient({0, 0}, 200,Image::GradientElement({Colors::Gray, 1.0}), Image::GradientElement({Colors::Black, 1.0}), window.sdlRenderer.get(), window.sdlWindow.get());
+        contTest.set_content(mainText);
         
+        mainText.from_string("Hello world");
+        mainText.set_background_color(Colors::Blue_violet);
+        mainText.set_padding({10,10,10,10});
         
+        mainText2.from_string("Hello world");
+        mainText2.set_background_color(Colors::Hot_pink);
+        mainText2.set_padding({5,5,100,100});
+        std::list<Object*> test;
         
-        linearGradient.set_angle(180);
-        window.sdlRenderer.leave();
-        window.sdlWindow.leave();
-        mainText.set_font(CustomFonts::Lobster);
-        mainText.bold(64);
-        mainText.set_primary_color(Colors::White);
+        listDemo.compute<3>(
+        CallbackExpr(
+                     Text * text = new Text();
+                     text->from_string("Hello world");
+                     //test.push_back(text);
+                     return text;
+            )
+        );
         
-        mainText.from_string("omada", window.sdlRenderer.get());
-        window.sdlRenderer.leave();
-        mainText.set_alignment(Alignment::Center);
+        Text * text = new Text();
+        text->from_string("Hello wow");
+        text->set_padding({1,1,1,1});
+        text->set_background_color(Colors::Blue_violet);
+                
+        mainArea.fromList((std::list<Object*>){&listDemo});
         
-        mainArea.fromList((std::list<Object *>){&linearGradient, &mainText});
+        example.set_padding({0,0,0,0});
+                
+        //contTest.set_content(listDemo);
         
         mainArea.set_alignment(Alignment::Center);
+                
+        //mainArea.set_padding({0,0,0,0});
+        //mainArea.set_size(300, 300);
         
+        mainArea.set_border_color(Colors::Yellow);
         return mainArea;
     }
 };
@@ -75,7 +95,7 @@ int main(int argc, const char * argv[]) {
     Window window("Window 1", 350, 500, Window::HighDefinition);
 
     auto Home = MyHomeView(window);
-
+    
     window
 
     .on_start(
@@ -147,13 +167,13 @@ int main(int argc, const char * argv[]) {
 
     .on_mouse_button_down(
                           CallbackExpr(
-                                       std::cout << "mouse down" << std::endl;
+                                       //std::cout << "mouse down" << std::endl;
                                        // box[0].primaryColor.set(Colors::White_smoke);
                                        )
                           )
     .on_mouse_button_up(
                         CallbackExpr(
-                                     std::cout << "mouse up" << std::endl;
+                                     //std::cout << "mouse up" << std::endl;
                                      // box[0].primaryColor.set(Colors::White);
                                      )
                         )
@@ -182,6 +202,8 @@ int main(int argc, const char * argv[]) {
                                )
                   )
 
+    .set_window_clear_color(Colors::Light_gray)
+    
     .set_title("LanUi Demo");
 
     //.embedInZ(box[0]);

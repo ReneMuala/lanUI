@@ -11,13 +11,6 @@
 
 #include "../Object/Object.hpp"
 
-class Container : public Object {
-public:
-    void set_content(Object& object){
-        embedInZ(object);
-        set_size(object.size.get().w, object.size.data.h);
-        object.size.leave();
-    };
-};
+typedef __IOContainer Container;
 
 #endif /* Container_hpp */
