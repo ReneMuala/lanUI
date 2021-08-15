@@ -7,7 +7,7 @@
 //
 
 #include "Object.hpp"
-#include "Core.hpp"
+#include "../../Core/Core.hpp"
 #include <SDL2/SDL_image.h>
 #include <map>
 

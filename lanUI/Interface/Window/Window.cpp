@@ -7,7 +7,7 @@
 //
 
 #include "Window.hpp"
-#include "core.hpp"
+#include "../../Core/Core.hpp"
 #include <thread>
 #include <iostream>
 
