@@ -131,6 +131,16 @@ Object& Object::operator=(Object & other){
 #include "../Stack/Stack.hpp"
 #include "../List/List.hpp"
 
+Object& Object::enable_reloading(){
+    reloading_disabled.set(false);
+    return (*this);
+}
+
+Object& Object::disable_reloading(){
+    reloading_disabled.set(true);
+    return (*this);
+}
+
 Object& Object::set_size(const float size_w, const float size_h){
     size.set({0,0, size_w, size_h});
     if(root.get()) {
@@ -166,6 +176,20 @@ Object& Object::set_padding(Padding padding){
         root.leave();
         root.data->reload();
     } root.leave();
+    return (*this);
+}
+
+Object& Object::set_scrollingFactor(ScrollingFactor scrollingFactor){
+    this->scrollingFactor.set(scrollingFactor);
+    
+    if(nextInX.get())
+        nextInX.data->set_scrollingFactor(scrollingFactor);
+    nextInX.leave();
+    
+    if(nextInY.get())
+        nextInY.data->set_scrollingFactor(scrollingFactor);
+    nextInY.leave();
+    
     return (*this);
 }
 
@@ -240,6 +264,9 @@ bool Object::_inRootBounds(float x, float y){
     if(root.get()){
         root.data->size.get();
         size.get(); padding.get();
+        x+=scrollingFactor.get().horizontal;
+        y+=scrollingFactor.data.vertical;
+        scrollingFactor.leave();
         inBounds = ((x + padding.data.left >= root.data->size.data.x)
                     && (y + padding.data.top >= root.data->size.data.y)
                     && (x+(padding.data.left + size.data.w + padding.data.right)) <= (root.data->size.data.x + root.data->size.data.w)
@@ -414,7 +441,7 @@ void Object::_clear_properties(){
     }
 }
 
-Object::Object(): size({0,0,50,50}), padding({5.0,5.0,5.0,5.0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBounds_buffer(true) /*rootType(OtherRoot)*/ {
+Object::Object(): size({0,0,50,50}), padding({5.0,5.0,5.0,5.0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBounds_buffer(true) /*rootType(OtherRoot)*/ {
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
         requests[i].leave();

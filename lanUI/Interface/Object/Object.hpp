@@ -26,9 +26,7 @@ class Object {
     void __align_left(float & x, float & y);
     
     void __align_right(float & x, float & y);
-        
-    void __renderEmbedded_routine(SDL_Renderer*, Object * embedded, const float x, const float y, const float dpiK);
-    
+            
 public:
 
     typedef SDL_FRect Rect;
@@ -43,6 +41,10 @@ public:
     
     struct Padding {
         float top, bottom, left, right;
+    };
+    
+    struct ScrollingFactor {
+        float horizontal, vertical;
     };
     
     typedef enum {
@@ -87,11 +89,12 @@ public:
     Semaphore<bool> properties[Properties::totalProperties];
     Semaphore<Rect> size;
     Semaphore<Padding> padding;
+    Semaphore<ScrollingFactor> scrollingFactor;
     Semaphore<bool> requests[Requests::totalRequests];
     Semaphore<Alignment> aligment;
     Semaphore<bool> usingRootBounds;
-    /// used to avoid calls to _inRootBounds(...) in events thread
     Semaphore<bool> inRootBounds_buffer;
+    Semaphore<bool> reloading_disabled;
 //    Semaphore<RootType> rootType;
 //    Semaphore<Type> type;
     
@@ -107,14 +110,17 @@ public:
     
     // Fixes object-compatibility issues
     virtual Object& reload(){return (*this);}
+    Object& enable_reloading();
+    Object& disable_reloading();
     //void _sync_root_size_for_padding(const float &wDif, const float & hDif);
     //void _sync_root_size(const float &wDif, const float & hDif);
     
     virtual Object& set_size(const float w, const float h);
     void _fix_size(const float w, const float h);
     Object& set_relative_size(const float w, const float h, const float w_correction = 0, const float h_corretion = 0);
-    Object& set_padding(Padding padding);
-    Object& set_alignment(Alignment alignment);
+    Object& set_padding(const Padding padding);
+    Object& set_scrollingFactor(const ScrollingFactor scrollingFactor);
+    Object& set_alignment(const Alignment alignment);
     
     Object& updateRoot(Object*);
     Object& embedInX(Object&);
@@ -134,7 +140,9 @@ public:
         _renderOnlyNextInX_Y = 0x4,
     } _RenderEmbeddedMode;
     
-    void _renderEmbedded(SDL_Renderer*, const float x, const float y, float dpiK, _RenderEmbeddedMode mode = _RenderEmbeddedMode::_renderAllNexts);
+    void __renderEmbedded_routine(SDL_Renderer*, Object * embedded, const float x, const float y, const float dpiK);
+    
+    virtual void _renderEmbedded(SDL_Renderer*, const float x, const float y, float dpiK, _RenderEmbeddedMode mode = _RenderEmbeddedMode::_renderAllNexts);
     
     // Fixes object-compatibility issues
     virtual void _render(SDL_Renderer*, float x, float y, float dpiK);
@@ -164,12 +172,7 @@ class DrawableObject: public Object {
     
     /// images only
     bool withBorder;
-    
-    void _render__image(SDL_Renderer*, float x, float y, const float dpiK);
-    
-    void _render__colorScheme(SDL_Renderer*, float x, float y, const float dpiK);
-    
-    void _render__default(SDL_Renderer*, float x, float y, const float dpiK);
+    bool withBackground;
         
 public:
 
@@ -192,7 +195,7 @@ public:
     Semaphore<Texture*> image;
     Semaphore<Renderer*> renderer;
     Semaphore<Angle> angle;
-    Semaphore<Color> primaryColor, secondaryColor;
+    Semaphore<Color> foregroundColor, backgroundColor, borderColor;
     Semaphore<Animation> default_animation;
     
     DrawableObject();
@@ -206,16 +209,27 @@ public:
     
     DrawableObject& fromSurface(Surface*, Renderer *, const bool reset_secondaryColor = true);
     
-    DrawableObject& fromColorScheme(const Color color = Colors::Primary, const Color border = Colors::Secondary);
+    DrawableObject& fromColorScheme(const Color color = Colors::Primary, const Color color2 = Colors::Secondary);
     
-    virtual DrawableObject& set_primary_color(const Color);
+    virtual DrawableObject& set_foreground_color(const Color);
     
-    virtual DrawableObject& set_secondary_color(const Color);
+    virtual DrawableObject& set_background_color(const Color);
     
     /// set_secondary_color(...)
     DrawableObject& set_border_color(const Color);
     
+    void _render__image(SDL_Renderer*, float x, float y, const float dpiK);
+    
+    void _render__colorScheme(SDL_Renderer*, float x, float y, const float dpiK);
+    
+    void _render__default(SDL_Renderer*, float x, float y, const float dpiK);
+    
+    void _render__background(SDL_Renderer*, Rect*);
+    
     void _render__border(SDL_Renderer*, Rect*);
+    
+    // prepare rect_buffer
+    void _render_routine(float dpiK);
     
     void _render(SDL_Renderer*, float x, float y, float dpiK) override;
         
@@ -229,14 +243,14 @@ public:
 class __IOContainer : public Object {
 public:
     __IOContainer& reload() override{
-        Object * child;
         static float width(0), height(0);
-        if((child = nextInZ.data)){
+        if(!reloading_disabled.get() && nextInZ.data){
             width = (nextInZ.data->size.get().w + nextInZ.data->padding.get().left + nextInZ.data->padding.data.right);
             height = (nextInZ.data->size.data.h + nextInZ.data->padding.data.top + nextInZ.data->padding.data.top);
             nextInZ.data->size.leave();
             nextInZ.data->padding.leave();
         } //size.set({0,0,width, height});
+        reloading_disabled.leave();
         set_size(width, height);
         return (*this);
     }

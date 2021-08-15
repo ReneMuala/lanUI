@@ -9,17 +9,45 @@
 #include "List.hpp"
 #include "../../Core/Core.hpp"
 
-List::List(){
+#include <iostream>
+
+List::List(const Sint32 maxSpeed){
+    this->maxSpeed = maxSpeed;
     InterativeObject();
     set_content(content);
-//    content.
-//    set_default_animation(0, CallbackExpr(
-//    if(totalScrollGain.get().vertical){
-//        static int progress(0);
-//        if(content.nextInZ.get()) {
-//            progress = (totalScrollGain.data.horizontal > 0) ? -1 : +1;
-//            totalScrollGain.data.horizontal+=progress;
-//            content.nextInZ.data->padding.hold();
-//        }
-//    } return true;));
+    on_scroll(CallbackExpr(
+                           state.hold();
+                           state.data.VSpeed += (abs(state.data.VSpeed) < this->maxSpeed) ?  scrollGain.vertical : 0;
+                           state.leave();
+                           )
+              );
+    content
+    .set_default_animation(0,
+                           CallbackExpr(
+                                        if(state.get().VSpeed)
+                                        state.data.VSpeed = (state.data.VSpeed > 0) ?
+                                        state.data.VSpeed - (.05f) : state.data.VSpeed + (.05f);
+                                        
+                                        if((int)(state.data.VSpeed*10) == 0) state.data.VSpeed = 0;
+                                        if(state.data.VSpeed < 0 && !content.last->inRootBounds_buffer.get()
+                                           || state.data.VSpeed > 0 && !content.first->inRootBounds_buffer.get())
+                                        state.data.VScroll += state.data.VSpeed;
+                                        else /* USER IS TRYING TO SCROLL BUT THE LIST IS IN THE ENDED */
+                                        {
+                                        // BEGINNIG
+                                        if(state.data.VSpeed>0){/*reset VScroll*/state.data.VScroll=0;}
+                                        // ENDING
+                                        else {}
+                                        state.data.VSpeed = 0;}
+                                        
+                                        content.first->inRootBounds_buffer.leave();
+                                        content.last->inRootBounds_buffer.leave();
+
+                                        if(content.nextInZ.get())
+                                        content.nextInZ.data->set_scrollingFactor({0,state.data.VScroll});
+                                        content.nextInZ.leave();
+                                        state.leave();
+                                        return true;
+                                        )
+                           );
 }

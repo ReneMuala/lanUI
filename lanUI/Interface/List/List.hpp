@@ -14,27 +14,27 @@
 
 class List : public InterativeObject {
     std::list<Object*> baseList;
+    Sint32 maxSpeed;
 public:
     typedef std::function<Object*()> ObjPtrCallback;
     struct ScrollSate {
-        Sint32 state, limit;
+        float VScroll, VSpeed;
     };
 public:
-    List();
-    Semaphore<ScrollGain> totalScrollGain;
-    // TODO: IMPLEMENT LIST::DEFAULT_ANIMATION
-    ScrollSate state;
+    unsigned index;
+    unsigned count;
+    List(const Sint32 maxSpeed = 10);
+    Semaphore<ScrollSate> state;
     VStack content;
-    
-    // TODO: IMPLEMENT LIST::RENDER(...);
-    
-    template<unsigned repeat>
+        
+    template<typename anyObj, unsigned repeat>
     List& compute(ObjPtrCallback callback){
+        count = repeat;
         baseList.clear();
         Object * obj;
-        for(unsigned i = 0 ; i < repeat; i++)
+        for(index = 0 ; index < repeat; index++)
         {
-            if((obj = callback()))
+            if((obj = (anyObj*)callback()))
                 baseList.push_back(obj);
             else
                 break;

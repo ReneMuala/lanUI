@@ -11,8 +11,8 @@
 Text::Text(const std::string source, Font& font): wasCompiled(false), withBackground(false), source(source), fontVirtualSize(12){
     DrawableObject();
     this->font = font;
-    primaryColor.set(Colors::Black);
-    secondaryColor.set(Colors::Red);
+    foregroundColor.set(Colors::Black);
+    backgroundColor.set(Colors::Red);
     dpiK = 1;
     if(source.size())
     from_string(source);
@@ -45,7 +45,7 @@ void Text::_adjustTextDPI(){
     // TTF_SetFontHinting(font.children[font.style], TTF_HINTING_NORMAL);
     fontVirtualSize.leave();
 }
-#include <iostream>
+
 bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
     if(renderer){
         source.leave();
@@ -62,16 +62,16 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         _freeImage();
         
         if(!compatibilityMode) {
-             if(!(surfc=TTF_RenderUTF8_Blended(font.child.data, source.get().data(), (SDL_Color)primaryColor.get())))
+             if(!(surfc=TTF_RenderUTF8_Blended(font.child.data, source.get().data(), (SDL_Color)foregroundColor.get())))
                  Core::log(Core::Warning, "Text: Render failed.");
         } else {
             switch (compatibilityMode) {
                 case RenderShadedMode:
-                    if(!(surfc=TTF_RenderUTF8_Shaded(font.child.data, source.get().data(), (SDL_Color)primaryColor.get(), (SDL_Color)secondaryColor.get())))
+                    if(!(surfc=TTF_RenderUTF8_Shaded(font.child.data, source.get().data(), (SDL_Color)foregroundColor.get(), (SDL_Color)backgroundColor.get())))
                         Core::log(Core::Warning, "Text (CompatibilityMode[RenderShadedMode]): Render failed.");
                     break;
                 case RenderSolidMode:
-                    if(!(surfc=TTF_RenderUTF8_Solid(font.child.data, source.get().data(), (SDL_Color)primaryColor.get())))
+                    if(!(surfc=TTF_RenderUTF8_Solid(font.child.data, source.get().data(), (SDL_Color)foregroundColor.get())))
                         Core::log(Core::Warning, "Text (CompatibilityMode[RenderSolidMode]): Render failed.");
                     break;
                 default:break;
@@ -81,15 +81,14 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         font.child.leave();
         
         source.leave();
-        primaryColor.leave();
-        secondaryColor.leave();
+        foregroundColor.leave();
+        backgroundColor.leave();
         if(internCall){
             this->image.set(SDL_CreateTextureFromSurface(renderer, surfc));
             if(!fixCall)
                 set_size(surfc->w, surfc->h);
         } else {
             fromSurface(surfc, renderer, false);
-            std::cout << size.get().w << " * " << size.data.h << std::endl;
             size.leave();
         }
         
@@ -109,66 +108,45 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
 }
 
 void Text::_render_background(SDL_Renderer * renderer, Rect * rect){
-    secondaryColor.hold();
-    SDL_SetRenderDrawColor(renderer, secondaryColor.data.r, secondaryColor.data.g, secondaryColor.data.b, secondaryColor.data.a);
-    secondaryColor.leave();
+    backgroundColor.hold();
+    SDL_SetRenderDrawColor(renderer, backgroundColor.data.r, backgroundColor.data.g, backgroundColor.data.b, backgroundColor.data.a);
+    backgroundColor.leave();
     SDL_RenderFillRectF(renderer, rect);
 }
 
 void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){
+    
+    // prepare texts
+    if(!wasCompiled) {
+        wasCompiled = compile(renderer);
+    } if(this->dpiK != dpiK){
+        this->dpiK = dpiK;
+        _adjustTextDPI();
+        wasCompiled = compile(renderer, true, true);
+    }
+    
     if(_inRootBounds(x, y)){
-        
         _align(x, y);
-        
-        rect_buffer.hold();
-        if(!wasCompiled) {
-            wasCompiled = compile(renderer);
-        }
-
-        if(this->dpiK != dpiK){
-            this->dpiK = dpiK;
-            _adjustTextDPI();
-            wasCompiled = compile(renderer, true, true);
-        }
-
-        size.hold();
-        rect_buffer.data = {
-            (x + padding.get().left)*dpiK,
-            (y + padding.data.top)*dpiK,
-            (size.data.w)*dpiK,
-            (size.data.h) *dpiK
-        };
-        size.leave();
-        
-        padding.leave();
-
-        if(withBackground)
-            _render_background(renderer, &rect_buffer.data);
-        
-        SDL_RenderCopyExF(renderer, image.get(), NULL, &rect_buffer.data, angle.get(), NULL, SDL_FLIP_NONE);
-        //SDL_RenderCopyF(renderer, image.get(), NULL, );
-        image.leave();
-        angle.leave();
-        rect_buffer.leave();
-        _renderEmbedded(renderer, x, y, dpiK);
+        size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
+        _render__image(renderer, x, y, dpiK);
     } else {
-        Core::log(Core::Warning, "Text outside root bounds.");
+        //Core::log(Core::Warning, "Text outside root bounds.");
         size.leave();
         root.data->size.leave();
         root.leave();
-    }
+    } _renderEmbedded(renderer, x, y, dpiK, _renderOnlyNextInX_Y);
 };
 
-Text& Text::inherit_secondaryColor(){
+Text& Text::inherit_background_color(){
     if(root.get()){
         if(root.data->properties[Properties::isDrawable].get()){
-            secondaryColor.set(((DrawableObject*)root.data)->primaryColor.get());
-            ((DrawableObject*)root.data)->primaryColor.leave();
+            backgroundColor.set(((DrawableObject*)root.data)->foregroundColor.get());
+            ((DrawableObject*)root.data)->foregroundColor.leave();
         } else {
-            Core::log(Core::Warning, "Using inherit_secondaryColor(...) without a Drawable root.");
+            Core::log(Core::Warning, "Using inherit_backgroundColor(...) without a Drawable root.");
         } root.data->properties[Properties::isDrawable].leave();
     } else
-        Core::log(Core::Warning, "Using inherit_secondaryColor(...) without a root. (nullptr)");
+        Core::log(Core::Warning, "Using inherit_backgroundColor(...) without a root. (nullptr)");
     root.leave();
     return (*this);
 }
@@ -188,15 +166,9 @@ Text& Text::set_font(Font & new_font){
     return (*this);
 }
 
-Text& Text::set_primary_color(const Color color){
-    primaryColor.set(color);
+Text& Text::set_foreground_color(const Color color){
+    foregroundColor.set(color);
     tryCompile();
-    return (*this);
-}
-
-Text& Text::set_background_color(const Color color){
-    secondaryColor.set(color);
-    withBackground = true;
     return (*this);
 }
 

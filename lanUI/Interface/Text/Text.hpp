@@ -62,17 +62,15 @@ public:
     void _render(SDL_Renderer*, float x, float y, const float dpiK) override;
     
     // may be useful when using RenderShadedMode
-    /// use root primary color as this->secondaryColor
-    Text& inherit_secondaryColor();
+    /// use root primary color as this->background_color
+    Text& inherit_background_color();
     
     Text& set_style(TextStyle);
     
     Text& set_font(Font &);
     
-    Text& set_primary_color(const Color) override;
-    
-    Text& set_background_color(const Color);
-    
+    Text& set_foreground_color(const Color) override;
+        
     Text& regular(const int = 12);
     
     Text& bold(const int = 12);

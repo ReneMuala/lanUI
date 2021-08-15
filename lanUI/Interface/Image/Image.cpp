@@ -40,7 +40,7 @@ Image& Image::fromLinearGradient(LGOrietantion orientation, GradientElement firs
     }
     drawMode.set(DrawMode::ImageMode);
     
-    secondaryColor.set(Colors::Transparent);
+    backgroundColor.set(Colors::Transparent);
     this->renderer.set(renderer);
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderClear(renderer);
@@ -75,10 +75,9 @@ Image& Image::fromRadialGradient(Point center, double radius, GradientElement fi
             SDL_SetRenderDrawColor(renderer, temp.r, temp.g, temp.b, 255);
             SDL_RenderDrawPointF(renderer, x, y);
         }
-    }
-    drawMode.set(DrawMode::ImageMode);
+    } drawMode.set(DrawMode::ImageMode);
     
-    secondaryColor.set(Colors::Transparent);
+    backgroundColor.set(Colors::Transparent);
     this->renderer.set(renderer);
     SDL_SetRenderTarget(renderer, NULL);
     SDL_RenderClear(renderer);

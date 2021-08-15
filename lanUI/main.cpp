@@ -19,8 +19,9 @@
 class MyHomeView : public View {
 public:
     
-    Image linearGradient;
-    HStack mainArea;
+    Image mainGradient;
+    VStack mainList;
+    ZStack mainArea;
     InterativeObject interative;
     DrawableObject example;
     ZStack myList;
@@ -34,52 +35,50 @@ public:
         
 //        fromFile("lanUi.Bundle/System/Resources/forest.png", win.sdlRenderer.get());
 //        win.sdlRenderer.leave();
-        fromColorScheme(Colors::Dark_gray, Colors::White);
+        fromColorScheme(Colors::Transparent, Colors::Transparent);
         
-        set_size(340, 490);
+        //set_border_color(Colors::Gray);
         
-        //set_alignment(Object::Alignment::Center);
+        set_size(350, 500);
+        
+        set_padding({0,0,0,0});
+        
+        set_alignment(Object::Alignment::Center);
     }
 
     DrawableObject& body(Window& window) override {
         
-        contTest.set_content(mainText);
+        mainGradient.set_size(350, 500);
+        mainGradient.set_padding({0,0,0,0});
+        mainGradient.fromRadialGradient({350, 500}, 1400,Image::GradientElement({Colors::Blue_violet, 1.0}), Image::GradientElement({Colors::Blue, 1.0}), window.sdlRenderer.get(), window.sdlWindow.get());
+        window.sdlRenderer.leave();
+        window.sdlWindow.leave();
         
-        mainText.from_string("Hello world");
-        mainText.set_background_color(Colors::Blue_violet);
-        mainText.set_padding({10,10,10,10});
+        mainText.from_string("LanUi List");
+        mainText.set_padding({10,10,5,5});
+        mainText.set_foreground_color(Colors::White);
+        mainText.bold(26);
         
-        mainText2.from_string("Hello world");
-        mainText2.set_background_color(Colors::Hot_pink);
-        mainText2.set_padding({5,5,100,100});
-        std::list<Object*> test;
+        mainText2.from_string("LanUi Cpp Library 0.1");
+        mainText2.set_foreground_color(Colors::fromColorA(Colors::White, 100));
+        mainText2.set_padding({0,0,5,0});
+        mainText2.bold(13);
         
-        listDemo.compute<3>(
+        listDemo.compute<Text, 90>(
         CallbackExpr(
-                     Text * text = new Text();
-                     text->from_string("Hello world");
-                     //test.push_back(text);
-                     return text;
+                     return &(new Text("Item " + std::to_string(listDemo.index+1) + " of " + std::to_string(listDemo.count)))->regular(18).set_foreground_color(Colors::White).set_padding({0,0,0,0,});
+                     //.set_primary_color(Colors::Indian_red);
             )
         );
         
-        Text * text = new Text();
-        text->from_string("Hello wow");
-        text->set_padding({1,1,1,1});
-        text->set_background_color(Colors::Blue_violet);
-                
-        mainArea.fromList((std::list<Object*>){&listDemo});
+        listDemo.content.set_size(150, 200);
+        listDemo.content.disable_reloading();
+        listDemo.set_padding({0,0,5,0});
         
-        example.set_padding({0,0,0,0});
-                
-        //contTest.set_content(listDemo);
-        
+        mainList.fromList((std::list<Object*>){&mainText, &listDemo, &mainText2});
+        mainList.set_alignment(Alignment::Center);
+        mainArea.fromList((std::list<Object*>){&mainGradient, &mainList});
         mainArea.set_alignment(Alignment::Center);
-                
-        //mainArea.set_padding({0,0,0,0});
-        //mainArea.set_size(300, 300);
-        
-        mainArea.set_border_color(Colors::Yellow);
         return mainArea;
     }
 };

@@ -15,6 +15,7 @@
 /// Base class for VStack , HStack and ZStack.
 class Stack : public DrawableObject {
 public:
+    Object * first, * last;
     virtual void fromList(std::list<Object*>){};
     Stack();
 };
@@ -32,7 +33,7 @@ public:
 };
 
 
-/// Embeds  objects in the Z axis  (can't embed more than one Text, VStack or HStack)
+/// Embeds  objects in the Z axis  (CAN'T EMBED MORE THAN ONE TEXT, OR STACK-BASED OBJECT)
 class ZStack : public Stack {
 public:
     ZStack& reload() override;
