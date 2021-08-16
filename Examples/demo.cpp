@@ -7,7 +7,12 @@
 //
 
 #include <iostream>
-#include "lanUI.hpp"
+#ifdef USING_LANUI_CMAKE_BUILDER
+// Use the generated template headers
+#include "../Template/lanUI/lanUI.hpp"
+#else
+#include "../lanUI/lanUI.hpp"
+#endif
 
 /*
  Note:
