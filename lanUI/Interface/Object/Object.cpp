@@ -238,18 +238,18 @@ Object& Object::embedInZ(Object & other){
     return (*this);
 }
 
-Object& Object::switchE(Object & other){
-    Object buffer;
-    buffer = other;
-    other = *this;
-    *this = buffer;
-    return (*this);
-}
-
-Object& Object::replaceE(Object & other){
-    *this = other;
-    return (*this);
-}
+//Object& Object::switchE(Object & other){
+//    Object buffer;
+//    buffer = other;
+//    other = *this;
+//    *this = buffer;
+//    return (*this);
+//}
+//
+//Object& Object::replaceE(Object & other){
+//    *this = other;
+//    return (*this);
+//}
 
 bool Object::_inRootBounds(float x, float y){
     // ignore root bounds

@@ -17,7 +17,6 @@
 
 /// Lambda body to be passed as a function argument
 #define CallbackExpr(x) [&]{x}
-#define lanUI "landia user interface builder"
 #define lanUIVersion "lanUI 0.1"
 
 class Core {

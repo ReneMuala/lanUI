@@ -13,6 +13,11 @@
 #include <string>
 #include "../../Core/Core.hpp"
 
+/** Text Font.
+ Can be loaded from standard font formats (TTF, OTF,...).
+ By default lanUI uses Dejavu sans, witch are loaded in the Core/Core.cpp file.
+ You can setup your custum fonts in Project/CurstomFonts/ (BEFORE TEMPLATE CREATION)
+ */
 class Font {
 public:
     typedef enum {
@@ -30,7 +35,6 @@ public:
 
 private:
     std::string path_copy[Style::totalStyles];
-    // all childrens are nullptrs
 public:
       
     bool ready;
@@ -43,6 +47,9 @@ public:
     
     Font();
     
+    /**Free font.
+     Clears font data.
+     */
     void free();
     
     bool _test(const char * path);
@@ -51,11 +58,19 @@ public:
         
     const void operator=(Font&other);
     
-    Font& set_style(const Style, const int size = 0);
+    /**Sets font style and size.
+     Invalid font styles may generate warnings.
+     */
+    Font& set_style(const Style style, const int size = 0);
     
+    /**Loads font data from a file.
+    DON'T FORGET to load the Regular style, it will be necessary to handle erros.
+     */
     Font& fromFile(const char * path, Style style = Style::Regular);
 };
 
+/** LanUI defaulf fonts
+ */
 namespace Fonts {
     extern Font DejaVuSans;
 }

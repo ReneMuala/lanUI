@@ -185,14 +185,14 @@ bool Core::unsubscribe(void * address){
 }
 
 void Core::load_fonts(){
-    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSans.ttf", Font::Style::Regular);
-    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSans-Bold.ttf", Font::Style::Bold);
-    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSans-BoldOblique.ttf", Font::Style::BoldOblique);
-    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSans-ExtraLight.ttf", Font::Style::ExtraLight);
-    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSans-Oblique.ttf", Font::Style::Oblique);
-    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSansCondensed-Bold.ttf", Font::Style::Condensed_Bold);
-    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSansCondensed-BoldOblique.ttf", Font::Style::Condensed_BoldOblique);
-    Fonts::DejaVuSans.fromFile("lanUi.Bundle/System/Library/Fonts/DejaVuSansCondensed.ttf", Font::Style::Condensed);
+    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSans.ttf", Font::Style::Regular);
+    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSans-Bold.ttf", Font::Style::Bold);
+    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSans-BoldOblique.ttf", Font::Style::BoldOblique);
+    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSans-ExtraLight.ttf", Font::Style::ExtraLight);
+    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSans-Oblique.ttf", Font::Style::Oblique);
+    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSansCondensed-Bold.ttf", Font::Style::Condensed_Bold);
+    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSansCondensed-BoldOblique.ttf", Font::Style::Condensed_BoldOblique);
+    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSansCondensed.ttf", Font::Style::Condensed);
     CustomFonts::_loadCustomFonts();
 }
 

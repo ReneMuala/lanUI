@@ -25,7 +25,7 @@
 class MyHomeView : public View {
 public:
     
-    Image linearGradient;
+    Image gradient;
     VStack mainArea;
     InterativeObject interative;
     DrawableObject example;
@@ -36,7 +36,7 @@ public:
     MyHomeView(Window & win) {
         create(win);
         
-//        fromFile("lanUi.Bundle/System/Resources/forest.png", win.sdlRenderer.get());
+//        fromFile("lanUI.Bundle/System/Resources/forest.png", win.sdlRenderer.get());
 //        win.sdlRenderer.leave();
         fromColorScheme(Colors::Transparent, Colors::Transparent);
         
@@ -53,11 +53,11 @@ public:
 //                              printf("Hello world");
 //                              ));
         
-        linearGradient
+        gradient
         .set_alignment(Alignment::Top)
         .set_size(200, 200);
         
-        linearGradient.fromRadialGradient({0, 0}, 400,Image::GradientElement({Colors::Hot_pink, 1.0}), Image::GradientElement({Colors::Orange, 1.0}), window.sdlRenderer.get(), window.sdlWindow.get());
+        gradient.fromRadialGradient({0, 0}, 400,Image::GradientElement({Colors::Hot_pink, 1.0}), Image::GradientElement({Colors::Orange, 1.0}), window.sdlRenderer.get(), window.sdlWindow.get());
         window.sdlRenderer.leave();
         window.sdlWindow.leave();
         //mainText.set_font(CustomFonts::Lobster);
@@ -70,7 +70,7 @@ public:
         
         mainText.set_background_color(Colors::Dark_violet);
         
-        //linearGradient.set_angle(45);
+        //gradient.set_angle(45);
         
         window.sdlRenderer.leave();
         mainText.set_alignment(Alignment::Center);
@@ -89,34 +89,34 @@ public:
                                          static int count = 0 ;
                                          count += 1;
 //                                         mainText.from_string(std::to_string(count), window.sdlRenderer.data);
-                                         linearGradient.fromRadialGradient({0, 0}, 400,Image::GradientElement({(count % 2==0) ? Colors::Hot_pink : Colors::Blue_violet, 1.0}), Image::GradientElement({Colors::Orange, 1.0}), window.sdlRenderer.data, window.sdlWindow.data);
+                                         gradient.fromRadialGradient({0, 0}, 400,Image::GradientElement({(count % 2==0) ? Colors::Hot_pink : Colors::Blue_violet, 1.0}), Image::GradientElement({Colors::Orange, 1.0}), window.sdlRenderer.data, window.sdlWindow.data);
                                          window.sdlWindow.leave();
                                          window.sdlRenderer.leave();
                                          )
                             );
         
-        linearGradient.set_default_animation(0, CallbackExpr(
+        gradient.set_default_animation(0, CallbackExpr(
                                                              static bool toIncrease(true);
                                                              static float size = 180;
                                                              size = (toIncrease) ? size+.1: size-.1;
 
 
-//                                                             linearGradient.angle.hold();
-//                                                             linearGradient.angle.data += 1;
-//                                                             if(linearGradient.angle.data > 360)
-//                                                             linearGradient.angle = 0;
-//                                                             linearGradient.angle.leave();
+//                                                             gradient.angle.hold();
+//                                                             gradient.angle.data += 1;
+//                                                             if(gradient.angle.data > 360)
+//                                                             gradient.angle = 0;
+//                                                             gradient.angle.leave();
 
                                                             if(size < 180 || size >= 200)
                                                              toIncrease = !toIncrease;
                                                              //printf("%f\n", size);
-                                                             linearGradient.size.hold();
-                                                             linearGradient.size.data.w = size;
-                                                             linearGradient.size.data.h = size;
-                                                             linearGradient.size.leave();
+                                                             gradient.size.hold();
+                                                             gradient.size.data.w = size;
+                                                             gradient.size.data.h = size;
+                                                             gradient.size.leave();
 
 
-                                                             //linearGradient.set_size(size, size);
+                                                             //gradient.set_size(size, size);
                                                              mainArea.reload();
                                                             return true;
                                                              )
@@ -134,11 +134,10 @@ public:
         
         myList.set_alignment(Alignment::Center);
         
-        mainArea.fromList((std::list<Object *>){&linearGradient, &interative});
+        mainArea.fromList((std::list<Object *>){&gradient, &interative});
         
         mainArea.set_padding({0,0,0,0});
-        linearGradient.set_padding({0,0,0,0});
-        //mainArea.set_border_color(Colors::Yellow);
+        gradient.set_padding({0,0,0,0});
         
         mainArea.set_alignment(Alignment::Center);
                 
@@ -153,7 +152,7 @@ public:
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    Core LanUi;
+    Core lanUI;
     Window window("Window 1", 350, 500, Window::HighDefinition);
 
     auto Home = MyHomeView(window);
@@ -171,7 +170,7 @@ int main(int argc, const char * argv[]) {
     .on_closed(
                CallbackExpr(
                             std::cout << "window closed" << std::endl;
-                            LanUi.terminate();
+                            lanUI.terminate();
                             //window.hide();
                             )
                )
@@ -266,7 +265,7 @@ int main(int argc, const char * argv[]) {
 
     .set_window_clear_color(Colors::Light_gray)
     
-    .set_title("LanUi Demo");
+    .set_title("lanUI Demo");
 
     //.embedInZ(box[0]);
 

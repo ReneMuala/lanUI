@@ -19,7 +19,9 @@ Font Lobster;
  In lanUI your custom fonts must to be loaded manually, insert the statements in this funcion.
  */
 void _loadCustomFonts(){
-    Lobster.fromFile("lanUi.Bundle/System/Library/Fonts/Lobster-Regular.ttf", Font::Style::Regular);
+    // Example
+    Lobster.fromFile("lanUI.Bundle/System/Library/Fonts/Lobster-Regular.ttf", Font::Style::Regular);
+    // insert code here...
 }
 
 }

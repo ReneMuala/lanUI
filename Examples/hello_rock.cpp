@@ -14,12 +14,12 @@
 #endif
 
 int main() {
-    Core lanUi;
+    Core lanUI;
     Window myWindow("Hello rock", 400, 300);
     
     // uma rocha
     DrawableObject rock;
-    rock.fromFile("lanUi.Bundle/System/Resources/rock.png", myWindow.sdlRenderer.get());
+    rock.fromFile("lanUI.Bundle/System/Resources/rock.png", myWindow.sdlRenderer.get());
     rock.set_size(300, 300);
     rock.set_alignment(Object::Alignment::Center);
     myWindow.sdlRenderer.leave();

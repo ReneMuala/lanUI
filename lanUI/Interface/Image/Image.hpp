@@ -13,6 +13,8 @@
 #include <utility>
 #include "../Object/Object.hpp"
 
+/** A bitmap image.
+ */
 class Image : public DrawableObject {
     Uint32 * pixels;
     int pich;

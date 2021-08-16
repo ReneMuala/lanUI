@@ -12,11 +12,12 @@
 #include <SDL2/SDL.h>
 /// SDL_Color
 typedef SDL_Color Color;
-/// A basic color scheme
-/// Special thanks to https://www.rapidtables.com/web/color/RGB_Color.html
-// true colors <3
+/*! lanUI standard colors.
+Special thanks to https://www.rapidtables.com/web/color/RGB_Color.html */
 namespace Colors {
 const Color fromRGA(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0xff);
+/** Generate a new color by changing the alpha channel of an existing one.
+ */
 const Color fromColorA(const Color, uint8_t a);
 const Color Transparent{0,0,0,0};
 const Color White = {255,255,255,255};

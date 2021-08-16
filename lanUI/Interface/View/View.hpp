@@ -12,24 +12,33 @@
 #include "../Object/Object.hpp"
 #include "../Window/Window.hpp"
 
-/// Base to create Views
+/** View / ViewPort is main child of a window.
+ Contains the elements that are goind to presented on that window.
+ */
 class View: public DrawableObject {
     Window * window;
     DrawableObject some_content;
 public:
+    /** Views start point.
+     Creates the "Body" of the view,.
+     */
     virtual DrawableObject& body(Window&){
         return some_content;
     };
     
+    /** Creates the view without setting it as the main view of the window.
+     */
     void create_silently(Window & win){
         DrawableObject();
-        win.set_view(*this);
         window = &win;
+        embedInZ(body(win));
     }
     
+    /** Creates the view and sets it as the main view of the window.
+     */
     void create(Window & win){
         create_silently(win);
-        embedInZ(body(win));
+        win.set_view(*this);
     }
 };
 

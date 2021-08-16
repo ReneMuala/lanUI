@@ -11,14 +11,16 @@
 
 #include "../Object/Object.hpp"
 
+/** A opaque object
+ */
 class Spacer : public Object {
 public:
     Spacer(){
         Spacer(0,0);
     }
-    Spacer(const float w, const float h){
+    Spacer(const float width, const float height){
         Object();
-        size.set({0,0,w,h});
+        size.set({0,0,width,height});
     }
 };
 

@@ -11,11 +11,13 @@
 
 #include "../Object/Object.hpp"
 
+/** A Button
+ */
 class Button : public InterativeObject {
 public:
-    Button(){
-        Object();
+    Button(Object* content = nullptr){
         InterativeObject();
+        if(content) set_content(*content);
     }
 };
 

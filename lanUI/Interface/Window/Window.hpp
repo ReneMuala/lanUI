@@ -16,6 +16,7 @@
 #include "../Color/Color.hpp"
 #include "../Object/Object.hpp"
 
+//! A program window
 class Window: public Object {
 public:
     typedef std::function<void()> VoidCallback;
@@ -124,10 +125,15 @@ public:
 public:
     
     
+    /** Create a new window instance.
+     @param definition may be HighDefinition for HDPI/Retina monitors or NormalDefinition
+     */
     Window(const char * title = "window", float width = 600, float height = 400, Definition definition = HighDefinition);
     
     ~Window();
     
+    /** Get default window view
+     */
     Semaphore<Object*> view();
     
     Window& set_size(const float w, const float h) override;
@@ -142,6 +148,8 @@ public:
 
     Window& set_focus();
     
+    /** Set default window view
+     */
     Window& set_view(Object&);
 
     Window& hide();
@@ -149,7 +157,9 @@ public:
     Window& maximize();
 
     Window& minimize();
-        
+    
+    // The functions above set callbacks for window events
+    
     Window& on_start(VoidCallback);
     
     Window& on_closed(VoidCallback);

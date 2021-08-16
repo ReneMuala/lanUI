@@ -38,12 +38,12 @@ public:
 };
 
 int main(int argc, const char * argv[]) {
-    Core LanUI;
+    Core lanUI;
     
     Window myWindow = Window("hello lanUI", 200, 300);
     
     auto home = MyHomeView(myWindow);
     
-    LanUI.events();
+    lanUI.events();
     return 0;
 }

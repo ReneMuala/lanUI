@@ -20,12 +20,18 @@ public:
     Stack();
 };
 
+/** Vertical Stack.
+ Embeds objects in a vertical plan
+ */
 class VStack : public Stack {
 public:
     VStack& reload() override;
     void fromList(std::list<Object*>) override;
 };
 
+/** Vertical Stack.
+ Embeds objects in a horizontal plan
+ */
 class HStack : public Stack {
 public:
     HStack& reload() override;
@@ -33,7 +39,10 @@ public:
 };
 
 
-/// Embeds  objects in the Z axis  (CAN'T EMBED MORE THAN ONE TEXT, OR STACK-BASED OBJECT)
+/** Vertical Stack.
+ Embeds objects in a "Z" plan
+ */
+// (CAN'T EMBED MORE THAN ONE TEXT, OR STACK-BASED OBJECT)
 class ZStack : public Stack {
 public:
     ZStack& reload() override;

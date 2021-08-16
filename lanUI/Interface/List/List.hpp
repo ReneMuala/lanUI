@@ -12,6 +12,8 @@
 #include "../Object/Object.hpp"
 #include "../Stack/Stack.hpp"
 
+/** A Scrollable VStack
+ */
 class List : public InterativeObject {
     std::list<Object*> baseList;
     Sint32 maxSpeed;

@@ -108,17 +108,24 @@ public:
 public:
     virtual Object& operator=(Object&);
     
-    // Fixes object-compatibility issues
+    /**Reload this object to match with the children size.
+     */
     virtual Object& reload(){return (*this);}
+    /**Enables Reload.
+     Reloading is enabled by default on supported objects.
+     */
     Object& enable_reloading();
+    /**Disables Reload.
+     */
     Object& disable_reloading();
-    //void _sync_root_size_for_padding(const float &wDif, const float & hDif);
-    //void _sync_root_size(const float &wDif, const float & hDif);
     
     virtual Object& set_size(const float w, const float h);
     void _fix_size(const float w, const float h);
     Object& set_relative_size(const float w, const float h, const float w_correction = 0, const float h_corretion = 0);
     Object& set_padding(const Padding padding);
+    /**Sets Scrolling Factor.
+     Scrolling Factor changes the original position of an object, it's used in lists to create a scrolling animation.
+     */
     Object& set_scrollingFactor(const ScrollingFactor scrollingFactor);
     Object& set_alignment(const Alignment alignment);
     
@@ -127,8 +134,9 @@ public:
     Object& embedInY(Object&);
     Object& embedInZ(Object&);
     
-    Object& switchE(Object&);
-    Object& replaceE(Object&);
+    
+//    Object& switchE(Object&);
+//    Object& replaceE(Object&);
     
     bool _inRootBounds(float x, float y);
     

@@ -38,7 +38,7 @@ public:
 
     DrawableObject& body(Window& window) override {
         for(int i = 0 ; i < 5 ; i ++){
-            rock[i].fromFile("lanUi.Bundle/System/Resources/rock.png", window.sdlRenderer.get());
+            rock[i].fromFile("lanUI.Bundle/System/Resources/rock.png", window.sdlRenderer.get());
             window.sdlRenderer.leave();
             rock[i].set_size(100, 100);
         }
@@ -46,7 +46,7 @@ public:
         rocksStack.fromList((std::list<Object*>){
             &rock[0], &rock[1]/*,&rock[2], &rock[3], &rock[4]*/});
 
-        text[0].from_string("Lib LanUI (C++)", window.sdlRenderer.get());
+        text[0].from_string("Lib lanUI (C++)", window.sdlRenderer.get());
         window.sdlRenderer.leave();
 
         text[0].set_font(CustomFonts::Lobster);
@@ -103,7 +103,7 @@ public:
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    Core LanUi;
+    Core lanUI;
     Window window("hello world", 350, 500, Window::HighDefinition);
     
     auto Home = MyHomeView(window);
@@ -112,7 +112,7 @@ int main(int argc, const char * argv[]) {
     
     Home.fromColorScheme();
     
-    Home.fromFile("lanUi.Bundle/System/Resources/forest.png", window.sdlRenderer.get());
+    Home.fromFile("lanUI.Bundle/System/Resources/forest.png", window.sdlRenderer.get());
     window.sdlRenderer.leave();
         
     Home.set_size(460, 460);
@@ -130,7 +130,7 @@ int main(int argc, const char * argv[]) {
     .on_closed(
                CallbackExpr(
                             std::cout << "window closed" << std::endl;
-                            LanUi.terminate();
+                            lanUI.terminate();
                             //window.hide();
                             )
                )
@@ -228,7 +228,7 @@ int main(int argc, const char * argv[]) {
                                )
                   )
     
-    .set_title("LanUi Demo");
+    .set_title("lanUI Demo");
     
     //.embedInZ(box[0]);
     
