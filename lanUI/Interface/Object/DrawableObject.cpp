@@ -29,16 +29,16 @@ SDL_Surface * get_surface(const char * source){
 
 void DrawableObject::_render__image(SDL_Renderer * renderer, float x, float y, const float dpiK){
     _render_routine(dpiK);
-    rect_buffer.hold();
+    sizeBuffer.hold();
     if(withBackground)
-        _render__background(renderer, &rect_buffer.data);
-    SDL_RenderCopyExF(renderer, image.get(), NULL, &rect_buffer.data, angle.get(), NULL, SDL_FLIP_NONE);
-    //SDL_RenderCopyF(renderer, image.get(), NULL, &rect_buffer.data);
+        _render__background(renderer, &sizeBuffer.data);
+    SDL_RenderCopyExF(renderer, image.get(), NULL, &sizeBuffer.data, angle.get(), NULL, SDL_FLIP_NONE);
+    //SDL_RenderCopyF(renderer, image.get(), NULL, &sizeBuffer.data);
     image.leave();
     angle.leave();
     if(withBorder)
-        _render__border(renderer, &rect_buffer.data);
-    rect_buffer.leave();
+        _render__border(renderer, &sizeBuffer.data);
+    sizeBuffer.leave();
 }
 
 void DrawableObject::_render__colorScheme(SDL_Renderer * renderer, float x, float y, const float dpiK){
@@ -46,17 +46,17 @@ void DrawableObject::_render__colorScheme(SDL_Renderer * renderer, float x, floa
     foregroundColor.hold();
     SDL_SetRenderDrawColor(renderer, foregroundColor.data.r, foregroundColor.data.g, foregroundColor.data.b, foregroundColor.data.a);
     foregroundColor.leave();
-    SDL_RenderFillRectF(renderer, &rect_buffer.get());
-    if(withBorder) _render__border(renderer, &rect_buffer.data);
-    rect_buffer.leave();
+    SDL_RenderFillRectF(renderer, &sizeBuffer.get());
+    if(withBorder) _render__border(renderer, &sizeBuffer.data);
+    sizeBuffer.leave();
 }
 
 void DrawableObject::_render__default(SDL_Renderer * renderer, float x, float y, const float dpiK) {
     _render__colorScheme(renderer, x, y, dpiK);
-    rect_buffer.hold();
-    SDL_RenderDrawLineF(renderer, rect_buffer.data.x, rect_buffer.data.y, rect_buffer.data.x + rect_buffer.data.w, rect_buffer.data.y + rect_buffer.data.h);
-    SDL_RenderDrawLineF(renderer, rect_buffer.data.x, rect_buffer.data.y + rect_buffer.data.h, rect_buffer.data.x + rect_buffer.data.w, rect_buffer.data.y);
-    rect_buffer.leave();
+    sizeBuffer.hold();
+    SDL_RenderDrawLineF(renderer, sizeBuffer.data.x, sizeBuffer.data.y, sizeBuffer.data.x + sizeBuffer.data.w, sizeBuffer.data.y + sizeBuffer.data.h);
+    SDL_RenderDrawLineF(renderer, sizeBuffer.data.x, sizeBuffer.data.y + sizeBuffer.data.h, sizeBuffer.data.x + sizeBuffer.data.w, sizeBuffer.data.y);
+    sizeBuffer.leave();
 }
 
 DrawableObject::DrawableObject(): image(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Primary), backgroundColor(Colors::Secondary), borderColor(Colors::Transparent), angle(0), drawMode(DrawMode::DefaultMode) {
@@ -140,8 +140,8 @@ void DrawableObject::_render__border(SDL_Renderer * renderer, Rect * rect){
 }
 
 void DrawableObject::_render_routine(float dpiK){
-    rect_buffer.hold();
-    rect_buffer.data = {
+    sizeBuffer.hold();
+    sizeBuffer.data = {
         ((size.get().x+scrollingFactor.get().horizontal)*dpiK),
         ((size.data.y+scrollingFactor.data.vertical)*dpiK),
         (size.data.w)*dpiK,
@@ -149,7 +149,7 @@ void DrawableObject::_render_routine(float dpiK){
     };
     scrollingFactor.leave();
     size.leave();
-    rect_buffer.leave();
+    sizeBuffer.leave();
 }
 
 void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){

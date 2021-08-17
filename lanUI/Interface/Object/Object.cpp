@@ -132,12 +132,12 @@ Object& Object::operator=(Object & other){
 #include "../List/List.hpp"
 
 Object& Object::enable_reloading(){
-    reloading_disabled.set(false);
+    reloadingDisabled.set(false);
     return (*this);
 }
 
 Object& Object::disable_reloading(){
-    reloading_disabled.set(true);
+    reloadingDisabled.set(true);
     return (*this);
 }
 
@@ -255,7 +255,7 @@ bool Object::_inRootBounds(float x, float y){
     // ignore root bounds
     if(!usingRootBounds.get()) {
         usingRootBounds.leave();
-        inRootBounds_buffer.set(true);
+        inRootBoundsBuffer.set(true);
         return true;
     } usingRootBounds.leave();
     
@@ -274,7 +274,7 @@ bool Object::_inRootBounds(float x, float y){
         size.leave(); padding.leave();
         root.data->size.leave();
     } root.leave();
-    inRootBounds_buffer.set(inBounds);
+    inRootBoundsBuffer.set(inBounds);
     return inBounds;
 }
 
@@ -378,8 +378,8 @@ bool Object::_has_focus(const float dpiK){
 }
 
 void Object::_handle(Event & event, const float dpiK){
-    if(inRootBounds_buffer.get()){
-        inRootBounds_buffer.leave();
+    if(inRootBoundsBuffer.get()){
+        inRootBoundsBuffer.leave();
         size.leave();
         if(this->_has_focus(dpiK)){
             // ignore this object if the nextInZ has focus
@@ -394,7 +394,7 @@ void Object::_handle(Event & event, const float dpiK){
             } nextInZ.leave();
             _handle_others(event, dpiK);
         }
-    } inRootBounds_buffer.leave();
+    } inRootBoundsBuffer.leave();
 }
 
 void Object::_run_others_default_animation(){
@@ -412,10 +412,6 @@ void Object::_run_others_default_animation(){
 }
 
 void Object::_run_default_animation(){
-    if(properties[Properties::isDrawable].get()){
-        properties[Properties::isDrawable].leave();
-        ((DrawableObject*)this)->_run_default_animation();
-    }  properties[Properties::isDrawable].leave();
     _run_others_default_animation();
 }
 
@@ -441,7 +437,7 @@ void Object::_clear_properties(){
     }
 }
 
-Object::Object(): size({0,0,50,50}), padding({5.0,5.0,5.0,5.0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBounds_buffer(true) /*rootType(OtherRoot)*/ {
+Object::Object(): size({0,0,50,50}), padding({5.0,5.0,5.0,5.0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(true) /*rootType(OtherRoot)*/ {
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
         requests[i].leave();

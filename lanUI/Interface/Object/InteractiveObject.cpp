@@ -28,8 +28,8 @@ InterativeObject::InterativeObject(): scrollGain({0,0}){
 void InterativeObject::_handle(Event & event, const float dpiK){
     static bool focus_repeated(false);
     static bool no_focus_repeated(false);
-    if(inRootBounds_buffer.get()){
-        inRootBounds_buffer.leave();
+    if(inRootBoundsBuffer.get()){
+        inRootBoundsBuffer.leave();
         if(this->_has_focus(dpiK)){
             if(callbacks[OnFocusGained].get() && !focus_repeated)
                 on_focus_gained_callback();
@@ -85,7 +85,7 @@ void InterativeObject::_handle(Event & event, const float dpiK){
             no_focus_repeated = true;
             focus_repeated = false;
         }
-    } inRootBounds_buffer.leave();
+    } inRootBoundsBuffer.leave();
 }
 
 InterativeObject& InterativeObject::set_size(const float w, const float h){

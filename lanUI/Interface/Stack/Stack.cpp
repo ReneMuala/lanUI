@@ -17,7 +17,7 @@ Stack::Stack(){
 
 VStack& VStack::reload(){
     float width(0), height(0);
-    if (!reloading_disabled.get()) {
+    if (!reloadingDisabled.get()) {
         for(Object* row = nextInZ.data; row ; row=row->nextInY.data)
         {
             width = (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
@@ -25,7 +25,7 @@ VStack& VStack::reload(){
             row->size.leave();
             row->padding.leave();
         } set_size(width, height);//({0,0,width, height});
-    } reloading_disabled.leave();
+    } reloadingDisabled.leave();
     return (*this);
 }
 
@@ -51,7 +51,7 @@ void VStack::fromList(std::list<Object*> objects){
 
 HStack& HStack::reload(){
     float width(0), height(0);
-    if (!reloading_disabled.get()) {
+    if (!reloadingDisabled.get()) {
         for(Object* row = nextInZ.data; row ; row=row->nextInX.data)
         {
             width+= row->size.get().w + row->padding.get().left + row->padding.data.right;
@@ -59,7 +59,7 @@ HStack& HStack::reload(){
             row->size.leave();
             row->padding.leave();
         } set_size(width, height);
-    } reloading_disabled.leave();
+    } reloadingDisabled.leave();
     return (*this);
 }
 
@@ -85,7 +85,7 @@ void HStack::fromList(std::list<Object*> objects){
 
 ZStack& ZStack::reload(){
     float width(0), height(0);
-    if (!reloading_disabled.get()) {
+    if (!reloadingDisabled.get()) {
         for(Object* row = nextInZ.data; row ; row=row->nextInY.data)
         {
             width = (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
@@ -93,7 +93,7 @@ ZStack& ZStack::reload(){
             row->size.leave();
             row->padding.leave();
         } set_size(width, height);
-    } reloading_disabled.leave();
+    } reloadingDisabled.leave();
     return (*this);
 }
 

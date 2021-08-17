@@ -16,7 +16,6 @@
 		174F1F132682533B009B8159 /* Window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 174F1F112682533B009B8159 /* Window.cpp */; };
 		174F1F1826825427009B8159 /* Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 174F1F1626825427009B8159 /* Core.cpp */; };
 		17550B4E26C0082600A697E6 /* Button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17550B4C26C0082600A697E6 /* Button.cpp */; };
-		17584F4926C7EB0C00FE899F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1792B90D260328B200836D7A /* main.cpp */; };
 		17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17734DA526BDD31E00212851 /* InteractiveObject.cpp */; };
 		1781821126C41BCB00F986B6 /* List.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1781820F26C41BCB00F986B6 /* List.cpp */; };
 		179819D12687CA4500CCBC43 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 179819CF2687CA4500CCBC43 /* Object.cpp */; };
@@ -27,6 +26,7 @@
 		17D997BD26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */; };
 		17D997BE26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		17D997C726B3282A00219F36 /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997C526B3282A00219F36 /* Font.cpp */; };
+		17F67D6626CC222A00B2BE43 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1792B90D260328B200836D7A /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -385,7 +385,7 @@
 				17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */,
 				17BE74A426AC0364009A3D8C /* Color.cpp in Sources */,
 				17D997C726B3282A00219F36 /* Font.cpp in Sources */,
-				17584F4926C7EB0C00FE899F /* main.cpp in Sources */,
+				17F67D6626CC222A00B2BE43 /* main.cpp in Sources */,
 				174F1F132682533B009B8159 /* Window.cpp in Sources */,
 				174F1F1826825427009B8159 /* Core.cpp in Sources */,
 				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,

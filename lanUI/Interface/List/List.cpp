@@ -29,8 +29,8 @@ List::List(const Sint32 maxSpeed){
                                         state.data.VSpeed - (.05f) : state.data.VSpeed + (.05f);
                                         
                                         if((int)(state.data.VSpeed*10) == 0) state.data.VSpeed = 0;
-                                        if(state.data.VSpeed < 0 && !content.last->inRootBounds_buffer.get()
-                                           || state.data.VSpeed > 0 && !content.first->inRootBounds_buffer.get())
+                                        if(state.data.VSpeed < 0 && !content.last->inRootBoundsBuffer.get()
+                                           || state.data.VSpeed > 0 && !content.first->inRootBoundsBuffer.get())
                                         state.data.VScroll += state.data.VSpeed;
                                         else /* USER IS TRYING TO SCROLL BUT THE LIST IS IN THE ENDED */
                                         {
@@ -40,8 +40,8 @@ List::List(const Sint32 maxSpeed){
                                         else {}
                                         state.data.VSpeed = 0;}
                                         
-                                        content.first->inRootBounds_buffer.leave();
-                                        content.last->inRootBounds_buffer.leave();
+                                        content.first->inRootBoundsBuffer.leave();
+                                        content.last->inRootBoundsBuffer.leave();
 
                                         if(content.nextInZ.get())
                                         content.nextInZ.data->set_scrollingFactor({0,state.data.VScroll});

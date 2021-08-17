@@ -28,7 +28,7 @@ class Object {
     void __align_right(float & x, float & y);
             
 public:
-
+    
     typedef SDL_FRect Rect;
     typedef SDL_Event Event;
     typedef SDL_Texture Texture;
@@ -42,6 +42,12 @@ public:
     struct Padding {
         float top, bottom, left, right;
     };
+    
+    /** Reversed padding.
+     Crops the object's content.
+        NOTE:  the properties should be less or equal to 0.
+     */
+    struct ReversedPadding : public Padding {};
     
     struct ScrollingFactor {
         float horizontal, vertical;
@@ -88,13 +94,14 @@ public:
     // base data
     Semaphore<bool> properties[Properties::totalProperties];
     Semaphore<Rect> size;
+    Semaphore<Rect> crop;
     Semaphore<Padding> padding;
     Semaphore<ScrollingFactor> scrollingFactor;
     Semaphore<bool> requests[Requests::totalRequests];
     Semaphore<Alignment> aligment;
     Semaphore<bool> usingRootBounds;
-    Semaphore<bool> inRootBounds_buffer;
-    Semaphore<bool> reloading_disabled;
+    Semaphore<bool> inRootBoundsBuffer;
+    Semaphore<bool> reloadingDisabled;
 //    Semaphore<RootType> rootType;
 //    Semaphore<Type> type;
     
@@ -103,7 +110,8 @@ public:
     Semaphore<Object*> nextInX, nextInY, nextInZ;
     
     /// random access buffer
-    Semaphore<Rect> rect_buffer;
+    Semaphore<Rect> sizeBuffer;
+    Semaphore<Rect> reversedPaddingBuffer;
     
 public:
     virtual Object& operator=(Object&);
@@ -133,7 +141,6 @@ public:
     Object& embedInX(Object&);
     Object& embedInY(Object&);
     Object& embedInZ(Object&);
-    
     
 //    Object& switchE(Object&);
 //    Object& replaceE(Object&);
@@ -252,13 +259,13 @@ class __IOContainer : public Object {
 public:
     __IOContainer& reload() override{
         static float width(0), height(0);
-        if(!reloading_disabled.get() && nextInZ.data){
+        if(!reloadingDisabled.get() && nextInZ.data){
             width = (nextInZ.data->size.get().w + nextInZ.data->padding.get().left + nextInZ.data->padding.data.right);
             height = (nextInZ.data->size.data.h + nextInZ.data->padding.data.top + nextInZ.data->padding.data.top);
             nextInZ.data->size.leave();
             nextInZ.data->padding.leave();
         } //size.set({0,0,width, height});
-        reloading_disabled.leave();
+        reloadingDisabled.leave();
         set_size(width, height);
         return (*this);
     }
