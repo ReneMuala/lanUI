@@ -29,7 +29,7 @@ endif()
 if(NOT SDL2_LIBRARY)
     ######## 2. add SDL2 library directory if needed
     set(SDL2_LIBRARY 
-    "/opt/local/lib/libSDL2.dylib"
+    "/usr/lib/libSDL2.so"
     # insert path here ...
     )
 endif()
@@ -46,7 +46,7 @@ endif()
 if(NOT SDL2_TTF_LIBRARY)
     ######## 4. add SDL2_ttf library directory if needed
     set(SDL2_TTF_LIBRARY 
-        "/opt/local/lib/libSDL2_ttf.dylib"
+        "/usr/lib/libSDL2_ttf.so"
         # insert path here ...
         )
 endif()
@@ -62,7 +62,7 @@ endif()
 if(NOT SDL2_IMAGE_LIBRARY)
     ######## 6. add SDL2_image library directory if needed
     set(SDL2_IMAGE_LIBRARY 
-        "/opt/local/lib/libSDL2_image.dylib"
+        "/usr/lib/libSDL2_image.so"
         # insert path here ...
         )
 endif()
@@ -109,6 +109,8 @@ include_directories(SYSTEM
 )
 
 add_compile_options(-std=c++17)
+# generate degub information
+add_compile_options(-g)
 
 add_link_options(${SDL2_LIBRARY})
 add_link_options(${SDL2_TTF_LIBRARY})

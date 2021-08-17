@@ -271,13 +271,14 @@ public:
     }
     
     void set_content(Object& object){
-        embedInZ(object);
         set_size(
                  object.size.get().w + object.padding.get().left + object.padding.data.right,
                  object.size.data.h + object.padding.data.top + object.padding.data.bottom
                  );
         object.size.leave();
         object.padding.leave();
+        embedInZ(object);
+        object._useRootBounds();
     };
 };
 
