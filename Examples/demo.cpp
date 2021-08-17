@@ -31,6 +31,7 @@ public:
     VStack mainStack;
     VStack textStack;
     HStack rocksStack;
+    ZStack zContainer;
     
     MyHomeView(Window & win){
         create(win);
@@ -75,23 +76,25 @@ public:
 
         spacer.set_size(0, 200);
 
-        textStack.fromList((std::list<Object*>){&text[0], &text[1], &text[2], &text[3], &text[4]});
+        //textStack.fromList((std::list<Object*>){&text[0], &text[1], &text[2], &text[3], &text[4]});
 
         textStack.set_alignment(Alignment::Center);
 
-        textContainer.set_content(textStack);
+        textContainer.set_content(text[0]);
+        
+        //zContainer.fromList(std::list<Object*>{&text[0]});
 
         textContainer.size.set({0,0, rocksStack.size.get().w, textContainer.size.data.w});
         rocksStack.size.leave();
         
-        mainStack.fromList((std::list<Object*>){&textContainer, &spacer, &rocksStack});
+        mainStack.fromList((std::list<Object*>){&textContainer, &rocksStack});
 
         // mainStack.set_secondary_color(Colors::Lemon_chiffon);
 
-        mainStack.set_alignment(Alignment::Bottom);
+        mainStack.set_alignment(Alignment::Center);
 
         // mainStack.set_size(300, 400);
-        
+        perror("::view built");
         return mainStack;
     }
 };

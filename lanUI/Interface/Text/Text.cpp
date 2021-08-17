@@ -60,7 +60,7 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         surfc = nullptr;
         
         _freeImage();
-        
+        perror("before compilation");
         if(!compatibilityMode) {
              if(!(surfc=TTF_RenderUTF8_Blended(font.child.data, source.get().data(), (SDL_Color)foregroundColor.get())))
                  Core::log(Core::Warning, "Text: Render failed.");
@@ -100,6 +100,7 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
                 
         SDL_FreeSurface(surfc);
         source.leave();
+        perror("compilation done");
         return true;
     } drawMode.set(DrawMode::DefaultMode);
     source.leave();
