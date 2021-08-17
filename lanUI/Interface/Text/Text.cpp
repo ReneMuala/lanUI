@@ -50,8 +50,6 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
     if(renderer){
         source.leave();
         
-        drawMode.set(DrawMode::ImageMode);
-        
         if(!font.child.get())
             Core::log(Core::Error, "Text: Invalid font style.");
         
@@ -61,8 +59,12 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         
         _freeImage();
         if(!compatibilityMode) {
-             if(!(surfc=TTF_RenderUTF8_Blended(font.child.data, source.get().data(), (SDL_Color)foregroundColor.get())))
+            if(!(surfc=TTF_RenderUTF8_Blended(font.child.data, source.get().data(), (SDL_Color)foregroundColor.get()))) {
                  Core::log(Core::Warning, "Text: Render failed.");
+                source.leave();
+                font.child.leave();
+                return false;
+            }
         } else {
             switch (compatibilityMode) {
                 case RenderShadedMode:
@@ -99,6 +101,7 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
                 
         SDL_FreeSurface(surfc);
         source.leave();
+        drawMode.set(DrawMode::ImageMode);
         return true;
     } drawMode.set(DrawMode::DefaultMode);
     source.leave();
