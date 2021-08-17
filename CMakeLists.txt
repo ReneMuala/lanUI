@@ -7,7 +7,7 @@
     ##########   ##         ##   ##     ####    ##########     ######## 
 
 # WElCOME
-# follow this steps to build a fresh copy of laUnI
+# follow this steps to build a fresh copy of lanUI
 # FIRST THINGS FIRST: lanUi depends on 
 # -> libSDL2
 # -> libSDL2_ttf
