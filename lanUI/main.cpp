@@ -25,7 +25,7 @@ public:
         set_alignment(Alignment::Center);
         // set set size for this view
         set_size(200, 300);
-        
+        // view color
         fromColorScheme(Colors::White);
     }
     DrawableObject& body(Window& window) override{
