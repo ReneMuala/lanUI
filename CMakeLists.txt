@@ -15,55 +15,64 @@
 # Make sure to install those dependeces berofe trying to build lanUI
 
 cmake_minimum_required(VERSION 3.7)
+project(lanUI)
 
-find_package(SDL2 REQUIRED)
+# try to build by typing 
+# "cmake ."
+# and then 
+# cmake --build .
+
+# If you are getting errors like "no such file or directory" from c++ compiler:
+# 1. try to reinstall libSDL2, libSDL2_ttf and libSDL2_image
+# 2. find those libraries path and follow the steps bellow
+#
 
 if(NOT SDL2_INCLUDE_DIR)
-    ######## 1. add SDL2 include directory if needed
+    ######## 1. setup SDL2 include directory... (STEP 1)
     set(SDL2_INCLUDE_DIR 
         "/opt/local/include/"
-        # insert path here ...
+        # ^^^^^^^^^^^^^^^^^^^ replace the path above if needed
         )
 endif()
 
 if(NOT SDL2_LIBRARY)
-    ######## 2. add SDL2 library directory if needed
+    ######## 2. setup SDL2 library directory... (STEP 2)
     set(SDL2_LIBRARY 
     "/usr/lib/libSDL2.so"
-    # insert path here ...
+    # ^^^^^^^^^^^^^^^^^^^ replace the path above if needed
     )
 endif()
 
 if(NOT SDL2_TTF_INCLUDE_DIR)
-    ######## 3. add SDL2_ttf include directory if needed
+    ######## 3. setup SDL2_ttf include directory... (STEP 3)
     set(SDL2_TTF_INCLUDE_DIR 
         "/opt/local/include/"
-        # insert path here ...
+        # ^^^^^^^^^^^^^^^^^^^ replace the path above if needed
         )
 endif()
 
  
 if(NOT SDL2_TTF_LIBRARY)
-    ######## 4. add SDL2_ttf library directory if needed
+    ######## 4. setup SDL2_ttf library directory... (STEP 4)
     set(SDL2_TTF_LIBRARY 
         "/usr/lib/libSDL2_ttf.so"
-        # insert path here ...
+        # ^^^^^^^^^^^^^^^^^^^ replace the path above if needed
         )
 endif()
 
 if(NOT SDL2_IMAGE_INCLUDE_DIR)
-    ######## 5. add SDL2_image include directory if needed
+    ######## 5. setup SDL2_image include directory... (STEP 5)
     set(SDL2_IMAGE_INCLUDE_DIR 
         "/opt/local/include/"
-        # insert path here ...
+        # ^^^^^^^^^^^^^^^^^^^ replace the path above if needed
         )
 endif()
 
 if(NOT SDL2_IMAGE_LIBRARY)
-    ######## 6. add SDL2_image library directory if needed
+    ######## 6. setup SDL2_image library directory... (STEP 6)
     set(SDL2_IMAGE_LIBRARY 
         "/usr/lib/libSDL2_image.so"
-        # insert path here ...
+        # ^^^^^^^^^^^^^^^^^^^ replace the path above if needed
         )
 endif()
 
@@ -100,8 +109,6 @@ endif()
 #     set(CMAKE_FIND_LIBRARY_SUFFIXES ".so;.a")
 # endif()
 
-project(lanUI)
-
 include_directories(SYSTEM 
     ${SDL2_INCLUDE_DIR}
     ${SDL2_TTF_INCLUDE_DIR}
@@ -109,8 +116,9 @@ include_directories(SYSTEM
 )
 
 add_compile_options(-std=c++17)
-# generate degub information
-add_compile_options(-g)
+
+# add_compile_options(-g)
+# ^^^^^^^^^^^^^^^^^^^^^^ Uncomment the line above to generate debug information for lanUI
 
 add_link_options(${SDL2_LIBRARY})
 add_link_options(${SDL2_TTF_LIBRARY})
@@ -222,8 +230,10 @@ make_directory("./Template/${PROJECT_DIR}/CustomTextStyles/")
     COPY "./${PROJECT_DIR}/CustomTextStyles/CustomTextStyles.hpp"
     DESTINATION "./Template/${PROJECT_DIR}/CustomTextStyles/")
 
+add_compile_definitions(USING_LANUI_CMAKE_BUILDER)
+
 add_library(lanUI
-    SHARED # change to STATIC if you want a static version of liblanUI
+    SHARED # change to STATIC if you want a static version of lanUI
     "${CORE_DIR}/Core.cpp" 
     "${INTERFACE_DIR}/Button/Button.cpp" 
     "${INTERFACE_DIR}/Color/Color.cpp" 
@@ -238,12 +248,11 @@ add_library(lanUI
     "${INTERFACE_DIR}/Window/Window.cpp"
     "${PROJECT_DIR}/CustomFonts/CustomFonts.cpp")
 
-target_link_libraries(lanUI)
 add_executable(lanUIApp "lanUI/main.cpp")
 add_executable(lanUIApp2-demo "Examples/demo.cpp")
 add_executable(lanUIApp3-hello_rock "Examples/hello_rock.cpp")
 add_executable(lanUIApp4-click_gradient "Examples/click_gradient.cpp")
-add_compile_definitions(USING_LANUI_CMAKE_BUILDER)
+
 target_link_libraries(lanUIApp lanUI)
 target_link_libraries(lanUIApp2-demo lanUI)
 target_link_libraries(lanUIApp3-hello_rock lanUI)

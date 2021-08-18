@@ -18,7 +18,6 @@
 class MyHomeView : public View {
 public:
     Text message;
-    DrawableObject obj;
     MyHomeView(Window & win) {
         create(win);
         // set alignemt for this view
@@ -32,7 +31,7 @@ public:
         // the message
         message.from_string("Hello lanUI");
         // message color
-        message.set_foreground_color(Colors::Black);
+        message.set_foreground_color(Colors::Blue);
         // set alignemt for message
         message.set_alignment(Alignment::Center);
         // return message as the main content for this view
@@ -43,10 +42,15 @@ public:
 int main(int argc, const char * argv[]) {
     Core lanUI;
     
-    Window myWindow = Window("hello lanUI", 200, 300);
+    Window myWindow = Window("hello lanUI");
     
-    auto home = MyHomeView(myWindow);
+    Text text("Ola mundo!");
+    
+    text.set_foreground_color(Colors::White);
+    
+    myWindow.embedInZ(text);
     
     lanUI.events();
+    
     return 0;
 }
