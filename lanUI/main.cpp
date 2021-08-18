@@ -31,7 +31,7 @@ public:
         // the message
         message.from_string("Hello lanUI");
         // message color
-        message.set_foreground_color(Colors::Blue);
+        message.set_foreground_color(Colors::Black);
         // set alignemt for message
         message.set_alignment(Alignment::Center);
         // return message as the main content for this view
@@ -42,13 +42,9 @@ public:
 int main(int argc, const char * argv[]) {
     Core lanUI;
     
-    Window myWindow = Window("hello lanUI");
+    Window myWindow = Window("hello lanUI", 200, 300);
     
-    Text text("Ola mundo!");
-    
-    text.set_foreground_color(Colors::White);
-    
-    myWindow.embedInZ(text);
+    auto home = MyHomeView(myWindow);
     
     lanUI.events();
     
