@@ -47,7 +47,7 @@ void Text::_adjustTextDPI(){
 }
 
 bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
-    if(renderer){
+    if(renderer && source.get().size()){
         source.leave();
         
         if(!font.child.get())
@@ -59,7 +59,7 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         
         _freeImage();
         if(!compatibilityMode) {
-            if(!(surfc=TTF_RenderUTF8_Blended(font.child.data, source.get().data(), (SDL_Color)foregroundColor.get()))) {
+            if(!(surfc=TTF_RenderUTF8_Blended(font.child.data, source.data.data(), (SDL_Color)foregroundColor.get()))) {
                  Core::log(Core::Warning, "Text: Render failed.");
                 source.leave();
                 font.child.leave();
@@ -68,11 +68,11 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         } else {
             switch (compatibilityMode) {
                 case RenderShadedMode:
-                    if(!(surfc=TTF_RenderUTF8_Shaded(font.child.data, source.get().data(), (SDL_Color)foregroundColor.get(), (SDL_Color)backgroundColor.get())))
+                    if(!(surfc=TTF_RenderUTF8_Shaded(font.child.data, source.data.data(), (SDL_Color)foregroundColor.get(), (SDL_Color)backgroundColor.get())))
                         Core::log(Core::Warning, "Text (CompatibilityMode[RenderShadedMode]): Render failed.");
                     break;
                 case RenderSolidMode:
-                    if(!(surfc=TTF_RenderUTF8_Solid(font.child.data, source.get().data(), (SDL_Color)foregroundColor.get())))
+                    if(!(surfc=TTF_RenderUTF8_Solid(font.child.data, source.data.data(), (SDL_Color)foregroundColor.get())))
                         Core::log(Core::Warning, "Text (CompatibilityMode[RenderSolidMode]): Render failed.");
                     break;
                 default:break;
@@ -100,12 +100,11 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         }
                 
         SDL_FreeSurface(surfc);
-        source.leave();
         drawMode.set(DrawMode::ImageMode);
         return true;
     } drawMode.set(DrawMode::DefaultMode);
     source.leave();
-    Core::log(Core::Warning, "Text compilation failed (invalid renderer).");
+    Core::log(Core::Warning, "Text compilation failed (invalid renderer or string).");
     return false;
 }
 

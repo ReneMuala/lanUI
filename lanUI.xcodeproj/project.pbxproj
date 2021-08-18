@@ -26,7 +26,7 @@
 		17D997BE26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		17D997C726B3282A00219F36 /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997C526B3282A00219F36 /* Font.cpp */; };
 		17F67D6926CC614A00B2BE43 /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B826B3186E00219F36 /* Text.cpp */; };
-		17F67D6A26CC615E00B2BE43 /* demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17DAC97526BC902B005D70D2 /* demo.cpp */; };
+		17F67D6B26CC652B00B2BE43 /* click_gradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1781821226C4330D00F986B6 /* click_gradient.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -387,10 +387,10 @@
 				174F1F132682533B009B8159 /* Window.cpp in Sources */,
 				17F67D6926CC614A00B2BE43 /* Text.cpp in Sources */,
 				174F1F1826825427009B8159 /* Core.cpp in Sources */,
-				17F67D6A26CC615E00B2BE43 /* demo.cpp in Sources */,
 				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,
 				1781821126C41BCB00F986B6 /* List.cpp in Sources */,
 				179819D12687CA4500CCBC43 /* Object.cpp in Sources */,
+				17F67D6B26CC652B00B2BE43 /* click_gradient.cpp in Sources */,
 				17550B4E26C0082600A697E6 /* Button.cpp in Sources */,
 				1734118626BAB77300444E40 /* Image.cpp in Sources */,
 				17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */,
