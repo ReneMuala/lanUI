@@ -48,7 +48,6 @@ void Text::_adjustTextDPI(){
 
 bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
     if(renderer && source.get().size()){
-        source.leave();
         
         if(!font.child.get())
             Core::log(Core::Error, "Text: Invalid font style.");
@@ -60,7 +59,7 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         _freeImage();
         if(!compatibilityMode) {
             if(!(surfc=TTF_RenderUTF8_Blended(font.child.data, source.data.data(), (SDL_Color)foregroundColor.get()))) {
-                 Core::log(Core::Warning, "Text: Render failed.");
+                 Core::log(Core::Warning, "Text: Render failed (invalid surfc).");
                 source.leave();
                 font.child.leave();
                 return false;

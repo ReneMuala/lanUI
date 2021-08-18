@@ -53,13 +53,17 @@ void DrawableObject::_render__colorScheme(SDL_Renderer * renderer, float x, floa
 
 void DrawableObject::_render__default(SDL_Renderer * renderer, float x, float y, const float dpiK) {
     _render__colorScheme(renderer, x, y, dpiK);
+    borderColor.hold();
+    SDL_SetRenderDrawColor(renderer, borderColor.data.r, borderColor.data.g, borderColor.data.b, borderColor.data.a);
+    borderColor.leave();
     sizeBuffer.hold();
+    _render__border(renderer, &sizeBuffer.data);
     SDL_RenderDrawLineF(renderer, sizeBuffer.data.x, sizeBuffer.data.y, sizeBuffer.data.x + sizeBuffer.data.w, sizeBuffer.data.y + sizeBuffer.data.h);
     SDL_RenderDrawLineF(renderer, sizeBuffer.data.x, sizeBuffer.data.y + sizeBuffer.data.h, sizeBuffer.data.x + sizeBuffer.data.w, sizeBuffer.data.y);
     sizeBuffer.leave();
 }
 
-DrawableObject::DrawableObject(): image(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Primary), backgroundColor(Colors::Secondary), borderColor(Colors::Transparent), angle(0), drawMode(DrawMode::DefaultMode) {
+DrawableObject::DrawableObject(): image(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Primary), backgroundColor(Colors::Secondary), borderColor(Colors::Secondary), angle(0), drawMode(DrawMode::DefaultMode) {
     Object();
     _clear_properties();
     properties[Properties::isDrawable].set(true);

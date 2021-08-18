@@ -18,12 +18,15 @@
 class MyHomeView : public View {
 public:
     Text message;
+    DrawableObject obj;
     MyHomeView(Window & win) {
         create(win);
         // set alignemt for this view
         set_alignment(Alignment::Center);
         // set set size for this view
         set_size(200, 300);
+        
+        fromColorScheme(Colors::White);
     }
     DrawableObject& body(Window& window) override{
         // the message
