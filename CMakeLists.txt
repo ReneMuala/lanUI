@@ -22,10 +22,12 @@ project(lanUI)
 # and then 
 # cmake --build .
 
-# If you are getting errors like "no such file or directory" from c++ compiler:
+# If you are getting errors from c++ compiler or linker:
 # 1. try to reinstall libSDL2, libSDL2_ttf and libSDL2_image
-# 2. find those libraries path and follow the steps bellow
-#
+# 2. find those libraries path and follow the steps after number 3
+# 3. if you still having problems uncomment the line bellow
+# set(SECONDARY_MODE true)
+# ^^^^^^^^^^^^^^^^^^^ uncomment the line above to use default paths
 
 if(NOT SDL2_INCLUDE_DIR)
     ######## 1. setup SDL2 include directory... (STEP 1)
@@ -76,22 +78,22 @@ if(NOT SDL2_IMAGE_LIBRARY)
         )
 endif()
 
-message("-- SDL2: UNSING (${SDL2_INCLUDE_DIR} AND ${SDL2_LIBRARY})")
+if(NOT SECONDARY_MODE)
+    message("-- SDL2: UNSING (${SDL2_INCLUDE_DIR} AND ${SDL2_LIBRARY})")
+    message("-- SDL2TTF: UNSING (${SDL2_TTF_INCLUDE_DIR} AND ${SDL2_TTF_LIBRARY})")
+    message("-- SDL2IMAGE: UNSING (${SDL2_IMAGE_INCLUDE_DIR} AND ${SDL2_IMAGE_LIBRARY})")
 
-message("-- SDL2TTF: UNSING (${SDL2_TTF_INCLUDE_DIR} AND ${SDL2_TTF_LIBRARY})")
+    if(NOT SDL2_INCLUDE_DIR OR NOT SDL2_LIBRARY)
+        message("-- [CONFIG ERROR] Please provide a valid SDL2 path")
+    endif()
 
-message("-- SDL2IMAGE: UNSING (${SDL2_IMAGE_INCLUDE_DIR} AND ${SDL2_IMAGE_LIBRARY})")
+    if(NOT SDL2_TTF_INCLUDE_DIR OR NOT SDL2_TTF_LIBRARY)
+        message("-- [CONFIG ERROR] Please provide a valid SDL2_ttf path")
+    endif()
 
-if(NOT SDL2_INCLUDE_DIR OR NOT SDL2_LIBRARY)
-    message("-- [CONFIG ERROR] Please provide a valid SDL2 path")
-endif()
-
-if(NOT SDL2_TTF_INCLUDE_DIR OR NOT SDL2_TTF_LIBRARY)
-    message("-- [CONFIG ERROR] Please provide a valid SDL2_ttf path")
-endif()
-
-if(NOT SDL2_IMAGE_INCLUDE_DIR OR NOT SDL2_IMAGE_LIBRARY)
-    message("-- [CONFIG ERROR] Please provide a valid SDL2_image path")
+    if(NOT SDL2_IMAGE_INCLUDE_DIR OR NOT SDL2_IMAGE_LIBRARY)
+        message("-- [CONFIG ERROR] Please provide a valid SDL2_image path")
+    endif()
 endif()
 
 
@@ -120,9 +122,14 @@ add_compile_options(-std=c++17)
 # add_compile_options(-g)
 # ^^^^^^^^^^^^^^^^^^^^^^ Uncomment the line above to generate debug information for lanUI
 
-add_link_options(${SDL2_LIBRARY})
-add_link_options(${SDL2_TTF_LIBRARY})
-add_link_options(${SDL2_IMAGE_LIBRARY})
+if(NOT SECONDARY_MODE)
+    add_link_options(${SDL2_LIBRARY})
+    add_link_options(${SDL2_TTF_LIBRARY})
+    add_link_options(${SDL2_IMAGE_LIBRARY})
+else()
+    message("-- Using SECONDARY_MODE (LANUI WILL BE LINKED USING SYSTEM DEFAULT PATHS, provided by \"-lSDL2 -lSDL2_image -lSDL2_ttf\")")
+    add_link_options(-lSDL2 -lSDL2_image -lSDL2_ttf)
+endif()
 
 set(CORE_DIR "./lanUI/Core")
 set(INTERFACE_DIR "./lanUI/Interface")
