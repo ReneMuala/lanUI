@@ -35,7 +35,7 @@ public:
     DrawableObject& body(Window& window) override{
         Title.from_string("LanUI Changes Log ");
         Title.set_style(TextStyles::Header);
-\
+
         std::stack<std::string> changes;
         changes.push("- Colors");
         changes.push("- Window");
