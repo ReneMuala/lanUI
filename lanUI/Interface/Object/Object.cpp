@@ -259,7 +259,36 @@ bool Object::_inRootBounds(float x, float y){
         return true;
     } usingRootBounds.leave();
     
-    bool inBounds = true;
+    static bool inBounds;
+    inBounds = true;
+    
+    root.hold();
+    root.data->sizeBuffer.hold();
+    static SDL_Rect rootRect;
+    rootRect =
+    {
+        (int)(root.data->size.data.x),
+        (int)(root.data->size.data.y),
+        (int)(root.data->size.data.w),
+        (int)(root.data->size.data.h),
+    };
+    root.leave();
+    root.data->sizeBuffer.leave();
+    
+    size.hold();
+    padding.hold();
+    scrollingFactor.hold();
+    static SDL_Rect thisRect;
+    thisRect =
+    {
+        (int)(x+scrollingFactor.data.horizontal),
+        (int)(y+scrollingFactor.data.vertical),
+        (int)(padding.data.left+size.data.w+padding.data.right),
+        (int)(padding.data.top+size.data.h+padding.data.bottom),
+    };
+    size.leave();
+    padding.leave();
+    scrollingFactor.leave();
     
     if(root.get()){
         root.data->size.get();
@@ -267,10 +296,22 @@ bool Object::_inRootBounds(float x, float y){
         x+=scrollingFactor.get().horizontal;
         y+=scrollingFactor.data.vertical;
         scrollingFactor.leave();
-        inBounds = ((x + padding.data.left >= root.data->size.data.x)
-                    && (y + padding.data.top >= root.data->size.data.y)
-                    && (x+(padding.data.left + size.data.w + padding.data.right)) <= (root.data->size.data.x + root.data->size.data.w)
-                    && (y+(padding.data.top + size.data.h + padding.data.bottom)) <= (root.data->size.data.y + root.data->size.data.h));
+        if((inBounds = SDL_HasIntersection(&thisRect, &rootRect))){
+            if(thisRect.y >= rootRect.y)
+                isVericallyAfterRootBeginning.set(true);
+            else
+                isVericallyAfterRootBeginning.set(false);
+            
+            if(thisRect.y + thisRect.h <= rootRect.y+rootRect.h)
+                isVericallyBeforeRootEnding.set(true);
+            else
+                isVericallyBeforeRootEnding.set(false);
+        }
+        
+//        inBounds = ((x + padding.data.left >= root.data->size.data.x)
+//                    && (y + padding.data.top >= root.data->size.data.y)
+//                    && (x+(padding.data.left + size.data.w + padding.data.right)) <= (root.data->size.data.x + root.data->size.data.w)
+//                    && (y+(padding.data.top + size.data.h + padding.data.bottom)) <= (root.data->size.data.y + root.data->size.data.h));
         size.leave(); padding.leave();
         root.data->size.leave();
     } root.leave();
@@ -437,7 +478,7 @@ void Object::_clear_properties(){
     }
 }
 
-Object::Object(): size({0,0,50,50}), padding({5.0,5.0,5.0,5.0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(true) /*rootType(OtherRoot)*/ {
+Object::Object(): size({0,0,50,50}), padding({5.0,5.0,5.0,5.0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false) /*rootType(OtherRoot)*/ {
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
         requests[i].leave();

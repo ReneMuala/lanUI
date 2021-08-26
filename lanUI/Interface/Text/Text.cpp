@@ -128,9 +128,14 @@ void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){
     if(_inRootBounds(x, y)){
         _align(x, y);
         size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
+        _render_routine(dpiK);
+        _lock_renderer_in_bounds(renderer, dpiK);
         _render__image(renderer, x, y, dpiK);
+        _unlock_renderer_from_bounds(renderer);
     } else {
-        //Core::log(Core::Warning, "Text outside root bounds.");
+#ifdef LANUI_DEBUG_MODE
+        Core::log(Core::Warning, "Text outside root bounds.");
+#endif
         size.leave();
         root.data->size.leave();
         root.leave();

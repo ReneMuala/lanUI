@@ -70,7 +70,20 @@ Font& Font::set_style(const Style new_style, const int new_size){
 }
 
 Font& Font::fromFile(const char * path, Style style){
-    if(_test(path)) path_copy[style] = path;
-    else Core::log(Core::Error, "Unable to load font style.");
+    if(_test(path)) {
+        path_copy[style] = path;
+#ifdef LANUI_DEBUG_MODE
+        std::string message = path;
+        message+=" (Font style successful loaded).";
+        Core::log(Core::Message, message.c_str());
+#endif
+    } else {
+#ifdef LANUI_DEBUG_MODE
+        std::string message = path;
+        message+=" (Unable to load font style file).";
+        Core::log(Core::Error, message.c_str());
+#endif
+        Core::log(Core::Error, "Unable to load font style.");
+    }
     return (*this);
 }

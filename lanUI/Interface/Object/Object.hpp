@@ -101,6 +101,7 @@ public:
     Semaphore<Alignment> aligment;
     Semaphore<bool> usingRootBounds;
     Semaphore<bool> inRootBoundsBuffer;
+    Semaphore<bool> isVericallyAfterRootBeginning, isVericallyBeforeRootEnding;
     Semaphore<bool> reloadingDisabled;
 //    Semaphore<RootType> rootType;
 //    Semaphore<Type> type;
@@ -242,6 +243,10 @@ public:
     void _render__background(SDL_Renderer*, Rect*);
     
     void _render__border(SDL_Renderer*, Rect*);
+    
+    void _lock_renderer_in_bounds(SDL_Renderer*, float dpiK);
+    
+    void _unlock_renderer_from_bounds(SDL_Renderer*);
     
     // prepare rect_buffer
     void _render_routine(float dpiK);

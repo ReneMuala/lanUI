@@ -48,6 +48,9 @@ namespace Fonts {
 }
 
 Core::Core(): terminated(false){
+#ifdef LANUI_DEBUG_MODE
+        Core::log(Core::Message, "Using LANUI_DEBUG_MODE");
+#endif
     init();
     load_fonts();
     CoreData::running = true;

@@ -103,8 +103,8 @@ void ZStack::fromList(std::list<Object*> objects){
     for(auto row : objects){
         //row->rootType.set(Object::ZStackRoot);
         row->_useRootBounds();
-        width=(width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
-        height=(height < row->size.data.h + row->padding.data.top + row->padding.data.top) ? row->size.data.h + row->padding.data.top + row->padding.data.top : height;
+        width = (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
+        height = (height < row->size.data.h + row->padding.data.top + row->padding.data.bottom) ? row->size.data.h + row->padding.data.top + row->padding.data.bottom : height;
         row->size.leave();
         row->padding.leave();
         if(!last) {

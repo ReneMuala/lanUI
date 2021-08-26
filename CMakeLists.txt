@@ -248,12 +248,12 @@ add_library(lanUI
     "${INTERFACE_DIR}/Window/Window.cpp"
     "${PROJECT_DIR}/CustomFonts/CustomFonts.cpp")
 
-add_executable(lanUIApp "lanUI/main.cpp")
+add_executable(lanUIApp-Changes "lanUI/main.cpp")
 add_executable(lanUIApp2-demo "Examples/demo.cpp")
 add_executable(lanUIApp3-hello_rock "Examples/hello_rock.cpp")
 add_executable(lanUIApp4-click_gradient "Examples/click_gradient.cpp")
 
-target_link_libraries(lanUIApp lanUI)
+target_link_libraries(lanUIApp-Changes lanUI)
 target_link_libraries(lanUIApp2-demo lanUI)
 target_link_libraries(lanUIApp3-hello_rock lanUI)
 target_link_libraries(lanUIApp4-click_gradient lanUI)

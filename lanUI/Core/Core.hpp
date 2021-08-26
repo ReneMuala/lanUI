@@ -17,7 +17,10 @@
 
 /// Lambda body to be passed as a function argument
 #define CallbackExpr(x) [&]{x}
-#define lanUIVersion "lanUI 0.1"
+#define lanUIVersion "lanUI 0.2"
+
+//#define LANUI_DEBUG_MODE
+//^^^^^^^^^^^^^^^^^^^^^^^ Uncomment the line above to enable debug mode (BEFORE BUILDING LANUI)
 
 class Core {
 

@@ -11,6 +11,7 @@
 
 #include "../Object/Object.hpp"
 #include "../Stack/Stack.hpp"
+#include <optional>
 
 /** A Scrollable VStack
  */
@@ -28,7 +29,7 @@ public:
     List(const Sint32 maxSpeed = 10);
     Semaphore<ScrollSate> state;
     VStack content;
-        
+    List& fit_content(const float width, const float height);
     template<typename anyObj, unsigned repeat>
     List& compute(ObjPtrCallback callback){
         count = repeat;

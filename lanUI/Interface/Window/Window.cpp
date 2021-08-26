@@ -53,6 +53,7 @@ void Window::_create(const char *title, Definition definition, float width, floa
             Core::log(Core::Error, "Unable to create window renderer");
     SDL_SetRenderDrawBlendMode(sdlRenderer.data, SDL_BLENDMODE_BLEND);
     sdlWindowId.data = SDL_GetWindowID(sdlWindow.data);
+    SDL_SetWindowMinimumSize(sdlWindow.data, width, height);
 }
 
 void Window::_handle_events(){
