@@ -53,7 +53,7 @@ public:
         changes.push(":: Version 0.1 (Stable)");
         changes.push("- DrawableObject (new render methods)");
         changes.push("- List (any.fit_(w,h))");
-        changes.push("- Window miminum size (by constructor)");
+        changes.push("- Window minimum size (by constructor)");
         changes.push("Improved:");
         changes.push("- LanUI Changes Program");
         changes.push("- Debug mode (LANUI_DEBUG_MODE)");
