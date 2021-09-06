@@ -111,6 +111,7 @@ void Core::init_SDL(){
 }
 
 void Core::events(){
+    Core::log(Message, "Starting events thread.");
     while(CoreData::running){
         static short size (0);
         size = CoreData::programWindowsCount.get();
@@ -127,6 +128,7 @@ void Core::events(){
 }
 
 void Core::render(){
+    Core::log(Message, "Starting render thread.");
     while (CoreData::running) {
         static short size (0);
         size = CoreData::programWindowsCount.get();

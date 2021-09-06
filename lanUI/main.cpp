@@ -22,6 +22,7 @@ public:
     Text Title;
     List list;
     VStack mainArea;
+    
     MyHomeView(Window & win) {
         create(win);
         // set alignemt for this view
@@ -59,7 +60,6 @@ public:
         changes.push("- Debug mode (LANUI_DEBUG_MODE)");
         changes.push("Added:");
         changes.push(":: Version 0.2 (Latest)");
-
         list.compute<Text, 200>(CallbackExpr(
                                              if(!changes.empty()){
                                                 std::string src = changes.top();
@@ -85,9 +85,8 @@ int main(int argc, const char * argv[]) {
     Window myWindow = Window("LanUI Changes", 300, 400);
     
     myWindow.set_window_clear_color(Colors::Old_lace);
-    
+        
     auto home = MyHomeView(myWindow);
-    
     
     myWindow.on_closed(CallbackExpr(
                                     lanUI.terminate();

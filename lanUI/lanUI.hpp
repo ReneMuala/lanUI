@@ -19,6 +19,7 @@
 #include "Interface/Stack/Stack.hpp"
 #include "Interface/List/List.hpp"
 #include "Interface/Text/Text.hpp"
+#include "Interface/Paragraph/Paragraph.hpp"
 #include "Interface/Container/Container.hpp"
 #include "Interface/Spacer/Spacer.hpp"
 #include "Interface/Image/Image.hpp"

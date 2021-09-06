@@ -64,9 +64,8 @@ Font& Font::set_style(const Style new_style, const int new_size){
         Core::log(Core::Warning, "set_style(...) must to be used with a valid font style. Using Regular...");
         _load(path_copy[Regular].c_str(), new_size);
     } else {
-        Core::log(Core::Warning, "Using set_style(...) without any valid font style loaded.");
-    }
-    return (*this);
+        Core::log(Core::Error, "Using set_style(...) without any valid font style loaded.");
+    } return (*this);
 }
 
 Font& Font::fromFile(const char * path, Style style){

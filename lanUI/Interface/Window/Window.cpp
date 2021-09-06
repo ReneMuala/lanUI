@@ -213,7 +213,6 @@ void Window::_render(){
     DPIConstant.leave();
     nextInZ.leave();
     SDL_RenderPresent(sdlRenderer.get());
-    // leave renderer
     sdlRenderer.leave();
 }
 

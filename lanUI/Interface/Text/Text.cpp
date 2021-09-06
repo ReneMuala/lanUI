@@ -29,6 +29,7 @@ Text& Text::from_string(const std::string source, Renderer * renderer){
 
 void Text::tryCompile(){
     renderer.get();
+    _resetDPI();
     wasCompiled = compile(renderer.data, true);
     renderer.leave();
 }
@@ -49,14 +50,19 @@ void Text::_adjustTextDPI(){
 bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
     if(renderer && source.get().size()){
         
-        if(!font.child.get())
-            Core::log(Core::Error, "Text: Invalid font style.");
+        _freeImage();
+
+        if(!font.child.get()){
+            font.child.leave();
+            source.leave();
+            Core::log(Core::Warning, "Text compilation failed  (Invalid font style).");
+            return false;
+        }
         
         static SDL_Surface * surfc = nullptr;
         
         surfc = nullptr;
         
-        _freeImage();
         if(!compatibilityMode) {
             if(!(surfc=TTF_RenderUTF8_Blended(font.child.data, source.data.data(), (SDL_Color)foregroundColor.get()))) {
                  Core::log(Core::Warning, "Text: Render failed (invalid surfc).");
@@ -97,13 +103,14 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
                 root.data->reload();
             } root.leave();
         }
-                
+        
         SDL_FreeSurface(surfc);
         drawMode.set(DrawMode::ImageMode);
         return true;
     } drawMode.set(DrawMode::DefaultMode);
     source.leave();
     Core::log(Core::Warning, "Text compilation failed (invalid renderer or string).");
+    _freeImage();
     return false;
 }
 
@@ -116,13 +123,30 @@ void Text::_render_background(SDL_Renderer * renderer, Rect * rect){
 
 void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){
     
-    // prepare texts
-    if(!wasCompiled) {
+#ifdef LANUI_DEBUG_MODE
+    SDL_SetRenderDrawColor(renderer, 255, 200, 200, 50);
+    SDL_RenderFillRectF(renderer, &sizeBuffer.get());
+    SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
+    SDL_RenderDrawRectF(renderer, &sizeBuffer.data);
+    sizeBuffer.leave();
+#endif
+    
+    // prepare text
+    while(!wasCompiled) {
+#ifdef LANUI_DEBUG_MODE
+        Core::log(Core::Warning, "Text was not compiled, compiling...");
+#endif
         wasCompiled = compile(renderer);
-    } if(this->dpiK != dpiK){
+    } // adjust DPI 
+    if(this->dpiK != dpiK){
         this->dpiK = dpiK;
         _adjustTextDPI();
-        wasCompiled = compile(renderer, true, true);
+        do {
+#ifdef LANUI_DEBUG_MODE
+        Core::log(Core::Warning, "Text was not recompiled, recompiling...");
+#endif
+            wasCompiled = compile(renderer, true, true);
+        } while(!wasCompiled);
     }
     
     if(_inRootBounds(x, y)){
@@ -164,9 +188,10 @@ Text& Text::set_style(TextStyle preset){
 }
 
 Text& Text::set_font(Font & new_font){
+    Font::Style last_font_style = font.style;
     font = new_font;
-    font.style = Font::Regular;
-    font.set_style(Font::Regular, 12);
+    font.set_style(last_font_style, fontVirtualSize.get()*dpiK);
+    fontVirtualSize.leave();
     tryCompile();
     return (*this);
 }
