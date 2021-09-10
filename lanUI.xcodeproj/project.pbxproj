@@ -27,7 +27,7 @@
 		17D997BE26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		17D997C726B3282A00219F36 /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997C526B3282A00219F36 /* Font.cpp */; };
 		17F67D6926CC614A00B2BE43 /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B826B3186E00219F36 /* Text.cpp */; };
-		17F9B2FC26E6420800D3F228 /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
+		17FA2AD826EB3906003E899C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1792B90D260328B200836D7A /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -63,6 +63,7 @@
 		173504D526B843FA00359EF5 /* CustomTextStyles.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CustomTextStyles.hpp; sourceTree = "<group>"; };
 		173504D626B859FF00359EF5 /* CustomFonts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CustomFonts.cpp; sourceTree = "<group>"; };
 		173504D926B89A9400359EF5 /* Spacer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Spacer.hpp; sourceTree = "<group>"; };
+		174290F226EA76E300870D04 /* gallery.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = gallery.cpp; sourceTree = "<group>"; };
 		1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL2_image-2.0.0.dylib"; path = "../../../../../opt/local/lib/libSDL2_image-2.0.0.dylib"; sourceTree = "<group>"; };
 		174F1F09268252AE009B8159 /* libSDL2-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL2-2.0.0.dylib"; path = "../../../../../usr/local/Cellar/sdl2/2.0.14_1/lib/libSDL2-2.0.0.dylib"; sourceTree = "<group>"; };
 		174F1F0E268252F9009B8159 /* View.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = View.hpp; sourceTree = "<group>"; };
@@ -306,6 +307,7 @@
 			children = (
 				17D997AF26B2AAB000219F36 /* hello_rock.cpp */,
 				1781821226C4330D00F986B6 /* click_gradient.cpp */,
+				174290F226EA76E300870D04 /* gallery.cpp */,
 				17DAC97526BC902B005D70D2 /* demo.cpp */,
 			);
 			path = Examples;
@@ -404,7 +406,7 @@
 				174F1F1826825427009B8159 /* Core.cpp in Sources */,
 				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,
 				1781821126C41BCB00F986B6 /* List.cpp in Sources */,
-				17F9B2FC26E6420800D3F228 /* playground.cpp in Sources */,
+				17FA2AD826EB3906003E899C /* main.cpp in Sources */,
 				179819D12687CA4500CCBC43 /* Object.cpp in Sources */,
 				17550B4E26C0082600A697E6 /* Button.cpp in Sources */,
 				1734118626BAB77300444E40 /* Image.cpp in Sources */,

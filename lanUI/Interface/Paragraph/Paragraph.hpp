@@ -25,7 +25,7 @@ public:
         int fieldsCount;
     };
     Paragraph(){
-        Core::log(Core::Error, "The object type \"Paragraph\" is not ready for usage.");
+        Core::log(Core::Warning, "The object type \"Paragraph\" is not ready for usage.");
     }
     std::vector<Text*> lines;
     Paragraph& from_stringstream(std::stringstream& , Wrapper wraper = {Wrapper::Mode::Char,0});

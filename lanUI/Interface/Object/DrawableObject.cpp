@@ -141,63 +141,11 @@ void DrawableObject::_render__border(SDL_Renderer * renderer, Rect * rect){
     SDL_RenderDrawRectF(renderer, rect);
 }
 
-void DrawableObject::_render_routine(float dpiK){
-    sizeBuffer.hold();
-    sizeBuffer.data = {
-        ((size.get().x+scrollingFactor.get().horizontal)*dpiK),
-        ((size.data.y+scrollingFactor.data.vertical)*dpiK),
-        (size.data.w)*dpiK,
-        (size.data.h)*dpiK
-    };
-    scrollingFactor.leave();
-    size.leave();
-    sizeBuffer.leave();
-}
-
-void DrawableObject::_lock_renderer_in_bounds(SDL_Renderer * renderer, float dpiK){
-    static SDL_Rect bounds;
-    root.hold();
-    root.data->sizeBuffer.hold();
-    bounds =
-    {
-        (int)(root.data->sizeBuffer.data.x),
-        (int)(root.data->sizeBuffer.data.y),
-        (int)(root.data->sizeBuffer.data.w),
-        (int)(root.data->sizeBuffer.data.h),
-    };
-    sizeBuffer.hold();
-    //sizeBuffer.data.x -= root.data->sizeBuffer.data.x;
-    //sizeBuffer.data.y -= root.data->sizeBuffer.data.y;
-    sizeBuffer.leave();
-    root.leave();
-    root.data->sizeBuffer.leave();
-#ifdef LANUI_DEBUG_MODE
-    SDL_SetRenderDrawColor(renderer, 255, 20, 20, 50);
-    SDL_RenderFillRect(renderer, &bounds);
-    SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
-    SDL_RenderDrawRect(renderer, &bounds);
-#endif
-    SDL_RenderSetClipRect(renderer, &bounds);
-}
-
-void DrawableObject::_unlock_renderer_from_bounds(SDL_Renderer * renderer){
-    root.hold();
-    root.data->sizeBuffer.hold();
-    sizeBuffer.hold();
-    //sizeBuffer.data.x += root.data->sizeBuffer.data.x;
-    //sizeBuffer.data.y += root.data->sizeBuffer.data.y;
-    sizeBuffer.leave();
-    root.leave();
-    root.data->sizeBuffer.leave();
-    SDL_RenderSetClipRect(renderer, nullptr);
-}
-
 void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){
     if(_inRootBounds(x, y)){
         _align(x, y);
         size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
         _render_routine(dpiK);
-        
 #ifdef LANUI_DEBUG_MODE
         SDL_SetRenderDrawColor(renderer, 255, 200, 200, 100);
         SDL_RenderFillRectF(renderer, &sizeBuffer.get());
@@ -205,7 +153,6 @@ void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const fl
         SDL_RenderDrawRectF(renderer, &sizeBuffer.data);
         sizeBuffer.leave();
 #endif
-        
         _lock_renderer_in_bounds(renderer, dpiK);
         switch (drawMode.get()) {
             case DrawMode::ImageMode:
@@ -223,8 +170,8 @@ void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const fl
                 _render__default(renderer, x, y, dpiK);
                 break;
         } drawMode.leave();
-        _unlock_renderer_from_bounds(renderer);
         _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
+        _unlock_renderer_from_bounds(renderer);
     } _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInX_Y);
 }
 

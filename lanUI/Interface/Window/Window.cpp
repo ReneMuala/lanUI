@@ -222,6 +222,12 @@ Semaphore<Object*> Window::view(){
     return nextInZ;
 }
 
+Window& Window::disable_resizing(const bool disable){
+    SDL_SetWindowResizable(sdlWindow.get(), (SDL_bool)!disable);
+    sdlWindow.leave();
+    return (*this);
+}
+
 Window& Window::set_title(const char *title){
     winRequests[WinRequests::Title].set(true);
     this->title.set(title);

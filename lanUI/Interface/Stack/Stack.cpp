@@ -25,7 +25,8 @@ VStack& VStack::reload(){
             row->size.leave();
             row->padding.leave();
         } set_size(width, height);//({0,0,width, height});
-    } reloadingDisabled.leave();
+    }
+    reloadingDisabled.leave();
     return (*this);
 }
 

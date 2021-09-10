@@ -10,6 +10,9 @@
 #include "../../Core/Core.hpp"
 #include <iostream>
 #include <string>
+#include <stack>
+
+std::stack<SDL_Rect> rendererClips;
 
 void Object::__align_center(float &x, float &y){
     root.get()->size.get();
@@ -350,7 +353,6 @@ void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float
                                      y + padding_buffer.top,
                                      dpiK);
         
-        
         nextInZ.leave();
     }
     
@@ -373,11 +375,92 @@ void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float
     }
 }
 
+void Object::_lock_renderer_in_bounds(SDL_Renderer * renderer, float dpiK){
+    static SDL_Rect bounds, rendererBounds, inter;
+    root.hold();
+    root.data->sizeBuffer.hold();
+    bounds =
+    {
+        (int)(root.data->sizeBuffer.data.x),
+        (int)(root.data->sizeBuffer.data.y),
+        (int)(root.data->sizeBuffer.data.w),
+        (int)(root.data->sizeBuffer.data.h),
+    };
+    
+    SDL_RenderGetClipRect(renderer, &rendererBounds);
+    SDL_IntersectRect(&bounds,&rendererBounds, &inter);
+
+    if(SDL_RectEmpty(&inter)){
+        SDL_RenderSetClipRect(renderer, &bounds);
+        rendererClips.push(bounds);
+    } else {
+#ifdef LANUI_DEBUG_MODE
+    SDL_SetRenderDrawColor(renderer, 255, 255, 20, 200);
+    SDL_RenderDrawRect(renderer, &inter);
+#endif
+        SDL_RenderSetClipRect(renderer, &inter);
+        rendererClips.push(inter);
+    }
+
+    sizeBuffer.hold();
+    //sizeBuffer.data.x -= root.data->sizeBuffer.data.x;
+    //sizeBuffer.data.y -= root.data->sizeBuffer.data.y;
+    sizeBuffer.leave();
+    root.leave();
+    root.data->sizeBuffer.leave();
+#ifdef LANUI_DEBUG_MODE
+    SDL_SetRenderDrawColor(renderer, 255, 20, 20, 50);
+    SDL_RenderFillRect(renderer, &bounds);
+    SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
+    SDL_RenderDrawRect(renderer, &bounds);
+#endif
+}
+
+void Object::_unlock_renderer_from_bounds(SDL_Renderer * renderer){
+    root.hold();
+    root.data->sizeBuffer.hold();
+    sizeBuffer.hold();
+    //sizeBuffer.data.x += root.data->sizeBuffer.data.x;
+    //sizeBuffer.data.y += root.data->sizeBuffer.data.y;
+    sizeBuffer.leave();
+    root.leave();
+    root.data->sizeBuffer.leave();
+    if(!rendererClips.empty()){
+        SDL_RenderSetClipRect(renderer, &rendererClips.top());
+        rendererClips.pop();
+    } else {
+        SDL_RenderSetClipRect(renderer, nullptr);
+    }
+}
+
+void Object::_render_routine(float dpiK){
+    sizeBuffer.hold();
+    sizeBuffer.data = {
+        ((size.get().x+scrollingFactor.get().horizontal)*dpiK),
+        ((size.data.y+scrollingFactor.data.vertical)*dpiK),
+        (size.data.w)*dpiK,
+        (size.data.h)*dpiK
+    };
+    scrollingFactor.leave();
+    size.leave();
+    sizeBuffer.leave();
+}
+
 void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK) {
     if(_inRootBounds(x, y)){
         _align(x, y);
         size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
+        _render_routine(dpiK);
+#ifdef LANUI_DEBUG_MODE
+        SDL_SetRenderDrawColor(renderer, 255, 200, 200, 50);
+        SDL_RenderFillRectF(renderer, &sizeBuffer.get());
+        SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
+        SDL_RenderDrawRectF(renderer, &sizeBuffer.data);
+        sizeBuffer.leave();
+#endif
+        _lock_renderer_in_bounds(renderer, dpiK);
         _renderEmbedded(renderer, x, y, dpiK, _renderOnlyNextInZ);
+        _unlock_renderer_from_bounds(renderer);
     } _renderEmbedded(renderer, x, y, dpiK, _renderOnlyNextInX_Y);
 }
 
@@ -478,7 +561,7 @@ void Object::_clear_properties(){
     }
 }
 
-Object::Object(): size({0,0,50,50}), padding({5.0,5.0,5.0,5.0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false) /*rootType(OtherRoot)*/ {
+Object::Object(): size({0,0,50,50}), padding({5.0,5.0,5.0,5.0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false),reloadingDisabled(false) /*rootType(OtherRoot)*/ {
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
         requests[i].leave();

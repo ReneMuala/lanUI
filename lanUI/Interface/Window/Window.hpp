@@ -137,7 +137,9 @@ public:
     Semaphore<Object*> view();
     
     Window& set_size(const float w, const float h) override;
-
+    
+    Window& disable_resizing(const bool);
+    
     Window& set_title(const char * title);
     
     Window& set_opacity(float opacity);

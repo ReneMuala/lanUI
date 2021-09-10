@@ -160,6 +160,13 @@ public:
     
     virtual void _renderEmbedded(SDL_Renderer*, const float x, const float y, float dpiK, _RenderEmbeddedMode mode = _RenderEmbeddedMode::_renderAllNexts);
     
+    void _lock_renderer_in_bounds(SDL_Renderer*, float dpiK);
+    
+    void _unlock_renderer_from_bounds(SDL_Renderer*);
+    
+    // prepare rect_buffer
+    void _render_routine(float);
+    
     // Fixes object-compatibility issues
     virtual void _render(SDL_Renderer*, float x, float y, float dpiK);
     
@@ -243,14 +250,7 @@ public:
     void _render__background(SDL_Renderer*, Rect*);
     
     void _render__border(SDL_Renderer*, Rect*);
-    
-    void _lock_renderer_in_bounds(SDL_Renderer*, float dpiK);
-    
-    void _unlock_renderer_from_bounds(SDL_Renderer*);
-    
-    // prepare rect_buffer
-    void _render_routine(float dpiK);
-    
+        
     void _render(SDL_Renderer*, float x, float y, float dpiK) override;
         
     void _run_default_animation() override;
@@ -262,6 +262,7 @@ public:
 /// __InteractiveObject_Container
 class __IOContainer : public Object {
 public:
+    
     __IOContainer& reload() override{
         static float width(0), height(0);
         if(!reloadingDisabled.get() && nextInZ.data){
@@ -269,9 +270,9 @@ public:
             height = (nextInZ.data->size.data.h + nextInZ.data->padding.data.top + nextInZ.data->padding.data.top);
             nextInZ.data->size.leave();
             nextInZ.data->padding.leave();
+            set_size(width, height);
         } //size.set({0,0,width, height});
         reloadingDisabled.leave();
-        set_size(width, height);
         return (*this);
     }
     
