@@ -8,6 +8,44 @@
 
 #include "Text.hpp"
 
+const std::string TextStyle::toStr() const {
+    std::string str = " ";
+
+    switch (font_style) {
+        case Font::Regular:
+            str+="\\regular";
+            break;
+        case Font::Bold:
+            str+="\\bold";
+            break;
+        case Font::ExtraLight:
+            str+="\\extraLight";
+            break;
+        case Font::BoldOblique:
+            str+="\\boldOblique";
+            break;
+        case Font::Oblique:
+            str+="\\oblique";
+            break;
+        case Font::Condensed_Bold:
+            str+="\\condensed_Bold";
+            break;
+        case Font::Condensed_BoldOblique:
+            str+="\\condensed_BoldOblique";
+            break;
+        case Font::Condensed_Oblique:
+            str+="\\condensed_Oblique";
+            break;
+        case Font::Condensed:
+            str+="\\condensed";
+            break;
+        default:break;
+    }
+    
+    str += " \\size:" + std::to_string(size) + " ";
+    return str;
+}
+
 Text::Text(const std::string source, Font& font): wasCompiled(false), withBackground(false), source(source), fontVirtualSize(12){
     DrawableObject();
     this->font = font;
@@ -107,6 +145,10 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         SDL_FreeSurface(surfc);
         drawMode.set(DrawMode::ImageMode);
         return true;
+    } else if (source.data.empty()) {
+        Core::log(Core::Warning, "Text compilation ignored (invalid string).");
+        source.leave();
+        return true;
     } drawMode.set(DrawMode::DefaultMode);
     source.leave();
     Core::log(Core::Warning, "Text compilation failed (invalid renderer or string).");
@@ -202,63 +244,63 @@ Text& Text::set_foreground_color(const Color color){
     return (*this);
 }
 
-Text& Text::regular(const int size){
+Text& Text::regular(const unsigned int size){
     fontVirtualSize = size;
     font.set_style(Font::Regular, size*dpiK);
     tryCompile();
     return (*this);
 }
 
-Text& Text::bold(const int size){
+Text& Text::bold(const unsigned int size){
     fontVirtualSize = size;
     font.set_style(Font::Bold, size*dpiK);
     tryCompile();
     return (*this);
 }
 
-Text& Text::boldOblique(const int size){
+Text& Text::boldOblique(const unsigned int size){
     fontVirtualSize = size;
     font.set_style(Font::BoldOblique, size*dpiK);
     tryCompile();
     return (*this);
 }
 
-Text& Text::extraLight(const int size){
+Text& Text::extraLight(const unsigned int size){
     fontVirtualSize = size;
     font.set_style(Font::ExtraLight, size*dpiK);
     tryCompile();
     return (*this);
 }
 
-Text& Text::oblique(const int size){
+Text& Text::oblique(const unsigned int size){
     fontVirtualSize = size;
     font.set_style(Font::Oblique, size*dpiK);
     tryCompile();
     return (*this);
 }
 
-Text& Text::condensed_Bold(const int size){
+Text& Text::condensed_Bold(const unsigned int size){
     fontVirtualSize = size;
     font.set_style(Font::Condensed_Bold, size*dpiK);
     tryCompile();
     return (*this);
 }
 
-Text& Text::condensed_BoldOblique(const int size){
+Text& Text::condensed_BoldOblique(const unsigned int size){
     fontVirtualSize = size;
     font.set_style(Font::Condensed_BoldOblique, size*dpiK);
     tryCompile();
     return (*this);
 }
 
-Text& Text::condensed_Oblique(const int size){
+Text& Text::condensed_Oblique(const unsigned int size){
     fontVirtualSize = size;
     font.set_style(Font::Condensed_Oblique, size*dpiK);
     tryCompile();
     return (*this);
 }
 
-Text& Text::condensed(const int size){
+Text& Text::condensed(const unsigned int size){
     fontVirtualSize = size;
     font.set_style(Font::Condensed, size*dpiK);
     tryCompile();

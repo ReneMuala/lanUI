@@ -145,7 +145,10 @@ Object& Object::disable_reloading(){
 }
 
 Object& Object::set_size(const float size_w, const float size_h){
-    size.set({0,0, size_w, size_h});
+    size.hold();
+    size.data.w = (size_w >= 0) ? size_w : size.data.w;
+    size.data.h = (size_h >= 0) ? size_h : size.data.h;
+    size.leave();
     if(root.get()) {
         root.leave();
         root.data->reload();
@@ -409,7 +412,7 @@ void Object::_lock_renderer_in_bounds(SDL_Renderer * renderer, float dpiK){
     root.leave();
     root.data->sizeBuffer.leave();
 #ifdef LANUI_DEBUG_MODE
-    SDL_SetRenderDrawColor(renderer, 255, 20, 20, 50);
+    SDL_SetRenderDrawColor(renderer, 255, 20, 20, 10);
     SDL_RenderFillRect(renderer, &bounds);
     SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
     SDL_RenderDrawRect(renderer, &bounds);
@@ -561,7 +564,7 @@ void Object::_clear_properties(){
     }
 }
 
-Object::Object(): size({0,0,50,50}), padding({5.0,5.0,5.0,5.0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false),reloadingDisabled(false) /*rootType(OtherRoot)*/ {
+Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false),reloadingDisabled(false) /*rootType(OtherRoot)*/ {
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
         requests[i].leave();

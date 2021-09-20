@@ -22,12 +22,12 @@
 		17BE74A426AC0364009A3D8C /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A326AC0364009A3D8C /* Color.cpp */; };
 		17BE74AA26AC5B87009A3D8C /* DrawableObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A926AC5B87009A3D8C /* DrawableObject.cpp */; };
 		17C7970C26D8F85F00CF551B /* Paragraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970A26D8F85F00CF551B /* Paragraph.cpp */; };
+		17D64BAE26F74435007C2ACD /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
 		17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B326B2B6CF00219F36 /* Stack.cpp */; };
 		17D997BD26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */; };
 		17D997BE26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		17D997C726B3282A00219F36 /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997C526B3282A00219F36 /* Font.cpp */; };
 		17F67D6926CC614A00B2BE43 /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B826B3186E00219F36 /* Text.cpp */; };
-		17FA2AD826EB3906003E899C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1792B90D260328B200836D7A /* main.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -406,7 +406,7 @@
 				174F1F1826825427009B8159 /* Core.cpp in Sources */,
 				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,
 				1781821126C41BCB00F986B6 /* List.cpp in Sources */,
-				17FA2AD826EB3906003E899C /* main.cpp in Sources */,
+				17D64BAE26F74435007C2ACD /* playground.cpp in Sources */,
 				179819D12687CA4500CCBC43 /* Object.cpp in Sources */,
 				17550B4E26C0082600A697E6 /* Button.cpp in Sources */,
 				1734118626BAB77300444E40 /* Image.cpp in Sources */,

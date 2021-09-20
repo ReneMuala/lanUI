@@ -10,12 +10,26 @@
 #define Color_h
 
 #include <SDL2/SDL.h>
+#include <string>
 /// SDL_Color
-typedef SDL_Color Color;
+//typedef SDL_Color Color;
+struct Color : public SDL_Color {
+    Color(){
+        r=g=b=0;
+        a=0xff;
+    };
+    Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0xff){
+        this->r = r;
+        this->g = g;
+        this->b = b;
+        this->a = a;
+    }
+    const std::string toStr() const;
+};
 /*! lanUI standard colors.
 Special thanks to https://www.rapidtables.com/web/color/RGB_Color.html */
 namespace Colors {
-const Color fromRGA(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0xff);
+const Color fromRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0xff);
 /** Generate a new color by changing the alpha channel of an existing one.
  */
 const Color fromColorA(const Color, uint8_t a);

@@ -7,6 +7,7 @@
 //
 
 #include "lanUI.hpp"
+#include <regex>
 /*
  Note:
     On Xcode, it will be necessary to disable metal api validation.
@@ -17,28 +18,25 @@
 int main(int argc, const char * argv[]) {
     Core ola_mundo;
     
-//    Window show;
-//    show.set_title("Hello World!");
-//
-//    show.set_window_clear_color(Colors::White_smoke);
-//
-//    Text texto("Hello i'm a text");
-//    show.set_view(texto);
-//
-//    texto.bold(26).set_font(Fonts::DejaVuSans).set_alignment(Object::Alignment::Center);
-//
-//    DrawableObject square;
-//    square.set_padding({2,2,4,4});
+    Window win;
     
-    Paragraph test;
+    win.set_window_clear_color(Colors::Light_gray);
+    
+    Paragraph teste;
+    
     std::stringstream stream;
     
-    stream << "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quibusdam, rem! Facilis, maxime ullam velit nostrum necessitatibus quaerat rem suscipit, hic ducimus deserunt perspiciatis adipisci, sequi perferendis repellat totam. Deserunt, ducimus.";
+    stream << TextStyles::BigTitle.toStr();
+    stream << "Lorem ipsum \\newln ";
+    stream << TextStyles::Default.toStr();
+    stream << "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam, magni. Ad culpa dolores id, aspernatur soluta quidem distinctio architecto tempore magni eos odio autem a quibusdam! Delectus cum nam iusto.";
     
-    test.from_stringstream(stream, Paragraph::Wrapper({Paragraph::Wrapper::Mode::Char, 20}));
+    teste.from_stringstream(stream, Paragraph::Wrapper::Char, 20);
     
+    teste.set_alignment(Object::Alignment::Center);
     
-//    ola_mundo.events();
+    win.embedInZ(teste);
+    
+    ola_mundo.events();
     return 0;
 }
-

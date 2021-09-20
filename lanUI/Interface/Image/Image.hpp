@@ -30,7 +30,7 @@ public:
         Horizontal
     } LGOrietantion;
     const Color _getGradientFrameColor(GradientElement first, GradientElement second, double progress, double stages);
-    Image& fromLinearGradient(LGOrietantion orientation, GradientElement first, GradientElement second, Renderer * renderer, SDL_Window* window);
+    Image& fromLinearGradient(LGOrietantion orientation, GradientElement first, GradientElement second, Renderer * renderer, SDL_Window* window, uint32_t weight = 1, uint32_t gap = 0);
     const double _getDistance(Point point1, Point point2);
     Image& fromRadialGradient(Point, double radius, GradientElement first, GradientElement second, Renderer * renderer, SDL_Window* window);
     Image& set_angle(const Angle);

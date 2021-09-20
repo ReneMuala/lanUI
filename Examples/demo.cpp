@@ -84,7 +84,7 @@ public:
         //textContainer.size.set({0,0, rocksStack.size.get().w, textContainer.size.data.w});
         //rocksStack.size.leave();
         
-        mainStack.fromList((std::list<Object*>){&textContainer, &rocksStack});
+        mainStack.fromList((std::list<Object*>){&textContainer,&spacer, &rocksStack});
 
         // mainStack.set_secondary_color(Colors::Lemon_chiffon);
 

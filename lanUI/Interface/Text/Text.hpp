@@ -16,9 +16,11 @@
 typedef struct {
     Font::Style font_style;
     int size;
+    const std::string toStr() const;
 } TextStyle;
 
 namespace TextStyles {
+    const TextStyle BigTitle = {Font::Style::Bold, 36};
     const TextStyle Header = {Font::Style::Bold, 18};
     const TextStyle Default = {Font::Style::Regular, 12};
     const TextStyle Caption = {Font::Style::Oblique, 11};
@@ -29,9 +31,9 @@ class Text: public DrawableObject {
     bool wasCompiled, withBackground;
     Semaphore<std::string> source;
     int dpiK;
-    Semaphore<int> fontVirtualSize;
-    Font font;
 public:
+    Semaphore<unsigned int> fontVirtualSize;
+    Font font;
     
     typedef enum {
         /// TTF_RenderUTF8_Blended(...)
@@ -71,23 +73,23 @@ public:
     
     Text& set_foreground_color(const Color) override;
         
-    Text& regular(const int = 12);
+    Text& regular(const unsigned int = 12);
     
-    Text& bold(const int = 12);
+    Text& bold(const unsigned int = 12);
     
-    Text& boldOblique(const int = 12);
+    Text& boldOblique(const unsigned int = 12);
     
-    Text& extraLight(const int = 12);
+    Text& extraLight(const unsigned int = 12);
     
-    Text& oblique(const int = 12);
+    Text& oblique(const unsigned int = 12);
     
-    Text& condensed_Bold(const int = 12);
+    Text& condensed_Bold(const unsigned int = 12);
     
-    Text& condensed_BoldOblique(const int = 12);
+    Text& condensed_BoldOblique(const unsigned int = 12);
     
-    Text& condensed_Oblique(const int = 12);
+    Text& condensed_Oblique(const unsigned int = 12);
     
-    Text& condensed(const int = 0);
+    Text& condensed(const unsigned int = 0);
         
 };
 

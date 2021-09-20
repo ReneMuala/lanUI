@@ -11,11 +11,17 @@
 
 #include "../Text/Text.hpp"
 #include "../List/List.hpp"
-#include <vector>
+#include <list>
+#include <regex>
 #include <sstream>
 
-class Paragraph : public List {
+/// Lorem ipsum dolor...
+const static std::string Lorem = ("Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam, magni. Ad culpa dolores id, aspernatur soluta quidem distinctio architecto tempore magni eos odio autem a quibusdam! Delectus cum nam iusto.");
+
+class Paragraph : public VStack {
+    Color textColor;
 public:
+    
     struct Wrapper {
         typedef enum {
             Char,
@@ -23,12 +29,24 @@ public:
         } Mode;
         Mode mode;
         int fieldsCount;
+        Wrapper(Mode mode, int fields): mode(mode), fieldsCount(fields){}
     };
+    
     Paragraph(){
-        Core::log(Core::Warning, "The object type \"Paragraph\" is not ready for usage.");
+        textColor = Colors::Black;
+        //Core::log(Core::Warning, "The object type \"Paragraph\" is not ready for usage.");
     }
-    std::vector<Text*> lines;
+    
+    std::list<Object*> words;
+    std::list<Object*> lines;
+    
+    Paragraph& from_stringstream(std::stringstream& , Wrapper::Mode, int fileldsCount);
+    
     Paragraph& from_stringstream(std::stringstream& , Wrapper wraper = {Wrapper::Mode::Char,0});
+    
+    void _parse_hint(const std::string src, std::string & line ,Font::Style &style, unsigned int &size);
+    void _add_word(const char *, Font::Style style, const unsigned int size);
+    void _new_line(std::list<Object*> word);
 };
 
 #endif /* Paragraph_hpp */

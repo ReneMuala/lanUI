@@ -34,10 +34,12 @@ public:
     List listDemo;
     VStack mainStack;
     Text title[2];
+    Text titleDescrition;
+    Container titleDescritionArea;
     VStack titleStack;
     Container titleArea;
-    
-
+    HStack actionArea;
+    List codeList;
     
     MyHomeView(Window & win) {
         create(win);
@@ -46,36 +48,58 @@ public:
 //        win.sdlRenderer.leave();
         fromColorScheme(Colors::Transparent, Colors::Transparent);
         
-        set_size(1200, 650);
+        set_size(1300, 850);
         set_padding({0,0,0,0});
         set_alignment(Object::Alignment::Center);
         set_border_color(Colors::Blue);
     }
 
-    DrawableObject& body(Window& window) override {
-        window.disable_resizing(true);
-        background.set_padding({0,0,0,0}).set_size(1200, 650);
-        background.fromLinearGradient(Image::Vertical, Image::GradientElement(Colors::fromRGA(255-200, 100-100, 255-200), 1.0), Image::GradientElement(Colors::fromRGA(31, 68, 128), 0.5), window.sdlRenderer.get(), window.sdlWindow.get());
+    void createBackgound(Window& window){
+        background.set_size(1200, 650);
+        background.set_alignment(Alignment::Center);
+        
+        background.fromLinearGradient(Image::Vertical, Image::GradientElement(Colors::fromRGA(255-200, 100-100, 255-200), 1.0), Image::GradientElement(Colors::fromRGA(31/2, 68/2, 128/2), 1.0), window.sdlRenderer.get(), window.sdlWindow.get(), 1,2);
         window.sdlRenderer.leave();
         window.sdlWindow.leave();
-        
+    }
+    
+    void createHeader(){
         title[0].from_string("Galeria").set_foreground_color(Colors::Orange).bold(65);
-        title[1].from_string("LanUI").set_font(CustomFonts::Lobster).regular(65).set_foreground_color(Colors::Blue_violet).set_scrollingFactor(Object::ScrollingFactor({75,-40}));
-        
+        title[1].from_string("LanUI").set_font(CustomFonts::Lobster).regular(65).set_foreground_color(Colors::Dark_violet).set_scrollingFactor(Object::ScrollingFactor({70,-40}));
+        titleDescrition.from_string("LanUI é uma biblioteca para criar interfaces gráficas em Cpp").regular(18).set_foreground_color(Colors::fromColorA(Colors::White, 100));
+        titleDescritionArea.set_content(titleDescrition);
+        titleDescritionArea.set_size(1200, 20);
+        titleDescritionArea.disable_reloading();
+        titleDescrition.set_alignment(Alignment::Center);
         titleStack.fromList(std::list<Object *>{&title[0], &title[1]});
         titleStack.set_alignment(Alignment::Top);
         titleArea.set_content(titleStack);
-        titleArea.set_size(1200, 150);
+        titleArea.set_size(1200, 120);
         titleArea.disable_reloading();
-        mainStack.fromList(std::list<Object *>{&titleArea, &example[0],&example[1],&example[2],&example[3]});
-        mainStack.set_padding({0,0,0,0});
+    }
+    
+    DrawableObject& body(Window& window) override {
+        window.disable_resizing(true);
+        createBackgound(window);
+        createHeader();
+        mainStack.fromList(std::list<Object *>{&titleArea,
+            &titleDescritionArea,
+            &actionArea
+            //&example[0],&example[1],&example[2],&example[3]
+        });
+        codeList.compute<DrawableObject, 100>(CallbackExpr(
+                                                          return &(DrawableObject&)(new DrawableObject)->set_foreground_color(Colors::fromColorA(Colors::White, 50)).set_size(580, 500).set_padding({10,10,10,10});
+                                                          )
+                                             );
+        //actionArea.set_foreground_color(Colors::fromColorA(Colors::White, 50));
+        actionArea.set_size(1200, 550);
+        actionArea.fromList(std::list<Object *>{&codeList});
+        codeList.fit_content(600, 500);
         mainArea.fromList(std::list<Object *>{&background, &mainStack});
         mainArea.set_alignment(Alignment::Center);
-        mainArea.set_padding({0,0,0,0});
         return mainArea;
     }
 };
-
 
 /*
  Animation -> flow animation (controller, sprites) -> destination ? (replace : stop)
@@ -89,7 +113,7 @@ int main(int argc, const char * argv[]) {
     auto Home = MyHomeView(window);
     
     window
-
+    
     .on_start(
               CallbackExpr(
                            // box[0].set_primary_color(Colors::White);
@@ -194,8 +218,8 @@ int main(int argc, const char * argv[]) {
                                )
                   )
 
-    .set_window_clear_color(Colors::White)
-    
+    .set_window_clear_color(Colors::fromRGA(25, 10, 25, 0.5))
+
     .set_title("lanUI Demo");
 
     //.embedInZ(box[0]);

@@ -236,8 +236,9 @@ Window& Window::set_title(const char *title){
 
 Window& Window::set_size(const float w, const float h){
     if(!fullscreen.get()){
-        size.set({0,0,w,h});
         size.hold();
+        size.data.w = (w >= 0) ? w : size.data.w;
+        size.data.h = (w >= 0) ? w : size.data.h;
         SDL_SetWindowSize(sdlWindow.get(), size.data.w, size.data.h);
         size.leave();
         sdlWindow.leave();
