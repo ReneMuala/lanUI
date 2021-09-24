@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		17115C3026FE783C0028BD55 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 179819CF2687CA4500CCBC43 /* Object.cpp */; };
-		17115C3C26FE812D0028BD55 /* aves.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BB16D926FDFECC00C14BA6 /* aves.cpp */; };
+		17115C3E26FE87300028BD55 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1792B90D260328B200836D7A /* main.cpp */; };
 		1734118626BAB77300444E40 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1734118426BAB77300444E40 /* Image.cpp */; };
 		173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 173504D626B859FF00359EF5 /* CustomFonts.cpp */; };
 		1746B21926AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */; };
@@ -408,7 +408,7 @@
 				174F1F1826825427009B8159 /* Core.cpp in Sources */,
 				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,
 				17115C3026FE783C0028BD55 /* Object.cpp in Sources */,
-				17115C3C26FE812D0028BD55 /* aves.cpp in Sources */,
+				17115C3E26FE87300028BD55 /* main.cpp in Sources */,
 				1781821126C41BCB00F986B6 /* List.cpp in Sources */,
 				17550B4E26C0082600A697E6 /* Button.cpp in Sources */,
 				1734118626BAB77300444E40 /* Image.cpp in Sources */,
