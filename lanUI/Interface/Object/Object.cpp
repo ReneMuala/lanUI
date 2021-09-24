@@ -350,6 +350,7 @@ void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float
     
     if(!(_renderEmbeddedMode & _renderOnlyNextInX_Y))
     {
+        _lock_renderer_in_bounds(renderer, dpiK);
         if(nextInZ.get())
             __renderEmbedded_routine(renderer, nextInZ.data,
                                      x + padding_buffer.left,
@@ -357,6 +358,7 @@ void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float
                                      dpiK);
         
         nextInZ.leave();
+        _unlock_renderer_from_bounds(renderer);
     }
     
     if(!(_renderEmbeddedMode & _renderOnlyNextInZ))
@@ -378,59 +380,154 @@ void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float
     }
 }
 
+/*
+ _lock_renderer_in_bounds:
+ {
+     static SDL_Rect bounds, rendererBounds, inter;
+     sizeBuffer.hold();
+     bounds =
+     {
+         (int)(sizeBuffer.data.x),
+         (int)(sizeBuffer.data.y),
+         (int)(sizeBuffer.data.w),
+         (int)(sizeBuffer.data.h),
+     };
+     sizeBuffer.leave();
+
+     SDL_RenderGetClipRect(renderer, &rendererBounds);
+     
+     SDL_IntersectRect(&bounds,&rendererBounds, &inter);
+     
+     if(SDL_RectEmpty(&rendererBounds)){
+         if(!rendererClips.empty()){
+ #ifdef LANUI_DEBUG_MODE
+             SDL_SetRenderDrawColor(renderer, 0, 0, 255, 20);
+             SDL_RenderFillRect(renderer, &rendererClips.top());
+ #endif
+             SDL_RenderSetClipRect(renderer, &rendererClips.top());
+         } else {
+             SDL_RenderSetClipRect(renderer, &bounds);
+             rendererClips.push(bounds);
+         }
+     } else {
+ #ifdef LANUI_DEBUG_MODE
+         SDL_SetRenderDrawColor(renderer, 255, 255, 20, 200);
+         SDL_RenderDrawRect(renderer, &inter);
+         if(!rendererClips.empty()) {
+             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
+             SDL_RenderFillRect(renderer, &rendererClips.top());
+             SDL_IntersectRect(&bounds,&rendererClips.top(), &inter);
+         }
+ #endif
+ #ifdef LANUI_DEBUG_MODE
+         SDL_SetRenderDrawColor(renderer, 0, 0, 255, 50);
+         SDL_RenderFillRect(renderer, &inter);
+ #endif
+         SDL_RenderSetClipRect(renderer, &inter);
+         rendererClips.push(inter);
+     }
+     
+ #ifdef LANUI_DEBUG_MODE
+     SDL_SetRenderDrawColor(renderer, 255, 20, 20, 10);
+     SDL_RenderFillRect(renderer, &bounds);
+     SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
+     SDL_RenderDrawRect(renderer, &bounds);
+ #endif
+ }
+ ______________________________________________________________________________
+ {
+     static SDL_Rect bounds, rendererBounds, inter;
+     root.hold();
+     root.data->sizeBuffer.hold();
+     bounds =
+     {
+         (int)(root.data->sizeBuffer.data.x),
+         (int)(root.data->sizeBuffer.data.y),
+         (int)(root.data->sizeBuffer.data.w),
+         (int)(root.data->sizeBuffer.data.h),
+     };
+     
+     SDL_RenderGetClipRect(renderer, &rendererBounds);
+     SDL_IntersectRect(&bounds,&rendererBounds, &inter);
+     
+     if(SDL_RectEmpty(&inter)){
+         if(!rendererClips.empty()){
+ #ifdef LANUI_DEBUG_MODE
+             SDL_SetRenderDrawColor(renderer, 0, 0, 255, 10);
+             SDL_RenderFillRect(renderer, &rendererClips.top());
+ #endif
+             SDL_RenderSetClipRect(renderer, &rendererClips.top());
+         } else {
+             SDL_RenderSetClipRect(renderer, &bounds);
+             rendererClips.push(bounds);
+         }
+     } else {
+ #ifdef LANUI_DEBUG_MODE
+         SDL_SetRenderDrawColor(renderer, 255, 255, 20, 200);
+         SDL_RenderDrawRect(renderer, &inter);
+         if(!rendererClips.empty()) {
+             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
+             SDL_RenderFillRect(renderer, &rendererClips.top());
+         }
+ #endif
+         SDL_RenderSetClipRect(renderer, &inter);
+         rendererClips.push(inter);
+     }
+     
+     sizeBuffer.hold();
+     //sizeBuffer.data.x -= root.data->sizeBuffer.data.x;
+     //sizeBuffer.data.y -= root.data->sizeBuffer.data.y;
+     sizeBuffer.leave();
+     root.leave();
+     root.data->sizeBuffer.leave();
+ #ifdef LANUI_DEBUG_MODE
+     SDL_SetRenderDrawColor(renderer, 255, 20, 20, 10);
+     SDL_RenderFillRect(renderer, &bounds);
+     SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
+     SDL_RenderDrawRect(renderer, &bounds);
+ #endif
+ }
+ */
+
+
 void Object::_lock_renderer_in_bounds(SDL_Renderer * renderer, float dpiK){
-    static SDL_Rect bounds, rendererBounds, inter;
-    root.hold();
-    root.data->sizeBuffer.hold();
+    static SDL_Rect bounds, inter;
+    sizeBuffer.hold();
     bounds =
     {
-        (int)(root.data->sizeBuffer.data.x),
-        (int)(root.data->sizeBuffer.data.y),
-        (int)(root.data->sizeBuffer.data.w),
-        (int)(root.data->sizeBuffer.data.h),
+        (int)(sizeBuffer.data.x),
+        (int)(sizeBuffer.data.y),
+        (int)(sizeBuffer.data.w),
+        (int)(sizeBuffer.data.h),
     };
-    
-    SDL_RenderGetClipRect(renderer, &rendererBounds);
-    SDL_IntersectRect(&bounds,&rendererBounds, &inter);
+    sizeBuffer.leave();
 
-    if(SDL_RectEmpty(&inter)){
+    if(rendererClips.empty()){
         SDL_RenderSetClipRect(renderer, &bounds);
         rendererClips.push(bounds);
     } else {
-#ifdef LANUI_DEBUG_MODE
-    SDL_SetRenderDrawColor(renderer, 255, 255, 20, 200);
-    SDL_RenderDrawRect(renderer, &inter);
-#endif
-        SDL_RenderSetClipRect(renderer, &inter);
-        rendererClips.push(inter);
+        SDL_IntersectRect(&bounds,&rendererClips.top(), &inter);
+        if(SDL_RectEmpty(&inter)){
+            SDL_RenderSetClipRect(renderer, &rendererClips.top());
+            rendererClips.push(bounds);
+        } else {
+            SDL_RenderSetClipRect(renderer, &inter);
+            rendererClips.push(inter);
+        }
     }
-
-    sizeBuffer.hold();
-    //sizeBuffer.data.x -= root.data->sizeBuffer.data.x;
-    //sizeBuffer.data.y -= root.data->sizeBuffer.data.y;
-    sizeBuffer.leave();
-    root.leave();
-    root.data->sizeBuffer.leave();
+    
 #ifdef LANUI_DEBUG_MODE
-    SDL_SetRenderDrawColor(renderer, 255, 20, 20, 10);
-    SDL_RenderFillRect(renderer, &bounds);
+    SDL_SetRenderDrawColor(renderer, 255, 20, 20, 20);
+    SDL_RenderFillRect(renderer, &rendererClips.top());
     SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
-    SDL_RenderDrawRect(renderer, &bounds);
+    SDL_RenderDrawRect(renderer, &rendererClips.top());
 #endif
 }
 
 void Object::_unlock_renderer_from_bounds(SDL_Renderer * renderer){
-    root.hold();
-    root.data->sizeBuffer.hold();
-    sizeBuffer.hold();
-    //sizeBuffer.data.x += root.data->sizeBuffer.data.x;
-    //sizeBuffer.data.y += root.data->sizeBuffer.data.y;
-    sizeBuffer.leave();
-    root.leave();
-    root.data->sizeBuffer.leave();
+    rendererClips.pop();
     if(!rendererClips.empty()){
         SDL_RenderSetClipRect(renderer, &rendererClips.top());
-        rendererClips.pop();
     } else {
         SDL_RenderSetClipRect(renderer, nullptr);
     }
@@ -454,16 +551,7 @@ void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK
         _align(x, y);
         size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
         _render_routine(dpiK);
-#ifdef LANUI_DEBUG_MODE
-        SDL_SetRenderDrawColor(renderer, 255, 200, 200, 50);
-        SDL_RenderFillRectF(renderer, &sizeBuffer.get());
-        SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
-        SDL_RenderDrawRectF(renderer, &sizeBuffer.data);
-        sizeBuffer.leave();
-#endif
-        _lock_renderer_in_bounds(renderer, dpiK);
         _renderEmbedded(renderer, x, y, dpiK, _renderOnlyNextInZ);
-        _unlock_renderer_from_bounds(renderer);
     } _renderEmbedded(renderer, x, y, dpiK, _renderOnlyNextInX_Y);
 }
 

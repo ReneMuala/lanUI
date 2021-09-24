@@ -146,7 +146,6 @@ void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const fl
         _align(x, y);
         size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
         _render_routine(dpiK);
-        _lock_renderer_in_bounds(renderer, dpiK);
         switch (drawMode.get()) {
             case DrawMode::ImageMode:
                 if(renderer == this->renderer.get()){
@@ -171,7 +170,6 @@ void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const fl
         SDL_RenderDrawRectF(renderer, &sizeBuffer.data);
         sizeBuffer.leave();
 #endif
-        _unlock_renderer_from_bounds(renderer);
     } _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInX_Y);
 }
 

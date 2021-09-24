@@ -1,8 +1,8 @@
 //
-//  demo.cpp
+//  aves.cpp
 //  lanUI
 //
-//  Created by René Descartes Domingos Muala on 05/08/21.
+//  Created by René Descartes Domingos Muala on 24/09/21.
 //  Copyright © 2021 René Descartes Domingos Muala. All rights reserved.
 //
 
@@ -24,77 +24,62 @@
 class MyHomeView : public View {
 public:
     
-    DrawableObject rock[5];
-    Spacer spacer;
-    Text text[5];
-    Container textContainer;
     VStack mainStack;
-    VStack textStack;
-    HStack rocksStack;
+    Text title;
+    Container titleContainer;
+    Image bird;
+    Container birdContainer;
+    Paragraph description;
+    Container descriptionContainer;
     
     MyHomeView(Window & win){
         create(win);
+        set_size(600, 400);
+        set_alignment(Center);
+        fromColorScheme();
     }
-
+    
+    void createTitle(Window& window){
+        title.from_string("Aves");
+        title.set_alignment(Center);
+        title.bold(36);
+        title.set_foreground_color(Colors::Orange);
+        titleContainer.set_content(title);
+        titleContainer.set_size(600, 40);
+        titleContainer.disable_reloading();
+    }
+    
+    void createBird(Window& window){
+        bird.fromFile("lanUI.Bundle/System/Resources/BlueBird.png", window.sdlRenderer.get());
+        window.sdlRenderer.leave();
+        bird.set_size(256, 256);
+        bird.set_alignment(Center);
+        birdContainer.set_content(bird);
+        birdContainer.set_size(600, 256);
+        birdContainer.disable_reloading();
+    }
+    
+    void createDescription(Window& window){
+        std::stringstream stream;
+        
+        stream << "\\color:rgb(0,0,0,0) \\size:14 Uma aplicação feita usando o \\color:rgb(0,50,255) framework LANUI \\regular \\color:rgb(0,0,0) em C++. \\newln As informações contidas neste aplicativo foram coletadas no site da \\bold Wikipédia. \\regular";
+        
+        description.from_stringstream(stream, Paragraph::Wrapper::Char, 60);
+        description.set_alignment(Center);
+        descriptionContainer.set_content(description);
+        descriptionContainer.set_size(600, 80);
+        descriptionContainer.disable_reloading();
+    }
+    
     DrawableObject& body(Window& window) override {
-        for(int i = 0 ; i < 5 ; i ++){
-            rock[i].fromFile("lanUI.Bundle/System/Resources/rock.png", window.sdlRenderer.get());
-            window.sdlRenderer.leave();
-            rock[i].set_size(100, 100);
-        }
-        
-        rocksStack.fromList((std::list<Object*>){
-            &rock[0], &rock[1], &rock[2], /*&rock[3], &rock[4]*/});
-        
-        text[0].from_string("Lib lanUI (C++)", window.sdlRenderer.get());
-        window.sdlRenderer.leave();
-
-        text[0].set_font(CustomFonts::Lobster);
-
-        text[0].set_style(TextStyles::Header);
-        
-        text[1].from_string("Header", window.sdlRenderer.get());
-        window.sdlRenderer.leave();
-
-        text[1].set_style(TextStyles::Header);
-
-        text[2].from_string("Default text", window.sdlRenderer.get());
-        window.sdlRenderer.leave();
-
-        text[2].set_style(TextStyles::Default);
-
-        text[3].from_string("Caption text", window.sdlRenderer.get());
-        window.sdlRenderer.leave();
-
-        text[3].set_style(TextStyles::Caption);
-
-        text[4].from_string("Footer text", window.sdlRenderer.get());
-        window.sdlRenderer.leave();
-
-        text[4].set_style(TextStyles::Footer);
-
-        spacer.set_size(0, 200);
-
-        textStack.fromList((std::list<Object*>){&text[0], &text[1], &text[2], &text[3], &text[4]});
-
-        textStack.set_alignment(Alignment::Center);
-
-        textContainer.set_content(textStack);
-        
-        //textContainer.size.set({0,0, rocksStack.size.get().w, textContainer.size.data.w});
-        //rocksStack.size.leave();
-        
-        mainStack.fromList((std::list<Object*>){&textContainer,&spacer, &rocksStack});
-
-        // mainStack.set_secondary_color(Colors::Lemon_chiffon);
-
-        mainStack.set_alignment(Alignment::Bottom);
-
-        // mainStack.set_size(300, 400);
+        createTitle(window);
+        createBird(window);
+        createDescription(window);
+        mainStack.fromList(std::list<Object *>{&titleContainer, &birdContainer, &descriptionContainer});
+        mainStack.set_alignment(Center);
         return mainStack;
     }
 };
-
 
 /*
  Animation -> flow animation (controller, sprites) -> destination ? (replace : stop)
@@ -103,19 +88,9 @@ public:
 int main(int argc, const char * argv[]) {
     // insert code here...
     Core lanUI;
-    Window window("hello world", 350, 500, Window::HighDefinition);
+    Window window("hello world", 600, 500, Window::HighDefinition);
     
     auto Home = MyHomeView(window);
-            
-    Home.set_alignment(Object::Alignment::Center);
-    
-    Home.fromColorScheme();
-    
-    Home.fromFile("lanUI.Bundle/System/Resources/forest.png", window.sdlRenderer.get());
-    window.sdlRenderer.leave();
-        
-    Home.set_size(460, 460);
-    Home.disable_reloading();
             
     window
         
@@ -146,20 +121,6 @@ int main(int argc, const char * argv[]) {
                    CallbackExpr(
                                 //.set_size({0, 0, 700, 500});
                                 std::cout << "mouse lost" << std::endl;
-                                )
-                   )
-
-    .on_focus_gained(
-                     CallbackExpr(
-                                  window
-                                  .set_window_clear_color(Colors::Light_gray);
-                                  )
-                     )
-
-    .on_focus_lost(
-                   CallbackExpr(
-                                window
-                                .set_window_clear_color(Colors::Dim_gray);
                                 )
                    )
 
@@ -228,7 +189,9 @@ int main(int argc, const char * argv[]) {
                                )
                   )
     
-    .set_title("lanUI Demo");
+    .set_title("lanUI Demo")
+    
+    .set_window_clear_color(Colors::White);
     
     //.embedInZ(box[0]);
     
@@ -237,3 +200,4 @@ int main(int argc, const char * argv[]) {
     std::cout << "Hello, World!\n";
     return 0;
 }
+

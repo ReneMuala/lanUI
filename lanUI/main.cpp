@@ -71,7 +71,7 @@ public:
                                              )
                                 );
         
-        list.fit_content(280, 350);
+        list.fit_content(280, 200);
         //mainArea.set_padding({0,0,0,0});
         mainArea.fromList(std::list<Object *>{&Title,&list});
         //mainArea.set_border_color(Colors::Green);

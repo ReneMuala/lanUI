@@ -15,7 +15,7 @@ Stack::Stack(){
     fromColorScheme(Colors::Transparent, Colors::Transparent);
 }
 
-VStack& VStack::reload(){
+Stack& VStack::reload(){
     float width(0), height(0);
     if (!reloadingDisabled.get()) {
         for(Object* row = nextInZ.data; row ; row=row->nextInY.data)
@@ -30,7 +30,7 @@ VStack& VStack::reload(){
     return (*this);
 }
 
-void VStack::fromList(std::list<Object*> objects){
+Stack VStack::fromList(std::list<Object*> objects){
     float width(0), height(0);
     last = nullptr;
     for(auto row : objects){
@@ -48,9 +48,10 @@ void VStack::fromList(std::list<Object*> objects){
         } else last->embedInY(*row);
         last = row;
     } set_size(width, height);
+    return (*this);
 }
 
-HStack& HStack::reload(){
+Stack& HStack::reload(){
     float width(0), height(0);
     if (!reloadingDisabled.get()) {
         for(Object* row = nextInZ.data; row ; row=row->nextInX.data)
@@ -64,8 +65,7 @@ HStack& HStack::reload(){
     return (*this);
 }
 
-void HStack::fromList(std::list<Object*> objects){
-    VStack();
+Stack HStack::fromList(std::list<Object*> objects){
     float width(0), height(0);
     last = nullptr;
     for(auto row : objects){
@@ -82,9 +82,10 @@ void HStack::fromList(std::list<Object*> objects){
         } else last->embedInX(*row);
         last = row;
     } set_size(width, height);
+    return (*this);
 }
 
-ZStack& ZStack::reload(){
+Stack& ZStack::reload(){
     float width(0), height(0);
     if (!reloadingDisabled.get()) {
         for(Object* row = nextInZ.data; row ; row=row->nextInY.data)
@@ -98,7 +99,7 @@ ZStack& ZStack::reload(){
     return (*this);
 }
 
-void ZStack::fromList(std::list<Object*> objects){
+Stack ZStack::fromList(std::list<Object*> objects){
     float width(0), height(0);
     last = nullptr;
     for(auto row : objects){
@@ -114,4 +115,5 @@ void ZStack::fromList(std::list<Object*> objects){
         } else last->embedInZ(*row);
         last = row;
     } set_size(width, height);
+    return (*this);
 }

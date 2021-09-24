@@ -18,24 +18,41 @@
 int main(int argc, const char * argv[]) {
     Core ola_mundo;
     
-    Window win;
+    Window win("teste", 350, 500);
     
     win.set_window_clear_color(Colors::Light_gray);
     
     Paragraph teste;
     
+    Image fundo;
+    
+    fundo.set_size(1800, 1800);
+    //fundo.set_foreground_color(Colors::Red);
+    
+    fundo.fromLinearGradient(Image::Horizontal, Image::GradientElement(Colors::Blue_violet, 1.0) , Image::GradientElement(Colors::Green, 1.0), win.sdlRenderer.get(), win.sdlWindow.get());
+    
+    win.sdlRenderer.leave();
+    win.sdlWindow.leave();
     std::stringstream stream;
+        stream << TextStyles::BigTitle.toStr();
+        stream << "\\color:rgba(255,255,255,100) \\boldOblique O rato \\color:rgba(255,255,255,255) roeu \\color:rgba(255,255,255,100) \\newln \\color:rgba(255,255,255,255) a roupa \\color:rgba(255,255,255,100) \\newln do rei \\newln de \\color:rgba(255,255,255,255) Roma \\color:rgba(255,255,255,100)";
+        stream << TextStyles::Default.toStr();
     
-    stream << TextStyles::BigTitle.toStr();
-    stream << "Lorem ipsum \\newln ";
-    stream << TextStyles::Default.toStr();
-    stream << "Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam, magni. Ad culpa dolores id, aspernatur soluta quidem distinctio architecto tempore magni eos odio autem a quibusdam! Delectus cum nam iusto.";
-    
-    teste.from_stringstream(stream, Paragraph::Wrapper::Char, 20);
+    teste.from_stringstream(stream, Paragraph::Wrapper::Char, 50);
     
     teste.set_alignment(Object::Alignment::Center);
     
-    win.embedInZ(teste);
+    win.embedInZ(fundo);
+    fundo.set_alignment(Object::Alignment::Center);
+    fundo.embedInZ(teste);
+    
+    fundo.set_default_animation(5, CallbackExpr(
+                                                fundo.angle.get();
+                                                fundo.angle.data++;
+                                                fundo.angle.leave();
+                                                return true;
+                                                )
+                                );
     
     ola_mundo.events();
     return 0;

@@ -208,11 +208,15 @@ void Window::_clear(){
 
 void Window::_render(){
     _run_default_animation();
-    if(nextInZ.get())
-        nextInZ.data->_render(sdlRenderer.data, 0.0, 0.0, DPIConstant.get());
+    sdlRenderer.hold();
+    nextInZ.hold();
+    DPIConstant.hold();
+    _lock_renderer_in_bounds(sdlRenderer.data, DPIConstant.data);
+    if(nextInZ.data) nextInZ.data->_render(sdlRenderer.data, 0.0, 0.0, DPIConstant.data);
     DPIConstant.leave();
+    _unlock_renderer_from_bounds(sdlRenderer.data);
     nextInZ.leave();
-    SDL_RenderPresent(sdlRenderer.get());
+    SDL_RenderPresent(sdlRenderer.data);
     sdlRenderer.leave();
 }
 

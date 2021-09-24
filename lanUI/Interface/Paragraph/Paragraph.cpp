@@ -21,7 +21,7 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
     std::string line, buffer;
     int wordCount(0);
     Font::Style style = Font::Regular;
-    unsigned int size = 18;
+    unsigned int size = TextStyles::Default.size;
     
     while (!stream.eof()) {
         stream >> buffer;

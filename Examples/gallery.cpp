@@ -58,7 +58,7 @@ public:
         background.set_size(1200, 650);
         background.set_alignment(Alignment::Center);
         
-        background.fromLinearGradient(Image::Vertical, Image::GradientElement(Colors::fromRGA(255-200, 100-100, 255-200), 1.0), Image::GradientElement(Colors::fromRGA(31/2, 68/2, 128/2), 1.0), window.sdlRenderer.get(), window.sdlWindow.get(), 1,2);
+        background.fromLinearGradient(Image::Vertical, Image::GradientElement(Colors::fromRGBA(255-200, 100-100, 255-200), 1.0), Image::GradientElement(Colors::fromRGBA(31/2, 68/2, 128/2), 1.0), window.sdlRenderer.get(), window.sdlWindow.get(), 1,2);
         window.sdlRenderer.leave();
         window.sdlWindow.leave();
     }
@@ -218,7 +218,7 @@ int main(int argc, const char * argv[]) {
                                )
                   )
 
-    .set_window_clear_color(Colors::fromRGA(25, 10, 25, 0.5))
+    .set_window_clear_color(Colors::fromRGBA(25, 10, 25, 0.5))
 
     .set_title("lanUI Demo");
 
