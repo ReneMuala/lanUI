@@ -35,7 +35,7 @@ Semaphore<std::chrono::milliseconds> sleepTime = (std::chrono::milliseconds)20;
 }
 
 namespace DrawableObjectsData {
-    extern Semaphore<std::map<const char *, SDL_Surface*>> surfaces;
+    extern Semaphore<std::map<const char *, SDL_Surface*>> surfacesCache;
 }
 
 namespace InteractiveObjecsData {
@@ -65,11 +65,8 @@ Core::~Core(){
         CoreData::running = false;
         //CoreData::eventHandler.join();
         CoreData::renderHandler.join();
-        
-        for (auto &test : DrawableObjectsData::surfaces.get()) {
-            SDL_FreeSurface(test.second);
-        }
-        
+        clearCache();
+        free_all_fonts();
         close_SDL();
         terminated = true;
     }
@@ -154,7 +151,6 @@ void Core::render(){
 void Core::close_SDL(){
     SDL_Quit();
     IMG_Quit();
-    free_all_fonts();
     TTF_Quit();
 }
 
@@ -187,6 +183,13 @@ bool Core::unsubscribe(void * address){
     if(CoreData::programWindowsCount.data)
         log(Error, "Unable to unsubscribe window, unknowon address.");
     return false;
+}
+
+void Core::clearCache(){
+    for (auto &surface : DrawableObjectsData::surfacesCache.get()) {
+        SDL_FreeSurface(surface.second);
+    } DrawableObjectsData::surfacesCache.data.clear();
+    DrawableObjectsData::surfacesCache.leave();
 }
 
 void Core::load_fonts(){

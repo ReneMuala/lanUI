@@ -16,9 +16,9 @@
  Contains the elements that are goind to presented on that window.
  */
 class View: public DrawableObject {
-    Window * window;
     DrawableObject some_content;
 public:
+    Window * window;
     /** Views start point.
      Creates the "Body" of the view,.
      */

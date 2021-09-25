@@ -130,6 +130,10 @@ void Window::_handle_requests(){
     } if(winRequests[WinRequests::Minimize].get()) {
         SDL_MinimizeWindow(sdlWindow.get());
         sdlWindow.leave();
+    } if(winRequests[WinRequests::SetView].get()) {
+        embedInZ(*newView.get());
+        newView.data = nullptr;
+        newView.leave();
     }
     // we are not reseting the busy state in ths if's
     for(int i = 0 ; i < (WinRequests::totalRequests) ; i++){
@@ -274,7 +278,10 @@ Window& Window::set_focus(){
 }
 
 Window& Window::set_view(Object & view){
-    embedInZ(view);
+    // to avoid "Object already has a view" errors
+    view.root.set(nullptr);
+    winRequests[WinRequests::SetView].set(true);
+    newView.set(&view);
     return (*this);
 }
 

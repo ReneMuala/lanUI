@@ -15,45 +15,35 @@
     (Disable it on: Scheme > Edit Scheme... > Run > Diagnostics or Options > Metal API Validation).
  */
 
-int main(int argc, const char * argv[]) {
-    Core ola_mundo;
+int main(){
+    Core exemplo;
     
-    Window win("teste", 350, 500);
+    Window janela;
     
-    win.set_window_clear_color(Colors::Light_gray);
+    janela.set_title("LanUI");
     
-    Paragraph teste;
+    janela.set_window_clear_color(Colors::White);
     
-    Image fundo;
+    Image dino;
     
-    fundo.set_size(1800, 1800);
-    //fundo.set_foreground_color(Colors::Red);
+    dino.fromFile("lanUI.Bundle/System/Resources/Dino.png", janela.sdlRenderer.get());
+    janela.sdlRenderer.leave();
     
-    fundo.fromLinearGradient(Image::Horizontal, Image::GradientElement(Colors::Blue_violet, 1.0) , Image::GradientElement(Colors::Green, 1.0), win.sdlRenderer.get(), win.sdlWindow.get());
+    dino.set_size(300, 300);
     
-    win.sdlRenderer.leave();
-    win.sdlWindow.leave();
-    std::stringstream stream;
-        stream << TextStyles::BigTitle.toStr();
-        stream << "\\color:rgba(255,255,255,100) \\boldOblique O rato \\color:rgba(255,255,255,255) roeu \\color:rgba(255,255,255,100) \\newln \\color:rgba(255,255,255,255) a roupa \\color:rgba(255,255,255,100) \\newln do rei \\newln de \\color:rgba(255,255,255,255) Roma \\color:rgba(255,255,255,100)";
-        stream << TextStyles::Default.toStr();
+    Text legenda;
     
-    teste.from_stringstream(stream, Paragraph::Wrapper::Char, 50);
+    legenda.from_string("Velociraptor");
     
-    teste.set_alignment(Object::Alignment::Center);
+    List lista;
     
-    win.embedInZ(fundo);
-    fundo.set_alignment(Object::Alignment::Center);
-    fundo.embedInZ(teste);
+    lista.content.fromList(std::list<Object *>{&dino, &legenda});
     
-    fundo.set_default_animation(5, CallbackExpr(
-                                                fundo.angle.get();
-                                                fundo.angle.data++;
-                                                fundo.angle.leave();
-                                                return true;
-                                                )
-                                );
+    lista.set_alignment(Object::Center);
     
-    ola_mundo.events();
-    return 0;
+    janela.embedInZ(lista);
+    
+    legenda.bold(18);
+    
+    exemplo.events();
 }

@@ -27,6 +27,7 @@ private:
     Semaphore<Color> windowClearColor;
     Semaphore<float> opacity;
     Semaphore<bool> fullscreen;
+    Semaphore<Object*> newView;
     
     // callbacks
     VoidCallback on_start_callback;
@@ -79,6 +80,7 @@ public:
         Hide,
         Maximize,
         Minimize,
+        SetView,
         totalRequests
     } WinRequests;
     

@@ -47,6 +47,7 @@ public:
     static void close_SDL();
     static bool subscribe(void*);
     static bool unsubscribe(void*);
+    static void clearCache();
     void load_fonts();
     static void free_all_fonts();
     void set_sleep_time(std::chrono::milliseconds);

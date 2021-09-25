@@ -12,18 +12,19 @@
 #include <map>
 
 namespace DrawableObjectsData {
-Semaphore<std::map<const char *, SDL_Surface*>> surfaces;
+Semaphore<std::map<const char *, SDL_Surface*>> surfacesCache;
 }
 
 SDL_Surface * get_surface(const char * source){
     SDL_Surface * surfc = nullptr;
-    if((surfc = DrawableObjectsData::surfaces.get()[source])){
-        DrawableObjectsData::surfaces.leave();
+    if((surfc = DrawableObjectsData::surfacesCache.get()[source])){
+        DrawableObjectsData::surfacesCache.leave();
     } else if((surfc = IMG_Load(source))){
-        DrawableObjectsData::surfaces.data[source] = surfc;
+        DrawableObjectsData::surfacesCache.data[source] = surfc;
     } else {
         Core::log(Core::Warning, (std::string("Unable to load image source from path: ") + source).c_str());
-    } DrawableObjectsData::surfaces.leave();
+    } DrawableObjectsData::surfacesCache
+    .leave();
     return surfc;
 }
 
@@ -61,7 +62,7 @@ void DrawableObject::_render__default(SDL_Renderer * renderer, float x, float y,
     sizeBuffer.leave();
 }
 
-DrawableObject::DrawableObject(): image(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Primary), backgroundColor(Colors::Secondary), borderColor(Colors::Secondary), angle(0), drawMode(DrawMode::DefaultMode) {
+DrawableObject::DrawableObject(): image(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Primary), backgroundColor(Colors::Secondary), borderColor(Colors::Secondary), angle(0), drawMode(DrawMode::DefaultMode), delay(0) {
     Object();
     _clear_properties();
     properties[Properties::isDrawable].set(true);
@@ -174,17 +175,16 @@ void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const fl
 }
 
 void DrawableObject::_run_default_animation(){
-    static FrameCount delay(0);
     default_animation.hold();
     
     if(default_animation.data._using){
         if(delay >= default_animation.data.delay){
             delay = 0;
-            //default_animation.data._using =
+            default_animation.data._using =
             default_animation.data.callback();
-        } delay++;
-    }
-    default_animation.leave();
+        }
+        delay++;
+    } default_animation.leave();
     _run_others_default_animation();
 }
 
@@ -192,6 +192,7 @@ DrawableObject& DrawableObject::set_default_animation(const FrameCount delay, Bo
     default_animation.hold();
     default_animation.data._using = true;
     default_animation.data.delay = delay;
+    if(delay<0) Core::log(Core::Error, "animation::delay must to be >= 0.");
     default_animation.data.callback = callback;
     default_animation.leave();
     return (*this);

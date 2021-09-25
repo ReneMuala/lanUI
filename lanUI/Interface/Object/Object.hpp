@@ -196,6 +196,7 @@ class DrawableObject: public Object {
     /// images only
     bool withBorder;
     bool withBackground;
+    FrameCount delay;
         
 public:
 
