@@ -11,6 +11,10 @@
 
 #include "../../Semaphore.hpp"
 #include "../Color/Color.hpp"
+
+#include "../../Core/Graphics/SDL2_rotozoom.hpp"
+#include "../../Core/Graphics/SDL2_gfxPrimitives.hpp"
+
 #include <SDL2/SDL.h>
 #include <list>
 #include <functional>
@@ -42,12 +46,6 @@ public:
     struct Padding {
         float top, bottom, left, right;
     };
-    
-    /** Reversed padding.
-     Crops the object's content.
-        NOTE:  the properties should be less or equal to 0.
-     */
-    struct ReversedPadding : public Padding {};
     
     struct ScrollingFactor {
         float horizontal, vertical;
@@ -197,7 +195,9 @@ class DrawableObject: public Object {
     bool withBorder;
     bool withBackground;
     FrameCount delay;
-        
+    bool using_renderer_callback;
+    Semaphore<VoidCallback> renderer_callback;
+    
 public:
 
     /// Object behavior
@@ -205,6 +205,7 @@ public:
         DefaultMode,
         ImageMode,
         ColorSchemeMode,
+        RendererCallbackMode,
     } DrawMode;
     
     struct Animation {
@@ -251,9 +252,17 @@ public:
     void _render__background(SDL_Renderer*, Rect*);
     
     void _render__border(SDL_Renderer*, Rect*);
-        
+    
+    void _render_using_callback(SDL_Renderer*, float x, float y, float dpiK);
+    
     void _render(SDL_Renderer*, float x, float y, float dpiK) override;
-        
+    
+    SDL_Renderer * renderer_param;
+    float x_param;
+    float y_param;
+    float dpiK_param;
+    DrawableObject& set_renderer_callback(VoidCallback);
+    
     void _run_default_animation() override;
     
     DrawableObject& set_default_animation(const FrameCount delay, BoolCallback);
@@ -320,7 +329,6 @@ public:
         OnScroll,
         totalCallBacks
     } CallBacks;
-    
     
     struct ScrollGain {
         Sint32 vertical, horizontal;

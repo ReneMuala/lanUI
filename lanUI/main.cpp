@@ -10,6 +10,7 @@
 #include <vector>
 #include <stack>
 #include <iostream>
+
 /*
  Note:
     On Xcode, it will be necessary to disable metal api validation.

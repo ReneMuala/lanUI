@@ -142,27 +142,44 @@ void DrawableObject::_render__border(SDL_Renderer * renderer, Rect * rect){
     SDL_RenderDrawRectF(renderer, rect);
 }
 
+void DrawableObject::_render_using_callback(SDL_Renderer * renderer, float x, float y, float dpiK){
+    renderer_param = renderer;
+    x_param = x;
+    y_param = y;
+    dpiK_param = dpiK;
+    renderer_callback.get()();
+    renderer_callback.leave();
+}
+
 void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){
     if(_inRootBounds(x, y)){
         _align(x, y);
         size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
         _render_routine(dpiK);
-        switch (drawMode.get()) {
-            case DrawMode::ImageMode:
-                if(renderer == this->renderer.get()){
-                    this->renderer.leave();
-                    _render__image(renderer, x, y, dpiK);
-                } else {
-                    this->renderer.leave();
+            switch (drawMode.get()) {
+                case DrawMode::ImageMode:
+                    if(renderer == this->renderer.get()){
+                        this->renderer.leave();
+                        _render__image(renderer, x, y, dpiK);
+                    } else {
+                        this->renderer.leave();
+                        _render__default(renderer, x, y, dpiK);
+                    } break;
+                case DrawMode::RendererCallbackMode:
+                    if(using_renderer_callback){
+                        this->renderer.leave();
+                        _render_using_callback(renderer, x, y, dpiK);
+                    } else {
+                        this->renderer.leave();
+                        _render__default(renderer, x, y, dpiK);
+                    } break;
+                case DrawMode::ColorSchemeMode:
+                    _render__colorScheme(renderer, x, y, dpiK);
+                    break;
+                default:
                     _render__default(renderer, x, y, dpiK);
-                } break;
-            case DrawMode::ColorSchemeMode:
-                _render__colorScheme(renderer, x, y, dpiK);
-                break;
-            default:
-                _render__default(renderer, x, y, dpiK);
-                break;
-        } drawMode.leave();
+                    break;
+            } drawMode.leave();
         _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
 #ifdef LANUI_DEBUG_MODE
         //SDL_SetRenderDrawColor(renderer, 255, 200, 200, 10);
@@ -174,9 +191,15 @@ void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const fl
     } _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInX_Y);
 }
 
+DrawableObject& DrawableObject::set_renderer_callback(VoidCallback callback){
+    using_renderer_callback = true;
+    drawMode.set(DrawMode::RendererCallbackMode);
+    renderer_callback.set(callback);
+    return (*this);
+}
+
 void DrawableObject::_run_default_animation(){
     default_animation.hold();
-    
     if(default_animation.data._using){
         if(delay >= default_animation.data.delay){
             delay = 0;
