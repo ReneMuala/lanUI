@@ -123,7 +123,7 @@ int pixelColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Color color)
     int pixelRGBA(SDL_Renderer * renderer, Sint16 x, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
     {
         int result = 0;
-        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
         result |= SDL_SetRenderDrawColor(renderer, r, g, b, a);
         result |= SDL_RenderDrawPoint(renderer, x, y);
         return result;
@@ -226,7 +226,7 @@ int hlineColor(SDL_Renderer * renderer, Sint16 x1, Sint16 x2, Sint16 y, Color co
     int hlineRGBA(SDL_Renderer * renderer, Sint16 x1, Sint16 x2, Sint16 y, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
     {
         int result = 0;
-        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
         result |= SDL_SetRenderDrawColor(renderer, r, g, b, a);
         result |= SDL_RenderDrawLine(renderer, x1, y, x2, y);
         return result;
@@ -298,7 +298,7 @@ int vlineColor(SDL_Renderer * renderer, Sint16 x, Sint16 y1, Sint16 y2, Color co
     int vlineRGBA(SDL_Renderer * renderer, Sint16 x, Sint16 y1, Sint16 y2, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
     {
         int result = 0;
-        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
         result |= SDL_SetRenderDrawColor(renderer, r, g, b, a);
         result |= SDL_RenderDrawLine(renderer, x, y1, x, y2);
         return result;
@@ -406,7 +406,7 @@ int rectangleColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 w, Sint16
          * Draw
          */
         result = 0;
-        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
         result |= SDL_SetRenderDrawColor(renderer, r, g, b, a);
         result |= SDL_RenderDrawRect(renderer, &rect);
         return result;
@@ -554,11 +554,6 @@ int rectangleColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 w, Sint16
         
         return result;
     }
-
-int simpleRoundedRectangleRGBA(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 w, Sint16 h, Sint16 radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a){
-    return roundedRectangleRGBA(renderer, x, y, x+w, y+h, radius, r, g, b, a);
-}
-
     
     /* ---- Rounded Box */
 
@@ -714,7 +709,7 @@ int roundedBoxColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 w, Sint1
          * Set color
          */
         result = 0;
-        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
         result |= SDL_SetRenderDrawColor(renderer, r, g, b, a);
         
         /*
@@ -876,7 +871,7 @@ int boxColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 w, Sint16 h, Co
          * Draw
          */
         result = 0;
-        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
         result |= SDL_SetRenderDrawColor(renderer, r, g, b, a);
         result |= SDL_RenderFillRect(renderer, &rect);
         return result;
@@ -959,7 +954,7 @@ int lineColor(SDL_Renderer * renderer, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y
          * Draw
          */
         int result = 0;
-        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
         result |= SDL_SetRenderDrawColor(renderer, r, g, b, a);
         result |= SDL_RenderDrawLine(renderer, x1, y1, x2, y2);
         return result;
@@ -1509,7 +1504,7 @@ int arcColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 rad, Sint16 sta
          * Set color
          */
         result = 0;
-        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
         result |= SDL_SetRenderDrawColor(renderer, r, g, b, a);
         
         /*
@@ -1725,7 +1720,7 @@ int aacircleColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 rad, Color
          * Set color
          */
         result = 0;
-        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
         result |= SDL_SetRenderDrawColor(renderer, r, g, b, a);
         
         /*
@@ -2090,7 +2085,7 @@ int aaellipseColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 rx, Sint1
         
         /* Draw */
         result = 0;
-        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
         
         /* "End points" */
         result |= pixelRGBA(renderer, xp, yp, r, g, b, a);
@@ -2926,7 +2921,7 @@ int polygonColor(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, 
          * Set color
          */
         result = 0;
-        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
         result |= SDL_SetRenderDrawColor(renderer, r, g, b, a);
         
         /*
@@ -3223,7 +3218,7 @@ int aapolygonColor(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy
              * Set color
              */
             result = 0;
-            result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//            result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
             result |= SDL_SetRenderDrawColor(renderer, r, g, b, a);
             
             for (i = 0; (i < ints); i += 2) {
@@ -3733,7 +3728,7 @@ int bezierColor(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, i
          * Set color
          */
         result = 0;
-        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
+//        result |= SDL_SetRenderDrawBlendMode(renderer, (a == 255) ? SDL_BLENDMODE_NONE : SDL_BLENDMODE_BLEND);
         result |= SDL_SetRenderDrawColor(renderer, r, g, b, a);
         
         /*

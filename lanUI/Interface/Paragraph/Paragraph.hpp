@@ -44,7 +44,7 @@ public:
     
     Paragraph& from_stringstream(std::stringstream& , Wrapper wraper = {Wrapper::Mode::Char,0});
     
-    void _parse_hint(const std::string src, std::string & line ,Font::Style &style, unsigned int &size);
+    void _parse_hint(const std::string src, std::string & line ,Font::Style &style, unsigned int &size, bool &noSpace,bool &space);
     void _add_word(const char *, Font::Style style, const unsigned int size);
     void _new_line(std::list<Object*> word);
 };

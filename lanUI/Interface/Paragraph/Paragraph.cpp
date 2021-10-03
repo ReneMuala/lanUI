@@ -20,16 +20,22 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
     std::regex hintREG("^\\\\[[:alnum:](,)_:]+$");
     std::string line, buffer;
     int wordCount(0);
-    Font::Style style = Font::Regular;
-    unsigned int size = TextStyles::Default.size;
+    Font::Style hint_style = Font::Regular;
+    unsigned int hint_size = TextStyles::Default.size;
+    bool hint_noSpace = false;
+    bool hint_space = false;
     
     while (!stream.eof()) {
         stream >> buffer;
         if(!std::regex_match(buffer, hintREG)){
             wordCount++;
-            _add_word((line.empty() ? buffer : " "+buffer).c_str(), style, size);
+            __line_creation_begin:
+            if(!hint_noSpace) line+=" ";
+            _add_word((line.empty() ? buffer : (!hint_noSpace ? " " : "")+buffer).c_str(), hint_style, hint_size);
+            hint_noSpace = false;
+            hint_space = false;
             if(wraper.fieldsCount){
-                line+=buffer+" ";
+                line+=buffer;
                 switch (wraper.mode) {
                     case Wrapper::Char:
                         if(!(line.size() < wraper.fieldsCount)) {
@@ -53,7 +59,11 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
                 line="";
             }
         } else {
-            _parse_hint(buffer, line, style, size);
+            _parse_hint(buffer, line, hint_style, hint_size, hint_noSpace, hint_space);
+            if(hint_space){
+                buffer = " ";
+                goto __line_creation_begin;
+            }
         }
     } if (!line.empty()) {
         _new_line(words);
@@ -65,21 +75,23 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
     return (*this);
 }
 
-void Paragraph::_parse_hint(const std::string src, std::string & line , Font::Style &style, unsigned int &size){
+void Paragraph::_parse_hint(const std::string src, std::string & line , Font::Style &style, unsigned int &size, bool &noSpace, bool &space){
     std::regex sizeREG("^\\\\size:\\d+$");
     std::regex rgbREG("^\\\\color:rgb\\(\\d{1,3},\\d{1,3},\\d{1,3}\\)$");
     std::regex rgbaREG("^\\\\color:rgba\\(\\d{1,3},\\d{1,3},\\d{1,3},\\d{1,3}\\)$");
-    std::regex newlnREG("^\\\\newln$");
+    std::regex newlnREG("^\\\\(newln|n)$");
     std::regex regularREG("^\\\\regular$");
-    std::regex boldREG("^\\\\bold$");
-    std::regex boldObliqueREG("^\\\\boldOblique$");
-    std::regex extraLightREG("^\\\\extraLight$");
-    std::regex obliqueREG("^\\\\oblique$");
-    std::regex condensed_BoldREG("^\\\\condensed_Bold$");
-    std::regex condensed_BoldObliqueREG("^\\\\condensed_BoldOblique$");
-    std::regex condensed_ObliqueREG("^\\\\condensed_Oblique$");
-    std::regex condensedREG("^\\\\condensed$");
-    
+    std::regex boldREG("^\\\\(bold|b)$");
+    std::regex boldObliqueREG("^\\\\(boldOblique|bo)$");
+    std::regex extraLightREG("^\\\\(extraLight|el)$");
+    std::regex obliqueREG("^\\\\(oblique|o)$");
+    std::regex condensed_BoldREG("^\\\\(condensed_Bold|cb)$");
+    std::regex condensed_BoldObliqueREG("^\\\\(condensed_BoldOblique|cbo)$");
+    std::regex condensed_ObliqueREG("^\\\\(condensed_Oblique|co)$");
+    std::regex condensedREG("^\\\\(condensed|c)$");
+    std::regex nospaceREG("^\\\\(nospace|noSpace|ns)$");
+    std::regex spaceREG("^\\\\(space|s)$");
+
     if(std::regex_match(src, sizeREG)){
         sscanf(src.c_str(), "\\size:%d", &size);
     } else if(std::regex_match(src, rgbREG)){
@@ -114,6 +126,11 @@ void Paragraph::_parse_hint(const std::string src, std::string & line , Font::St
         style = Font::Condensed_Oblique;
     } else if(std::regex_match(src, condensedREG)){
         style = Font::Condensed;
+    } else if(std::regex_match(src, nospaceREG)){
+        noSpace = true;
+    } else if(std::regex_match(src, spaceREG)){
+        noSpace = true;
+        space = true;
     } else {
         Core::log(Core::Warning, (std::string("Unknow Paragraph hint: \"" + src + "\"")).c_str());
     }

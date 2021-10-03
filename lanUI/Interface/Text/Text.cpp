@@ -193,7 +193,11 @@ void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){
     
     if(_inRootBounds(x, y)){
         _align(x, y);
-        size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
+        size.hold(); padding.hold();
+        size.data.x = x + padding.data.left;
+        size.data.y = y + padding.data.top;
+        size.leave(); padding.leave();
+        
         _render_routine(dpiK);
         _render__image(renderer, x, y, dpiK);
     } else {

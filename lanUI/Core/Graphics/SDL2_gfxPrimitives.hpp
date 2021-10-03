@@ -129,15 +129,13 @@ int aacircleRGBA(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 radius, Uin
 
 int filledCircleColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 r, Color color);
 int filledCircleColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 r, Uint32 color);
-int filledCircleRGBA(SDL_Renderer * renderer, Sint16 x, Sint16 y,
-                     Sint16 radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int filledCircleRGBA(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
 /* Ellipse */
 
 int ellipseColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Color color);
 int ellipseColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint32 color);
-int ellipseRGBA(SDL_Renderer * renderer, Sint16 x, Sint16 y,
-                Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int ellipseRGBA(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 rx, Sint16 ry, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
 /* AA Ellipse */
 
@@ -175,26 +173,22 @@ int aatrigonRGBA(SDL_Renderer * renderer,  Sint16 x1, Sint16 y1, Sint16 x2, Sint
 /* Filled Trigon */
 int filledTrigonColor(SDL_Renderer * renderer, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Color color);
 int filledTrigonColor(SDL_Renderer * renderer, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint32 color);
-int filledTrigonRGBA(SDL_Renderer * renderer, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3,
-                     Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int filledTrigonRGBA(SDL_Renderer * renderer, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 y2, Sint16 x3, Sint16 y3, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
 /* Polygon */
 int polygonColor(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, int n, Color color);
 int polygonColor(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color);
-int polygonRGBA(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy,
-                int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int polygonRGBA(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
 /* AA-Polygon */
 int aapolygonColor(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, int n, Color color);
 int aapolygonColor(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color);
-int aapolygonRGBA(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy,
-                  int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int aapolygonRGBA(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
 /* Filled Polygon */
 int filledPolygonColor(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, int n, Color color);
 int filledPolygonColor(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, int n, Uint32 color);
-int filledPolygonRGBA(SDL_Renderer * renderer, const Sint16 * vx,
-                      const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int filledPolygonRGBA(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, int n, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
 /* Textured Polygon */
 
@@ -203,8 +197,7 @@ int texturedPolygon(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * v
 /* Bezier */
 int bezierColor(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, int n, int s, Color color);
 int bezierColor(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, int n, int s, Uint32 color);
-int bezierRGBA(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy,
-               int n, int s, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+int bezierRGBA(SDL_Renderer * renderer, const Sint16 * vx, const Sint16 * vy, int n, int s, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 }
 
 #endif				/* _SDL2_gfxPrimitives_h */

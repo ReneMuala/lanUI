@@ -18,6 +18,7 @@
 class View: public DrawableObject {
     DrawableObject some_content;
 public:
+    
     Window * window;
     /** Views start point.
      Creates the "Body" of the view,.

@@ -18,8 +18,8 @@ void Object::__align_center(float &x, float &y){
     root.get()->size.get();
     size.hold();
     padding.hold();
-    x += (root.data->size.data.w / 2 - ((size.data.w + padding.data.left + padding.data.right)/2));
-    y += (root.data->size.data.h / 2 - ((size.data.h + padding.data.top + padding.data.bottom)/2));
+    x += (root.data->size.data.w / 2 - ((size.data.w)/2));
+    y += (root.data->size.data.h / 2 - ((size.data.h)/2));
     padding.leave();
     size.leave();
     root.data->size.leave();
@@ -48,7 +48,6 @@ void Object::__align_right(float &x, float &y){
 void Object::__align_top(float &x, float &y){
     static float initial_y(0);
     initial_y = y;
-    padding.leave();
     __align_center(x, y);
     y = initial_y;
 }
@@ -56,12 +55,17 @@ void Object::__align_top(float &x, float &y){
 void Object::__align_bottom(float &x, float &y){
     static float initial_y(0);
     padding.hold();
-    initial_y = y + (root.get()->size.get().h - size.get().h) - (padding.data.bottom + padding.data.top);
+    size.hold();
+    root.hold();
+    root.data->size.get();
+    initial_y = y + (root.data->size.data.h - size.data.h) - (padding.data.bottom + padding.data.top);
     padding.leave();
     root.data->size.leave();
     root.leave();
     size.leave();
     __align_center(x, y);
+    x += padding.get().left;
+    padding.leave();
     y = initial_y;
 }
 

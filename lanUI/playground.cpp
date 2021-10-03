@@ -18,14 +18,22 @@
 int main(){
     Core olamundo;
     
-    Window janela("hello");
+    Window janela("hello", 300,300);
     
-    janela.set_window_clear_color(Colors::White);
+    janela.set_window_clear_color(Colors::White_smoke);
     
     DrawableObject test;
     
-    test.set_size(200,200);
+    Text hello("Continue");
     
+    hello.bold(12).set_foreground_color(Colors::White).set_alignment(Object::Right);
+    
+    test.embedInZ(hello);
+    
+    test.set_size(150,30);
+    
+    hello.set_padding({0,0});
+        
     janela.embedInZ(test);
     
     test.set_alignment(Object::Center);
@@ -34,30 +42,16 @@ int main(){
         test.sizeBuffer.hold();
         test.foregroundColor.hold();
         test.backgroundColor.hold();
-        static float radius = 10;
-//        static bool decr = true;
-//        if(decr && radius > 5) {
-//            radius-=0.5;
-//        } else if(!decr && radius < 20){
-//            radius+=0.5;
-//        } else {
-//            decr = !decr;
-//        }
-//        primitives::simpleRoundedRectangleRGBA(test.renderer_param, (int)test.sizeBuffer.data.x, (int)test.sizeBuffer.data.y, (int)test.sizeBuffer.data.w, (int)test.sizeBuffer.data.h, radius*test.dpiK_param, test.foregroundColor.data.r, test.foregroundColor.data.g, test.foregroundColor.data.b, test.foregroundColor.data.a);
-        
-//        primitives::rectangleColor(test.renderer_param, test.sizeBuffer.data.x, test.sizeBuffer.data.y, test.sizeBuffer.data.w, test.sizeBuffer.data.h, test.foregroundColor.data);
-        
-//        primitives::roundedBoxColor(test.renderer_param, test.sizeBuffer.data.x, test.sizeBuffer.data.y, test.sizeBuffer.data.w, test.sizeBuffer.data.h, 30, test.foregroundColor.data);
-        
-        primitives::filledTrigonColor(test.renderer_param, test.sizeBuffer.data.x + test.sizeBuffer.data.w / 2, test.sizeBuffer.data.y, test.sizeBuffer.data.x, test.sizeBuffer.data.h, test.sizeBuffer.data.x + test.sizeBuffer.data.w, test.sizeBuffer.data.h, test.foregroundColor.data);
-        
-        primitives::roundedRectangleRGBA(test.renderer_param, (int)test.sizeBuffer.data.x, (int)test.sizeBuffer.data.y, (int)test.sizeBuffer.data.x+(int)test.sizeBuffer.data.w, (int)test.sizeBuffer.data.y+(int)test.sizeBuffer.data.h, (int)radius*test.dpiK_param, test.backgroundColor.data.r, test.backgroundColor.data.g, test.backgroundColor.data.b, test.backgroundColor.data.a);
+        static float radius = 15;
+
+        primitives::roundedBoxColor(test.renderer_param, (int)test.sizeBuffer.data.x, (int)test.sizeBuffer.data.y, (int)test.sizeBuffer.data.w, (int)test.sizeBuffer.data.h, (int)radius*test.dpiK_param, test.foregroundColor.data);
         test.sizeBuffer.leave();
         test.foregroundColor.leave();
         test.backgroundColor.leave();
     }));
     
     test.set_foreground_color(Colors::fromColorA(Colors::Black, 200));
+    test.set_background_color(Colors::Hot_pink);
     
     olamundo.events();
 }
