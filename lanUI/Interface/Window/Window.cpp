@@ -200,6 +200,15 @@ void Window::_compute_DPIConstant(){
     sdlWindow.leave();
 }
 
+void Window::_compile(){
+    if(nextInZ.get()) {
+        nextInZ.leave();
+        nextInZ.data->_compile(sdlRenderer.get(), DPIConstant.get());
+        sdlRenderer.leave();
+        DPIConstant.leave();
+    } nextInZ.leave();
+}
+
 void Window::_clear(){
     hasKeyboardFocus.leave();
     sdlWindowClearColor.hold();

@@ -120,6 +120,8 @@ public:
     
     void _compute_DPIConstant();
     
+    void _compile();
+    
     void _clear();
     
     void _render();

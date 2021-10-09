@@ -18,8 +18,9 @@
 		174F1F1826825427009B8159 /* Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 174F1F1626825427009B8159 /* Core.cpp */; };
 		17550B4E26C0082600A697E6 /* Button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17550B4C26C0082600A697E6 /* Button.cpp */; };
 		17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17734DA526BDD31E00212851 /* InteractiveObject.cpp */; };
+		177C47F72711C1DF00A0B99D /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B826B3186E00219F36 /* Text.cpp */; };
+		177C47F82711D23500A0B99D /* aves.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BB16D926FDFECC00C14BA6 /* aves.cpp */; };
 		1781821126C41BCB00F986B6 /* List.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1781820F26C41BCB00F986B6 /* List.cpp */; };
-		1790D0A9270A5C9E00DEA51F /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
 		17BE74A426AC0364009A3D8C /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A326AC0364009A3D8C /* Color.cpp */; };
 		17BE74AA26AC5B87009A3D8C /* DrawableObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A926AC5B87009A3D8C /* DrawableObject.cpp */; };
 		17C7970C26D8F85F00CF551B /* Paragraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970A26D8F85F00CF551B /* Paragraph.cpp */; };
@@ -29,7 +30,6 @@
 		17D997C726B3282A00219F36 /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997C526B3282A00219F36 /* Font.cpp */; };
 		17DE7ED02708AF7B007667BA /* SDL2_rotozoom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17DE7ECE2708AF7B007667BA /* SDL2_rotozoom.cpp */; };
 		17DE7ED12708AF7B007667BA /* SDL2_gfxPrimitives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17DE7ECF2708AF7B007667BA /* SDL2_gfxPrimitives.cpp */; };
-		17F67D6926CC614A00B2BE43 /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B826B3186E00219F36 /* Text.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -421,8 +421,8 @@
 				17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */,
 				17BE74A426AC0364009A3D8C /* Color.cpp in Sources */,
 				17D997C726B3282A00219F36 /* Font.cpp in Sources */,
+				177C47F72711C1DF00A0B99D /* Text.cpp in Sources */,
 				174F1F132682533B009B8159 /* Window.cpp in Sources */,
-				17F67D6926CC614A00B2BE43 /* Text.cpp in Sources */,
 				174F1F1826825427009B8159 /* Core.cpp in Sources */,
 				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,
 				17115C3026FE783C0028BD55 /* Object.cpp in Sources */,
@@ -431,8 +431,8 @@
 				17550B4E26C0082600A697E6 /* Button.cpp in Sources */,
 				1734118626BAB77300444E40 /* Image.cpp in Sources */,
 				17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */,
-				1790D0A9270A5C9E00DEA51F /* playground.cpp in Sources */,
 				17BE74AA26AC5B87009A3D8C /* DrawableObject.cpp in Sources */,
+				177C47F82711D23500A0B99D /* aves.cpp in Sources */,
 				17C7970C26D8F85F00CF551B /* Paragraph.cpp in Sources */,
 				17DE7ED02708AF7B007667BA /* SDL2_rotozoom.cpp in Sources */,
 			);

@@ -147,7 +147,7 @@ public:
     }
                                 
     
-    DrawableObject& body(Window& window) override {
+    Object& body(Window& window) override {
         createBird(window);
         createDescription(window);
         createButtons(window);
@@ -237,7 +237,7 @@ public:
                          );
     }
     
-    DrawableObject& body(Window& window) override {
+    Object& body(Window& window) override {
         createTitle(window);
         createBird(window);
         createDescription(window);
@@ -258,7 +258,7 @@ int main(int argc, const char * argv[]) {
     Window window("Aves", 1100, 600, Window::HighDefinition);
     
     auto Home = MyHomeView(window);
-
+    
     auto Pinguim = BirdView(window, "Pinguim", "O pinguim é uma ave da família \\bold Spheniscidae, \\regular altamente modificada para a vida aquática, sendo suas asas adaptadas para promover impulso através da água. Estas aves estão amplamente distribuídas pelas águas mais frias do hemisfério sul, especialmente na Antártida e ilhas dos mares austrais, chegado à Terra do Fogo, Ilhas Malvinas e África do Sul.", "lanUI.Bundle/System/Resources/Penguin.png", nullptr, nullptr);
     
     auto Pombo = BirdView(window, "Pombo", "\\bold Columbidae \\regular é uma família de pássaros que consiste em pombos e pombas. É a única família na ordem Columbiformes. Estas são aves de corpo robusto com pescoços curtos e bicos curtos e delgados que em algumas espécies apresentam ceras carnudas. Eles se alimentam principalmente de sementes, frutas e plantas. A família ocorre em todo o mundo, mas a maior variedade está nos reinos Indomalayan e Australasian.", "lanUI.Bundle/System/Resources/Pigeon.png", nullptr, nullptr);
@@ -400,6 +400,14 @@ int main(int argc, const char * argv[]) {
     .set_window_clear_color(Colors::White);
     
     //.embedInZ(box[0]);
+    
+//    Home.compose(window.sdlRenderer.get(), 2);
+//    window.sdlRenderer.leave();
+//    Home.set_draw_mode(Object::CompositionMode);
+//
+    Home.compose(window.sdlRenderer.get(), 2);
+    window.sdlRenderer.leave();
+    Home.set_draw_mode(Object::CompositionMode);
     
     Core::events();
     

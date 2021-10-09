@@ -139,6 +139,7 @@ void Core::render(){
                     }
                     CoreData::programWindows[i].data->hasKeyboardFocus.leave();
                     CoreData::programWindows[i].data->_run_default_animation();
+                    CoreData::programWindows[i].data->_compile();
                     CoreData::programWindows[i].data->_clear();
                     CoreData::programWindows[i].data->_render();
                 }

@@ -21,15 +21,15 @@ const Color Image::_getGradientFrameColor(GradientElement first, GradientElement
 }
 
 Image& Image::fromLinearGradient(LGOrietantion orientation, GradientElement first, GradientElement second, Renderer * renderer, SDL_Window* window, uint32_t weight, uint32_t gap){
-    _freeImage();
-    image.set(SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size.get().w, size.data.h));
+    _free_canvas();
+    canvas.set(SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size.get().w, size.data.h));
     size.leave();
     SDL_RenderClear(renderer);
-    SDL_SetRenderTarget(renderer, image.data);
+    SDL_SetRenderTarget(renderer, canvas.data);
     int _w = size.get().w, _h = size.data.h; size.leave();
     Rect linearFill = {0,0, (orientation == Vertical) ? (float)(_w) : weight, (orientation == Horizontal) ? (float)(_h) : weight};
     Color temp;
-    SDL_SetTextureBlendMode(image.data, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(canvas.data, SDL_BLENDMODE_BLEND);
     if(!weight)
         Core::log(Core::Error, "Gradient weight must to be >= 1");
     
@@ -61,12 +61,12 @@ const double Image::_getDistance(Point point1, Point point2){
 }
 
 Image& Image::fromRadialGradient(Point center, double radius, GradientElement first, GradientElement second, Renderer * renderer, SDL_Window* window){
-    _freeImage();
-    image.set(SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size.get().w, size.data.h));
+    _free_canvas();
+    canvas.set(SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size.get().w, size.data.h));
     size.leave();
     SDL_RenderClear(renderer);
-    SDL_SetRenderTarget(renderer, image.data);
-    SDL_SetTextureBlendMode(image.data, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(renderer, canvas.data);
+    SDL_SetTextureBlendMode(canvas.data, SDL_BLENDMODE_BLEND);
     int _w = size.get().w, _h = size.data.h; size.leave();
     double distance = 0;
     Color temp;

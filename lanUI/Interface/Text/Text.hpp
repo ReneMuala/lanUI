@@ -27,7 +27,7 @@ namespace TextStyles {
     const TextStyle Footer = {Font::Style::Condensed, 10};
 }
 
-class Text: public DrawableObject {
+class Text: public Object {
     bool wasCompiled, withBackground;
     Semaphore<std::string> source;
     int dpiK;
@@ -59,9 +59,11 @@ public:
     
     bool compile(Renderer*, bool internCall = false, bool fixCall = false);
     
+    void _compile(Renderer*, const float dpiK) override;
+    
     void _render_background(SDL_Renderer*, Rect*);
     
-    void _render(SDL_Renderer*, float x, float y, const float dpiK) override;
+    void _render(SDL_Renderer*, float x, float y, const float dpiK, bool isComposition) override;
     
     // may be useful when using RenderShadedMode
     /// use root primary color as this->background_color

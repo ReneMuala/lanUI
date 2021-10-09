@@ -70,8 +70,6 @@ void Object::__align_bottom(float &x, float &y){
 }
 
 Object& Object::operator=(Object & other){
-    for(int i = 0 ; i < Properties::totalProperties ; i++)
-    properties[i] = other.properties[i];
     size = other.size.get(); other.size.leave();
     padding = other.padding.get(); other.padding.leave();
     return (*this);
@@ -334,11 +332,7 @@ void Object::_useRootBounds(){
 }
 
 void Object::__renderEmbedded_routine(SDL_Renderer * renderer, Object * embedded, const float x, const float y, float dpiK){
-    if(embedded->properties[Properties::isDrawable].get())
-        ((DrawableObject*)embedded)->_render(renderer, x, y, dpiK);
-    else
-        embedded->_render(renderer, x, y, dpiK);
-    embedded->properties[Properties::isDrawable].leave();
+    embedded->_render(renderer, x, y, dpiK);
 }
 
 void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float y, float dpiK, _RenderEmbeddedMode _renderEmbeddedMode){
@@ -383,116 +377,6 @@ void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float
         nextInY.leave();
     }
 }
-
-/*
- _lock_renderer_in_bounds:
- {
-     static SDL_Rect bounds, rendererBounds, inter;
-     sizeBuffer.hold();
-     bounds =
-     {
-         (int)(sizeBuffer.data.x),
-         (int)(sizeBuffer.data.y),
-         (int)(sizeBuffer.data.w),
-         (int)(sizeBuffer.data.h),
-     };
-     sizeBuffer.leave();
-
-     SDL_RenderGetClipRect(renderer, &rendererBounds);
-     
-     SDL_IntersectRect(&bounds,&rendererBounds, &inter);
-     
-     if(SDL_RectEmpty(&rendererBounds)){
-         if(!rendererClips.empty()){
- #ifdef LANUI_DEBUG_MODE
-             SDL_SetRenderDrawColor(renderer, 0, 0, 255, 20);
-             SDL_RenderFillRect(renderer, &rendererClips.top());
- #endif
-             SDL_RenderSetClipRect(renderer, &rendererClips.top());
-         } else {
-             SDL_RenderSetClipRect(renderer, &bounds);
-             rendererClips.push(bounds);
-         }
-     } else {
- #ifdef LANUI_DEBUG_MODE
-         SDL_SetRenderDrawColor(renderer, 255, 255, 20, 200);
-         SDL_RenderDrawRect(renderer, &inter);
-         if(!rendererClips.empty()) {
-             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
-             SDL_RenderFillRect(renderer, &rendererClips.top());
-             SDL_IntersectRect(&bounds,&rendererClips.top(), &inter);
-         }
- #endif
- #ifdef LANUI_DEBUG_MODE
-         SDL_SetRenderDrawColor(renderer, 0, 0, 255, 50);
-         SDL_RenderFillRect(renderer, &inter);
- #endif
-         SDL_RenderSetClipRect(renderer, &inter);
-         rendererClips.push(inter);
-     }
-     
- #ifdef LANUI_DEBUG_MODE
-     SDL_SetRenderDrawColor(renderer, 255, 20, 20, 10);
-     SDL_RenderFillRect(renderer, &bounds);
-     SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
-     SDL_RenderDrawRect(renderer, &bounds);
- #endif
- }
- ______________________________________________________________________________
- {
-     static SDL_Rect bounds, rendererBounds, inter;
-     root.hold();
-     root.data->sizeBuffer.hold();
-     bounds =
-     {
-         (int)(root.data->sizeBuffer.data.x),
-         (int)(root.data->sizeBuffer.data.y),
-         (int)(root.data->sizeBuffer.data.w),
-         (int)(root.data->sizeBuffer.data.h),
-     };
-     
-     SDL_RenderGetClipRect(renderer, &rendererBounds);
-     SDL_IntersectRect(&bounds,&rendererBounds, &inter);
-     
-     if(SDL_RectEmpty(&inter)){
-         if(!rendererClips.empty()){
- #ifdef LANUI_DEBUG_MODE
-             SDL_SetRenderDrawColor(renderer, 0, 0, 255, 10);
-             SDL_RenderFillRect(renderer, &rendererClips.top());
- #endif
-             SDL_RenderSetClipRect(renderer, &rendererClips.top());
-         } else {
-             SDL_RenderSetClipRect(renderer, &bounds);
-             rendererClips.push(bounds);
-         }
-     } else {
- #ifdef LANUI_DEBUG_MODE
-         SDL_SetRenderDrawColor(renderer, 255, 255, 20, 200);
-         SDL_RenderDrawRect(renderer, &inter);
-         if(!rendererClips.empty()) {
-             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 10);
-             SDL_RenderFillRect(renderer, &rendererClips.top());
-         }
- #endif
-         SDL_RenderSetClipRect(renderer, &inter);
-         rendererClips.push(inter);
-     }
-     
-     sizeBuffer.hold();
-     //sizeBuffer.data.x -= root.data->sizeBuffer.data.x;
-     //sizeBuffer.data.y -= root.data->sizeBuffer.data.y;
-     sizeBuffer.leave();
-     root.leave();
-     root.data->sizeBuffer.leave();
- #ifdef LANUI_DEBUG_MODE
-     SDL_SetRenderDrawColor(renderer, 255, 20, 20, 10);
-     SDL_RenderFillRect(renderer, &bounds);
-     SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
-     SDL_RenderDrawRect(renderer, &bounds);
- #endif
- }
- */
-
 
 void Object::_lock_renderer_in_bounds(SDL_Renderer * renderer, float dpiK){
     static SDL_Rect bounds, inter;
@@ -550,23 +434,8 @@ void Object::_render_routine(float dpiK){
     sizeBuffer.leave();
 }
 
-void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK) {
-    if(_inRootBounds(x, y)){
-        _align(x, y);
-        size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
-        _render_routine(dpiK);
-        _renderEmbedded(renderer, x, y, dpiK, _renderOnlyNextInZ);
-    } _renderEmbedded(renderer, x, y, dpiK, _renderOnlyNextInX_Y);
-}
-
 void Object::_handle_others_routine(Event& event, Object * next, const float dpiK){
-    if(next->properties[Properties::isInteractive].get()){
-        next->properties[Properties::isInteractive].leave();
-        ((InterativeObject*)next)->_handle(event, dpiK);
-    } else {
-        next->properties[Properties::isInteractive].leave();
-        (next)->_handle(event, dpiK);
-    }
+    (next)->_handle_events(event, dpiK);
 }
 
 void Object::_handle_others(Event& event, const float dpiK){
@@ -596,7 +465,7 @@ bool Object::_has_focus(const float dpiK){
     return focus;
 }
 
-void Object::_handle(Event & event, const float dpiK){
+void Object::_handle_events(Event & event, const float dpiK){
     if(inRootBoundsBuffer.get()){
         inRootBoundsBuffer.leave();
         size.leave();
@@ -604,7 +473,12 @@ void Object::_handle(Event & event, const float dpiK){
             // ignore this object if the nextInZ has focus
             if(nextInZ.get()){
                 nextInZ.leave();
-                _handle_others_routine(event, nextInZ.data, dpiK);
+                if(drawMode.get() != CompositionMode) {
+                    drawMode.leave();
+                    _handle_others_routine(event, nextInZ.data, dpiK);
+                } else {
+                    drawMode.leave();
+                }
             } nextInZ.leave();
         } else {
             if(nextInZ.get()){
@@ -630,10 +504,6 @@ void Object::_run_others_default_animation(){
     //nextInY.leave();
 }
 
-void Object::_run_default_animation(){
-    _run_others_default_animation();
-}
-
 void Object::_align(float &x, float &y){
     if(root.get()){
         root.leave();
@@ -646,20 +516,21 @@ void Object::_align(float &x, float &y){
             default: break;
         }
         aligment.leave();
-    } root.leave();
+    } else
+        root.leave();
 }
 
-void Object::_clear_properties(){
-    for(int i = 0 ; i < Properties::totalProperties ; i++){
-        properties[i].leave();
-        properties[i].set(false);
-    }
-}
-
-Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false),reloadingDisabled(false) /*rootType(OtherRoot)*/ {
+Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false),reloadingDisabled(false) /*rootType(OtherRoot)*/, canvas(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Transparent), backgroundColor(Colors::Transparent), borderColor(Colors::Transparent), angle(0), drawMode(DrawMode::DefaultMode), delay(0), wasCompiled(false) {
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
         requests[i].leave();
         requests[i].set(false);
     }
+    default_animation.get()._using = false;
+    default_animation.data.delay = 0;
+    default_animation.leave();
+}
+
+Object::~Object(){
+    _free_canvas();
 }

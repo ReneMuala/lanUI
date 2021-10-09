@@ -11,7 +11,6 @@
 
 Stack::Stack(){
     first = last = nullptr;
-    DrawableObject();
     fromColorScheme(Colors::Transparent, Colors::Transparent);
 }
 
@@ -60,7 +59,8 @@ Stack& HStack::reload(){
             height= (height < row->size.data.h + row->padding.data.top + row->padding.data.top) ? row->size.data.h + row->padding.data.top + row->padding.data.top : height;
             row->size.leave();
             row->padding.leave();
-        } set_size(width, height);
+        }
+        set_size(width, height);
     } reloadingDisabled.leave();
     return (*this);
 }

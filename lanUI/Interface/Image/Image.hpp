@@ -15,13 +15,11 @@
 
 /** A bitmap image.
  */
-class Image : public DrawableObject {
+class Image : public Object {
     Uint32 * pixels;
     int pich;
 public:
-    Image(){
-        DrawableObject();
-    }
+    
     typedef SDL_FPoint Point;
     typedef std::pair<Color, double /* start (in 0...100) */> GradientElement;
     /// Linear Gradient Orietantion

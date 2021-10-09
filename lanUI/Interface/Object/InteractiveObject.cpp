@@ -14,21 +14,15 @@ Semaphore<SDL_Point> cursor;
 
 using namespace InteractiveObjecsData;
 
-InterativeObject::InterativeObject(): scrollGain({0,0}){
-    Object();
-    _clear_properties();
-    properties[Properties::isInteractive].set(true);
-    
+InterativeObject::InterativeObject(): scrollGain({0,0}), focus_repeated(false), no_focus_repeated(false), isActive(false) {
     for(int i = 0 ; i < (CallBacks::totalCallBacks) ; i++){
         callbacks[i].leave();
         callbacks[i].set(false);
     }
 }
 
-void InterativeObject::_handle(Event & event, const float dpiK){
-    static bool focus_repeated(false);
-    static bool no_focus_repeated(false);
-    if(inRootBoundsBuffer.get()){
+void InterativeObject::_handle_events(Event & event, const float dpiK){
+    if(inRootBoundsBuffer.get() && isActive.get()){
         inRootBoundsBuffer.leave();
         if(this->_has_focus(dpiK)){
             if(callbacks[OnFocusGained].get() && !focus_repeated)
@@ -36,39 +30,45 @@ void InterativeObject::_handle(Event & event, const float dpiK){
             if(callbacks[OnClick].get()
                && event.type == SDL_MOUSEBUTTONDOWN
                && event.button.button == SDL_BUTTON_LEFT
-               && event.button.clicks == 1)
+                 && event.button.clicks == 1)
                 on_click_callback();
-            else if(callbacks[OnDoubleClick].get()
+            if(callbacks[OnDoubleClick].get()
                     && event.type == SDL_MOUSEBUTTONDOWN
                     && event.button.button == SDL_BUTTON_LEFT
                     && event.button.clicks == 2)
                 on_double_click_callback();
-            else if(callbacks[OnSecondaryClick].get()
+            if(callbacks[OnSecondaryClick].get()
                     && event.type == SDL_MOUSEBUTTONDOWN
                     && event.button.button == SDL_BUTTON_RIGHT)
                 on_secondary_click_callback();
-            else if(callbacks[OnMouseButtonDown].get()
+            if(callbacks[OnMouseButtonDown].get()
                     && event.type == SDL_MOUSEBUTTONDOWN)
                 on_mouse_button_down_callback();
-            else if(callbacks[OnMouseButtonUp].get()
+            if(callbacks[OnMouseButtonUp].get()
                     && event.type == SDL_MOUSEBUTTONUP)
                 on_mouse_button_up_callback();
-            else if(callbacks[OnKeyDown].get()
+            if(callbacks[OnKeyDown].get()
                     && event.type == SDL_KEYDOWN)
                 on_key_down_callback();
-            else if(callbacks[OnKeyUp].get()
+            if(callbacks[OnKeyUp].get()
                     && event.type == SDL_KEYUP)
                 on_key_up_callback();
-            else if(callbacks[OnScroll].get()
+            if(callbacks[OnScroll].get()
                     && event.type == SDL_MOUSEWHEEL) {
                 scrollGain.vertical = event.wheel.y;
                 scrollGain.horizontal = event.wheel.x;
                 on_scroll_callback();
             }
+            
             for(int i = 0 ; i < (CallBacks::totalCallBacks) ; i++)
                 callbacks[i].leave();
-            if(nextInZ.get() && nextInZ.data->_has_focus(dpiK)){
-                _handle_others_routine(event, nextInZ.data, dpiK);
+            if(nextInZ.get()){
+                if(drawMode.get() != CompositionMode) {
+                    drawMode.leave();
+                    _handle_others_routine(event, nextInZ.data, dpiK);
+                } else {
+                    drawMode.leave();
+                }
             } nextInZ.leave();
             focus_repeated = true;
             no_focus_repeated = true;
@@ -86,6 +86,7 @@ void InterativeObject::_handle(Event & event, const float dpiK){
             focus_repeated = false;
         }
     } inRootBoundsBuffer.leave();
+    isActive.leave();
 }
 
 InterativeObject& InterativeObject::set_size(const float w, const float h){
@@ -104,42 +105,49 @@ InterativeObject& InterativeObject::main_actiivity(VoidCallback callback){
 InterativeObject& InterativeObject::on_focus_gained(VoidCallback callback){
     on_focus_gained_callback = callback;
     callbacks[OnFocusGained].set(true);
+    isActive.set(true);
     return (*this);
 }
 
 InterativeObject& InterativeObject::on_focus_lost(VoidCallback callback){
     on_focus_lost_callback = callback;
     callbacks[OnFocusLost].set(true);
+    isActive.set(true);
     return (*this);
 }
 
 InterativeObject& InterativeObject::on_resized(VoidCallback callback){
     on_resized_callback = callback;
     callbacks[OnResized].set(true);
+    isActive.set(true);
     return (*this);
 }
 
 InterativeObject& InterativeObject::on_click(VoidCallback callback){
     on_click_callback = callback;
     callbacks[OnClick].set(true);
+    isActive.set(true);
     return (*this);
 }
 
 InterativeObject& InterativeObject::on_double_click(VoidCallback callback){
     on_double_click_callback = callback;
     callbacks[OnDoubleClick].set(true);
+    isActive.set(true);
     return (*this);
 }
 
 InterativeObject& InterativeObject::on_secondary_click(VoidCallback callback){
     on_secondary_click_callback = callback;
     callbacks[OnSecondaryClick].set(true);
+    isActive.set(true);
     return (*this);
 }
 
 InterativeObject& InterativeObject::on_mouse_button_down(VoidCallback callback){
     on_mouse_button_down_callback = callback;
     callbacks[OnMouseButtonDown].set(true);
+    isActive.set(true);
     return (*this);
 }
 
@@ -147,23 +155,27 @@ InterativeObject& InterativeObject::on_mouse_button_down(VoidCallback callback){
 InterativeObject& InterativeObject::on_mouse_button_up(VoidCallback callback){
     on_mouse_button_up_callback = callback;
     callbacks[OnMouseButtonUp].set(true);
+    isActive.set(true);
     return (*this);
 }
 
 InterativeObject& InterativeObject::on_key_down(VoidCallback callback){
     on_key_down_callback = callback;
     callbacks[OnKeyDown].set(true);
+    isActive.set(true);
     return (*this);
 }
 
 InterativeObject& InterativeObject::on_key_up(VoidCallback callback){
     on_key_up_callback = callback;
     callbacks[OnKeyUp].set(true);
+    isActive.set(true);
     return (*this);
 }
 
 InterativeObject& InterativeObject::on_scroll(VoidCallback callback){
     on_scroll_callback = callback;
     callbacks[OnScroll].set(true);
+    isActive.set(true);
     return (*this);
 }

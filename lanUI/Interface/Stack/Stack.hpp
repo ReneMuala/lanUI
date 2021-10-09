@@ -13,7 +13,7 @@
 #include "../Object/Object.hpp"
 
 /// Base class for VStack , HStack and ZStack.
-class Stack : public DrawableObject {
+class Stack : public Object {
 public:
     Object * first, * last;
     virtual Stack fromList(std::list<Object*>){return *this;};

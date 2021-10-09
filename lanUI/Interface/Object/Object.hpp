@@ -17,20 +17,26 @@
 
 #include <SDL2/SDL.h>
 #include <list>
+#include <stack>
 #include <functional>
 
 class Object {
     
-    void __align_center(float & x, float & y);
     
-    void __align_top(float & x, float & y);
+    /*
+     
+     -------------------------------------------------------------------------------
+     
+     SECTION:       Object.
+     
+     FILE:          Object.cpp
+     
+     DESCRIPTION:   Handles basic object's data and operations.
+     
+     -------------------------------------------------------------------------------
 
-    void __align_bottom(float & x, float & y);
-
-    void __align_left(float & x, float & y);
+     */
     
-    void __align_right(float & x, float & y);
-            
 public:
     
     typedef SDL_FRect Rect;
@@ -42,6 +48,20 @@ public:
     typedef long FrameCount;
     typedef std::function<void()> VoidCallback;
     typedef std::function<bool()> BoolCallback;
+    
+private:
+    
+    void __align_center(float & x, float & y);
+    
+    void __align_top(float & x, float & y);
+
+    void __align_bottom(float & x, float & y);
+
+    void __align_left(float & x, float & y);
+    
+    void __align_right(float & x, float & y);
+    
+public:
     
     struct Padding {
         float top, bottom, left, right;
@@ -69,36 +89,14 @@ public:
     } Alignment;
     
     typedef enum {
-        isWindow,
-        isDrawable,
-        isInteractive,
-        totalProperties
-    } Properties;
-    
-    typedef enum {
         SetSize,
         SetPadding,
         totalRequests
     } Requests;
     
-//    typedef enum {
-//        OtherRoot,
-//        VStackRoot,
-//        HStackRoot,
-//        ZStackRoot,
-//    } RootType;
-    
-//    typedef enum {
-//        OpaqueObject,
-//        ContainerObject,
-//        VStackObject,
-//        HStackObject,
-//        ZStackObject,
-//    } Type;
-    
 public:
+    
     // base data
-    Semaphore<bool> properties[Properties::totalProperties];
     Semaphore<Rect> size;
     Semaphore<Rect> crop;
     Semaphore<Padding> padding;
@@ -109,27 +107,29 @@ public:
     Semaphore<bool> inRootBoundsBuffer;
     Semaphore<bool> isVericallyAfterRootBeginning, isVericallyBeforeRootEnding;
     Semaphore<bool> reloadingDisabled;
-//    Semaphore<RootType> rootType;
-//    Semaphore<Type> type;
-    
+
     // embedded objects & root
     Semaphore<Object*> root;
     Semaphore<Object*> nextInX, nextInY, nextInZ;
     
     /// random access buffer
     Semaphore<Rect> sizeBuffer;
-    Semaphore<Rect> reversedPaddingBuffer;
     
 public:
+    
     virtual Object& operator=(Object&);
     
     /**Reload this object to match with the children size.
      */
-    virtual Object& reload(){return (*this);}
+    virtual Object& reload(){
+        return (*this);
+    }
+    
     /**Enables Reload.
      Reloading is enabled by default on supported objects.
      */
     Object& enable_reloading();
+    
     /**Disables Reload.
      */
     Object& disable_reloading();
@@ -138,7 +138,8 @@ public:
     void _fix_size(const float w, const float h);
     Object& set_relative_size(const float w, const float h, const float w_correction = 0, const float h_corretion = 0);
     Object& set_padding(const Padding padding);
-    /**Sets Scrolling Factor.
+    
+    /** Sets Scrolling Factor.
      Scrolling Factor changes the original position of an object, it's used in lists to create a scrolling animation.
      */
     Object& set_scrollingFactor(const ScrollingFactor scrollingFactor);
@@ -148,9 +149,6 @@ public:
     Object& embedInX(Object&);
     Object& embedInY(Object&);
     Object& embedInZ(Object&);
-    
-//    Object& switchE(Object&);
-//    Object& replaceE(Object&);
     
     bool _inRootBounds(float x, float y);
     
@@ -172,18 +170,16 @@ public:
     
     // prepare rect_buffer
     void _render_routine(float);
-    
-    // Fixes object-compatibility issues
-    virtual void _render(SDL_Renderer*, float x, float y, float dpiK);
-    
+        
     bool _has_focus(const float dpiK);
         
     void _handle_others_routine(Event&, Object*, const float dpiK);
     
+    /// Handle events for nextInX & nextInY
     void _handle_others(Event&, const float dpiK);
     
     // Fixes object-compatibility issues
-    virtual void _handle(Event&, const float dpiK);
+    virtual void _handle_events(Event&, const float dpiK);
     
     void _run_others_default_animation();
     
@@ -191,13 +187,39 @@ public:
     virtual void _run_default_animation();
     
     void _align(float & x, float & y);
+            
+    /*
+     
+     -------------------------------------------------------------------------------
+     
+     SECTION:       Object, Drawable.
+     
+     FILE:          DrawableObject.cpp
+     
+     DESCRIPTION:   Adds support for renderering and drawing operations.
+     
+     -------------------------------------------------------------------------------
+     
+     */
     
-    void _clear_properties();
+public:
     
-    Object();
-};
-
-class DrawableObject: public Object {
+    /// Object behavior
+    typedef enum {
+        DefaultMode,
+        ImageMode,
+        ColorSchemeMode,
+        CallbackMode,
+        CompositionMode,
+    } DrawMode;
+    
+    struct Animation {
+        bool _using;
+        FrameCount delay;
+        BoolCallback callback;
+    };
+    
+private:
     
     /// images only
     bool withBorder;
@@ -207,74 +229,78 @@ class DrawableObject: public Object {
     Semaphore<VoidCallback> renderer_callback;
     
 public:
-
-    /// Object behavior
-    typedef enum {
-        DefaultMode,
-        ImageMode,
-        ColorSchemeMode,
-        RendererCallbackMode,
-    } DrawMode;
-    
-    struct Animation {
-        bool _using;
-        FrameCount delay;
-        BoolCallback callback;
-    };
-    
-public:
     
     Semaphore<DrawMode> drawMode;
-    Semaphore<Texture*> image;
+    Semaphore<bool> wasCompiled;
+    Semaphore<Texture*> canvas;
+    Semaphore<Texture*> compositionCanvas;
     Semaphore<Renderer*> renderer;
     Semaphore<Angle> angle;
     Semaphore<Color> foregroundColor, backgroundColor, borderColor;
     Semaphore<Animation> default_animation;
     
-    DrawableObject();
+    /// Used to protect important data during composition mode
+    Semaphore<std::stack<float>> compositionBuffer;
+    Texture* compositionRendererTargetBuffer;
     
-    ~DrawableObject();
+public:
     
-    // deletes the current loaded image
-    void _freeImage();
+    Object& set_draw_mode(DrawMode mode);
     
-    DrawableObject& fromFile(const char *, Renderer *);
+    void _free_canvas(Semaphore<Texture*>&);
+    void _free_canvas();
+    void _generate_canvas(Renderer *, Semaphore<Texture*>&, const float dpiK = 1);
+    void _clear_canvas(Renderer *, Semaphore<Texture*>&);
     
-    DrawableObject& fromSurface(Surface*, Renderer *, const bool reset_secondaryColor = true);
+    Object& fromFile(const char *, Renderer *);
     
-    DrawableObject& fromColorScheme(const Color color = Colors::Primary, const Color color2 = Colors::Secondary);
+    Object& fromSurface(Surface*, Renderer *, const bool reset_secondaryColor = true);
     
-    virtual DrawableObject& set_foreground_color(const Color);
+    Object& fromColorScheme(const Color color = Colors::Primary, const Color color2 = Colors::Secondary);
     
-    virtual DrawableObject& set_background_color(const Color);
+    virtual Object& set_foreground_color(const Color);
+    
+    virtual Object& set_background_color(const Color);
     
     /// set_secondary_color(...)
-    DrawableObject& set_border_color(const Color);
+    Object& set_border_color(const Color);
     
-    void _render__image(SDL_Renderer*, float x, float y, const float dpiK);
+    void _compile_embedded(SDL_Renderer* renderer, const float dpiK);
     
-    void _render__colorScheme(SDL_Renderer*, float x, float y, const float dpiK);
+    virtual void _compile(SDL_Renderer* renderer, const float dpiK);
     
-    void _render__default(SDL_Renderer*, float x, float y, const float dpiK);
+    void _render_composition(SDL_Renderer*, float x, float y, const float dpiK);
     
-    void _render__background(SDL_Renderer*, Rect*);
+    void _render_image(SDL_Renderer*, float x, float y, const float dpiK);
     
-    void _render__border(SDL_Renderer*, Rect*);
+    void _render_color_scheme(SDL_Renderer*, float x, float y, const float dpiK);
     
-    void _render_using_callback(SDL_Renderer*, float x, float y, float dpiK);
+    void _render_default(SDL_Renderer*, float x, float y, const float dpiK);
     
-    void _render(SDL_Renderer*, float x, float y, float dpiK) override;
+    void _render_background(SDL_Renderer*, Rect*);
     
-    SDL_Renderer * renderer_param;
-    float x_param;
-    float y_param;
-    float dpiK_param;
-    DrawableObject& set_renderer_callback(VoidCallback);
+    void _render_border(SDL_Renderer*, Rect*);
     
-    void _run_default_animation() override;
+    void _render_using_callback(SDL_Renderer*, float x, float y, const float dpiK);
     
-    DrawableObject& set_default_animation(const FrameCount delay, BoolCallback);
+    virtual void _render(SDL_Renderer*, float x, float y, float dpiK, bool isComposition = false);
     
+    SDL_Renderer * param_renderer;
+    float param_dpiK;
+    
+    Object& set_renderer_callback(VoidCallback);
+        
+    Object& set_default_animation(const FrameCount delay, BoolCallback);
+        
+    void _start_composition_mode(SDL_Renderer*, const float dpiK);
+    
+    void _stop_composition_mode(SDL_Renderer*);
+    
+    Object& compose(SDL_Renderer*, const float dpiK);
+    
+    Object();
+    
+    ~Object();
 };
 
 /// __InteractiveObject_Container
@@ -307,6 +333,24 @@ public:
 };
 
 class InterativeObject: public __IOContainer {
+    
+    /*
+     
+     -------------------------------------------------------------------------------
+     
+     SUMMARY:       InteractiveObject.
+     
+     FILE:          InteractiveObject.cpp
+     
+     DESCRIPTION:   Object that suports events.
+     
+     -------------------------------------------------------------------------------
+     
+     */
+    
+    bool focus_repeated;
+    bool no_focus_repeated;
+    
     // callbacks
     VoidCallback on_focus_gained_callback;
     VoidCallback on_focus_lost_callback;
@@ -321,6 +365,9 @@ class InterativeObject: public __IOContainer {
     VoidCallback on_scroll_callback;
     VoidCallback main_activity_callback;
     
+    // may handle events?
+    Semaphore<bool> isActive;
+   
 public:
     
     typedef enum {
@@ -344,12 +391,11 @@ public:
     
     Semaphore<bool> callbacks[CallBacks::totalCallBacks];
     
-    /// MUST BE USED ONLY INSIDE OF CALLBACKS
     ScrollGain scrollGain;
     
     InterativeObject();
     
-    void _handle(Event&, const float dpiK) override;
+    void _handle_events(Event&, const float dpiK) override;
     
     InterativeObject& set_size(const float w, const float h) override;
 

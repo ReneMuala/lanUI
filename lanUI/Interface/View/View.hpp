@@ -15,22 +15,23 @@
 /** View / ViewPort is main child of a window.
  Contains the elements that are goind to presented on that window.
  */
-class View: public DrawableObject {
-    DrawableObject some_content;
+class View: public Object {
+    Object some_content;
 public:
     
     Window * window;
+    
     /** Views start point.
      Creates the "Body" of the view,.
      */
-    virtual DrawableObject& body(Window&){
+    virtual Object& body(Window&){
         return some_content;
     };
     
     /** Creates the view without setting it as the main view of the window.
      */
     void create_silently(Window & win){
-        DrawableObject();
+        Object();
         window = &win;
         embedInZ(body(win));
     }

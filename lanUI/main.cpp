@@ -34,7 +34,8 @@ public:
         // view color 
         fromColorScheme(Colors::Transparent);
     }
-    DrawableObject& body(Window& window) override{
+    
+    Object& body(Window& window) override{
         Title.from_string("LanUI Changes Log ");
         Title.set_style(TextStyles::Header);
 
@@ -71,7 +72,6 @@ public:
                                                  return (Text*)nullptr;
                                              )
                                 );
-        
         list.fit_content(280, 340);
         //mainArea.set_padding({0,0,0,0});
         mainArea.fromList(std::list<Object *>{&Title,&list});

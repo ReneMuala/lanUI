@@ -47,7 +47,6 @@ const std::string TextStyle::toStr() const {
 }
 
 Text::Text(const std::string source, Font& font): wasCompiled(false), withBackground(false), source(source), fontVirtualSize(12){
-    DrawableObject();
     this->font = font;
     foregroundColor.set(Colors::Black);
     backgroundColor.set(Colors::Red);
@@ -68,7 +67,6 @@ Text& Text::from_string(const std::string source, Renderer * renderer){
 void Text::tryCompile(){
     renderer.get();
     _resetDPI();
-    wasCompiled = compile(renderer.data, true);
     renderer.leave();
 }
 
@@ -88,7 +86,7 @@ void Text::_adjustTextDPI(){
 bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
     if(renderer && source.get().size()){
         
-        _freeImage();
+        _free_canvas();
 
         if(!font.child.get()){
             font.child.leave();
@@ -128,12 +126,11 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         foregroundColor.leave();
         backgroundColor.leave();
         if(internCall){
-            this->image.set(SDL_CreateTextureFromSurface(renderer, surfc));
+            this->canvas.set(SDL_CreateTextureFromSurface(renderer, surfc));
             if(!fixCall)
                 set_size(surfc->w, surfc->h);
         } else {
             fromSurface(surfc, renderer, false);
-            size.leave();
         }
         
         if(!fixCall) {
@@ -152,8 +149,32 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
     } drawMode.set(DrawMode::DefaultMode);
     source.leave();
     Core::log(Core::Warning, "Text compilation failed (invalid renderer or string).");
-    _freeImage();
+    _free_canvas();
     return false;
+}
+
+void Text::_compile(Renderer * renderer, const float dpiK){
+    // prepare text
+    while(!wasCompiled) {
+        
+#ifdef LANUI_DEBUG_MODE
+        Core::log(Core::Warning, "Text was not compiled, compiling... (MAIN CASE)");
+#endif
+        wasCompiled = compile(renderer);
+    }
+
+    // adjust DPI
+    if(this->dpiK != dpiK){
+        this->dpiK = dpiK;
+        _adjustTextDPI();
+        do {
+#ifdef LANUI_DEBUG_MODE
+        Core::log(Core::Warning, "Text was not recompiled, recompiling... (DPIK CASE)");
+#endif
+            wasCompiled = compile(renderer, true, true);
+        } while(!wasCompiled);
+    }
+    _compile_embedded(renderer, dpiK);
 }
 
 void Text::_render_background(SDL_Renderer * renderer, Rect * rect){
@@ -163,61 +184,41 @@ void Text::_render_background(SDL_Renderer * renderer, Rect * rect){
     SDL_RenderFillRectF(renderer, rect);
 }
 
-void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){
+void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, bool isComposition){
+    
+        if(_inRootBounds(x, y)){
+            _align(x, y);
+            size.hold(); padding.hold();
+            size.data.x = x + padding.data.left;
+            size.data.y = y + padding.data.top;
+            size.leave(); padding.leave();
+            _render_routine(dpiK);
+            _render_image(renderer, x, y, dpiK);
+        } else {
+    #ifdef LANUI_DEBUG_MODE
+            Core::log(Core::Warning, "Text outside root bounds.");
+    #endif
+        }
     
 #ifdef LANUI_DEBUG_MODE
-    SDL_SetRenderDrawColor(renderer, 255, 200, 200, 50);
+    if(isComposition)
+        SDL_SetRenderDrawColor(renderer, 200, 200, 255, 50);
+    else
+        SDL_SetRenderDrawColor(renderer, 255, 200, 200, 50);
     SDL_RenderFillRectF(renderer, &sizeBuffer.get());
     SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
     SDL_RenderDrawRectF(renderer, &sizeBuffer.data);
     sizeBuffer.leave();
 #endif
     
-    // prepare text
-    while(!wasCompiled) {
-#ifdef LANUI_DEBUG_MODE
-        Core::log(Core::Warning, "Text was not compiled, compiling...");
-#endif
-        wasCompiled = compile(renderer);
-    } // adjust DPI 
-    if(this->dpiK != dpiK){
-        this->dpiK = dpiK;
-        _adjustTextDPI();
-        do {
-#ifdef LANUI_DEBUG_MODE
-        Core::log(Core::Warning, "Text was not recompiled, recompiling...");
-#endif
-            wasCompiled = compile(renderer, true, true);
-        } while(!wasCompiled);
-    }
-    
-    if(_inRootBounds(x, y)){
-        _align(x, y);
-        size.hold(); padding.hold();
-        size.data.x = x + padding.data.left;
-        size.data.y = y + padding.data.top;
-        size.leave(); padding.leave();
-        
-        _render_routine(dpiK);
-        _render__image(renderer, x, y, dpiK);
-    } else {
-#ifdef LANUI_DEBUG_MODE
-        Core::log(Core::Warning, "Text outside root bounds.");
-#endif
-        size.leave();
-        root.data->size.leave();
-        root.leave();
-    } _renderEmbedded(renderer, x, y, dpiK, _renderOnlyNextInX_Y);
+    if(!isComposition)
+        _renderEmbedded(renderer, x, y, dpiK, _renderOnlyNextInX_Y);
 };
 
 Text& Text::inherit_background_color(){
     if(root.get()){
-        if(root.data->properties[Properties::isDrawable].get()){
-            backgroundColor.set(((DrawableObject*)root.data)->foregroundColor.get());
-            ((DrawableObject*)root.data)->foregroundColor.leave();
-        } else {
-            Core::log(Core::Warning, "Using inherit_backgroundColor(...) without a Drawable root.");
-        } root.data->properties[Properties::isDrawable].leave();
+            backgroundColor.set((root.data)->foregroundColor.get());
+            (root.data)->foregroundColor.leave();
     } else
         Core::log(Core::Warning, "Using inherit_backgroundColor(...) without a root. (nullptr)");
     root.leave();

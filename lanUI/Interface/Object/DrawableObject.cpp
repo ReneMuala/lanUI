@@ -1,5 +1,5 @@
 //
-//  DrawableObject.cpp
+//  Object.cpp
 //  lanUI
 //
 //  Created by René Descartes Domingos Muala on 24/07/21.
@@ -28,69 +28,117 @@ SDL_Surface * get_surface(const char * source){
     return surfc;
 }
 
-void DrawableObject::_render__image(SDL_Renderer * renderer, float x, float y, const float dpiK){
+void Object::_compile_embedded(SDL_Renderer* renderer, const float dpiK){
+    if(nextInX.get())
+        nextInX.data->_compile(renderer, dpiK);
+    nextInX.leave();
+    if(nextInY.get())
+        nextInY.data->_compile(renderer, dpiK);
+    nextInY.leave();
+    if(nextInZ.get())
+        nextInZ.data->_compile(renderer, dpiK);
+    nextInZ.leave();
+}
+
+void Object::_compile(SDL_Renderer* renderer, const float dpiK){
+    _compile_embedded(renderer, dpiK);
+}
+
+void Object::_render_composition(SDL_Renderer * renderer, float x, float y, const float dpiK){
     sizeBuffer.hold();
-    if(withBackground)
-        _render__background(renderer, &sizeBuffer.data);
-    SDL_RenderCopyExF(renderer, image.get(), NULL, &sizeBuffer.data, angle.get(), NULL, SDL_FLIP_NONE);
-    //SDL_RenderCopyF(renderer, image.get(), NULL, &sizeBuffer.data);
-    image.leave();
+    SDL_RenderCopyExF(renderer, compositionCanvas.get(), NULL, &sizeBuffer.data, angle.get(), NULL, SDL_FLIP_NONE);
+    compositionCanvas.leave();
     angle.leave();
-    if(withBorder)
-        _render__border(renderer, &sizeBuffer.data);
+    
+#ifdef LANUI_DEBUG_MODE
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 10);
+        SDL_RenderFillRectF(renderer, &sizeBuffer.data);
+//        SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
+//        SDL_RenderDrawRectF(renderer, &sizeBuffer.data);
+#endif
+    
     sizeBuffer.leave();
 }
 
-void DrawableObject::_render__colorScheme(SDL_Renderer * renderer, float x, float y, const float dpiK){
+void Object::_render_image(SDL_Renderer * renderer, float x, float y, const float dpiK){
+    sizeBuffer.hold();
+    if(withBackground)
+        _render_background(renderer, &sizeBuffer.data);
+    SDL_RenderCopyExF(renderer, canvas.get(), NULL, &sizeBuffer.data, angle.get(), NULL, SDL_FLIP_NONE);
+    //SDL_RenderCopyF(renderer, canvas.get(), NULL, &sizeBuffer.data);
+    canvas.leave();
+    angle.leave();
+    if(withBorder)
+        _render_border(renderer, &sizeBuffer.data);
+    sizeBuffer.leave();
+}
+
+void Object::_render_color_scheme(SDL_Renderer * renderer, float x, float y, const float dpiK){
     foregroundColor.hold();
     SDL_SetRenderDrawColor(renderer, foregroundColor.data.r, foregroundColor.data.g, foregroundColor.data.b, foregroundColor.data.a);
     foregroundColor.leave();
     SDL_RenderFillRectF(renderer, &sizeBuffer.get());
-    if(withBorder) _render__border(renderer, &sizeBuffer.data);
+    if(withBorder) _render_border(renderer, &sizeBuffer.data);
     sizeBuffer.leave();
 }
 
-void DrawableObject::_render__default(SDL_Renderer * renderer, float x, float y, const float dpiK) {
-    _render__colorScheme(renderer, x, y, dpiK);
+void Object::_render_default(SDL_Renderer * renderer, float x, float y, const float dpiK) {
+    _render_color_scheme(renderer, x, y, dpiK);
     borderColor.hold();
     SDL_SetRenderDrawColor(renderer, borderColor.data.r, borderColor.data.g, borderColor.data.b, borderColor.data.a);
     borderColor.leave();
     sizeBuffer.hold();
-    _render__border(renderer, &sizeBuffer.data);
+    _render_border(renderer, &sizeBuffer.data);
     SDL_RenderDrawLineF(renderer, sizeBuffer.data.x, sizeBuffer.data.y, sizeBuffer.data.x + sizeBuffer.data.w, sizeBuffer.data.y + sizeBuffer.data.h);
     SDL_RenderDrawLineF(renderer, sizeBuffer.data.x, sizeBuffer.data.y + sizeBuffer.data.h, sizeBuffer.data.x + sizeBuffer.data.w, sizeBuffer.data.y);
     sizeBuffer.leave();
 }
 
-DrawableObject::DrawableObject(): image(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Primary), backgroundColor(Colors::Secondary), borderColor(Colors::Secondary), angle(0), drawMode(DrawMode::DefaultMode), delay(0) {
-    Object();
-    _clear_properties();
-    properties[Properties::isDrawable].set(true);
-    default_animation.get()._using = false;
-    default_animation.data.delay = 0;
-    default_animation.leave();
+Object& Object::set_draw_mode(DrawMode mode){
+    drawMode.set(mode);
+    return (*this);
 }
 
-DrawableObject::~DrawableObject(){
-    _freeImage();
+void Object::_free_canvas(Semaphore<Texture *>& canvas){
+    if (canvas.get())
+        SDL_DestroyTexture(canvas.data);
+    canvas.data = nullptr;
+    canvas.leave();
 }
 
-void DrawableObject::_freeImage(){
-    if (image.get())
-        SDL_DestroyTexture(image.data);
-    image.data = nullptr;
-    image.leave();
+void Object::_free_canvas(){
+    _free_canvas(canvas);
 }
 
-DrawableObject& DrawableObject::fromFile(const char *filename, Renderer * renderer){
+void Object::_generate_canvas(Renderer * renderer, Semaphore<Texture *>& canvas, const float dpiK){
+    canvas.hold();
+    size.hold();
+    canvas.data = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size.data.w * dpiK, size.data.h * dpiK);
+    SDL_SetTextureBlendMode(canvas.data, SDL_BLENDMODE_BLEND);
+    canvas.leave();
+    size.leave();
+}
+
+void Object::_clear_canvas(Renderer * renderer, Semaphore<Texture *> & canvas){
+    Texture* buffer = SDL_GetRenderTarget(renderer);
+    canvas.hold();
+    SDL_SetRenderTarget(renderer, canvas.data);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_RenderClear(renderer);
+    canvas.leave();
+    SDL_SetRenderTarget(renderer, buffer);
+}
+
+Object& Object::fromFile(const char *filename, Renderer * renderer){
     fromSurface(get_surface(filename), renderer);
     return (*this);
 }
 
-DrawableObject& DrawableObject::fromSurface(Surface * surfc, Renderer * renderer, const bool reset_backgroundColor){
+Object& Object::fromSurface(Surface * surfc, Renderer * renderer, const bool reset_backgroundColor){
     if(surfc) {
-        _freeImage();
-        this->image.set(SDL_CreateTextureFromSurface(renderer, surfc));
+        _free_canvas();
+        this->canvas.set(SDL_CreateTextureFromSurface(renderer, surfc));
         this->renderer.set(renderer);
         size.set({0,0,(float)surfc->w, (float)surfc->h});
         drawMode.set(DrawMode::ImageMode);
@@ -98,12 +146,12 @@ DrawableObject& DrawableObject::fromSurface(Surface * surfc, Renderer * renderer
         if(reset_backgroundColor)
             backgroundColor.set(Colors::Transparent);
     } else {
-        Core::log(Core::Warning, "Unable to load image from image source (nullptr)");
+        Core::log(Core::Warning, "Unable to load canvas from image source (nullptr)");
     }
     return (*this);
 }
 
-DrawableObject& DrawableObject::fromColorScheme(const Color color, const Color color2){
+Object& Object::fromColorScheme(const Color color, const Color color2){
     foregroundColor.set(color);
     backgroundColor.set(color2);
     withBackground = true;
@@ -111,48 +159,47 @@ DrawableObject& DrawableObject::fromColorScheme(const Color color, const Color c
     return (*this);
 }
 
-DrawableObject& DrawableObject::set_foreground_color(const Color color){
+Object& Object::set_foreground_color(const Color color){
     foregroundColor.set(color);
     return (*this);
 }
 
-DrawableObject& DrawableObject::set_background_color(const Color color){
+Object& Object::set_background_color(const Color color){
     backgroundColor.set(color);
     withBackground = true;
     return (*this);
 }
 
-DrawableObject& DrawableObject::set_border_color(const Color color){
+Object& Object::set_border_color(const Color color){
     borderColor.set(color);
     withBorder = true;
     return (*this);
 }
 
-void DrawableObject::_render__background(SDL_Renderer * renderer, Rect * rect){
+void Object::_render_background(SDL_Renderer * renderer, Rect * rect){
     backgroundColor.hold();
     SDL_SetRenderDrawColor(renderer, backgroundColor.data.r, backgroundColor.data.g, backgroundColor.data.b, backgroundColor.data.a);
     backgroundColor.leave();
     SDL_RenderFillRectF(renderer, rect);
 }
 
-void DrawableObject::_render__border(SDL_Renderer * renderer, Rect * rect){
+void Object::_render_border(SDL_Renderer * renderer, Rect * rect){
     borderColor.hold();
     SDL_SetRenderDrawColor(renderer, borderColor.data.r, borderColor.data.g, borderColor.data.b, borderColor.data.a);
     borderColor.leave();
     SDL_RenderDrawRectF(renderer, rect);
 }
 
-void DrawableObject::_render_using_callback(SDL_Renderer * renderer, float x, float y, float dpiK){
-    renderer_param = renderer;
-    x_param = x;
-    y_param = y;
-    dpiK_param = dpiK;
+void Object::_render_using_callback(SDL_Renderer * renderer, float x, float y, float dpiK){
+    param_renderer = renderer;
+    param_dpiK = dpiK;
+    
     renderer_callback.get()();
     renderer_callback.leave();
 }
 
-void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const float dpiK){
-    if(_inRootBounds(x, y)){
+void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, bool isComposition){
+    if(_inRootBounds(x, y) || isComposition){
         _align(x, y);
         size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
         _render_routine(dpiK);
@@ -160,45 +207,59 @@ void DrawableObject::_render(SDL_Renderer * renderer, float x, float y, const fl
                 case DrawMode::ImageMode:
                     if(renderer == this->renderer.get()){
                         this->renderer.leave();
-                        _render__image(renderer, x, y, dpiK);
+                        _render_image(renderer, x, y, dpiK);
                     } else {
                         this->renderer.leave();
-                        _render__default(renderer, x, y, dpiK);
+                        _render_default(renderer, x, y, dpiK);
                     } break;
-                case DrawMode::RendererCallbackMode:
+                case DrawMode::CallbackMode:
                     if(using_renderer_callback){
                         this->renderer.leave();
                         _render_using_callback(renderer, x, y, dpiK);
                     } else {
                         this->renderer.leave();
-                        _render__default(renderer, x, y, dpiK);
+                        _render_default(renderer, x, y, dpiK);
+                    } break;
+                case DrawMode::CompositionMode:
+                    if(renderer == this->renderer.get()){
+                        this->renderer.leave();
+                        _render_composition(renderer, x, y, dpiK);
+                    } else {
+                        this->renderer.leave();
+                        _render_default(renderer, x, y, dpiK);
                     } break;
                 case DrawMode::ColorSchemeMode:
-                    _render__colorScheme(renderer, x, y, dpiK);
+                    _render_color_scheme(renderer, x, y, dpiK);
                     break;
                 default:
-                    _render__default(renderer, x, y, dpiK);
+                    _render_default(renderer, x, y, dpiK);
                     break;
-            } drawMode.leave();
-        _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
+            }
+        if(drawMode.data != CompositionMode && !isComposition)
+            _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
+
+        drawMode.leave();
 #ifdef LANUI_DEBUG_MODE
-        //SDL_SetRenderDrawColor(renderer, 255, 200, 200, 10);
-        //SDL_RenderFillRectF(renderer, &sizeBuffer.get());
-        SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
-        SDL_RenderDrawRectF(renderer, &sizeBuffer.data);
-        sizeBuffer.leave();
+        if(!isComposition){
+            //SDL_SetRenderDrawColor(renderer, 255, 200, 200, 10);
+            //SDL_RenderFillRectF(renderer, &sizeBuffer.get());
+            SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
+            SDL_RenderDrawRectF(renderer, &sizeBuffer.data);
+            sizeBuffer.leave();
+        }
 #endif
-    } _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInX_Y);
+    }
+    if(!isComposition) _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInX_Y);
 }
 
-DrawableObject& DrawableObject::set_renderer_callback(VoidCallback callback){
+Object& Object::set_renderer_callback(VoidCallback callback){
     using_renderer_callback = true;
-    drawMode.set(DrawMode::RendererCallbackMode);
+    drawMode.set(DrawMode::CallbackMode);
     renderer_callback.set(callback);
     return (*this);
 }
 
-void DrawableObject::_run_default_animation(){
+void Object::_run_default_animation(){
     default_animation.hold();
     if(default_animation.data._using){
         if(delay >= default_animation.data.delay){
@@ -211,12 +272,82 @@ void DrawableObject::_run_default_animation(){
     _run_others_default_animation();
 }
 
-DrawableObject& DrawableObject::set_default_animation(const FrameCount delay, BoolCallback callback){
+Object& Object::set_default_animation(const FrameCount delay, BoolCallback callback){
     default_animation.hold();
     default_animation.data._using = true;
     default_animation.data.delay = delay;
     if(delay<0) Core::log(Core::Error, "animation::delay must to be >= 0.");
     default_animation.data.callback = callback;
     default_animation.leave();
+    return (*this);
+}
+
+void Object::_start_composition_mode(SDL_Renderer* renderer, const float dpiK){
+    _generate_canvas(renderer, compositionCanvas, dpiK);
+    _clear_canvas(renderer, compositionCanvas);
+    compositionBuffer.hold();
+    size.hold();
+    padding.hold();
+    compositionBuffer.data.push(size.data.x);
+    compositionBuffer.data.push(size.data.y);
+    size.data.x = size.data.y = 0;
+    compositionBuffer.data.push(padding.data.top);
+    compositionBuffer.data.push(padding.data.bottom);
+    compositionBuffer.data.push(padding.data.left);
+    compositionBuffer.data.push(padding.data.right);
+    padding.data = {0,0,0,0};
+    padding.leave();
+    size.leave();
+    compositionRendererTargetBuffer = SDL_GetRenderTarget(renderer);
+    compositionBuffer.leave();
+    SDL_SetRenderTarget(renderer, compositionCanvas.get());
+    compositionCanvas.leave();
+}
+
+void Object::_stop_composition_mode(SDL_Renderer * renderer){
+    compositionBuffer.hold();
+    size.hold();
+    padding.hold();
+    padding.data.right = compositionBuffer.data.top();
+    compositionBuffer.data.pop();
+    padding.data.left = compositionBuffer.data.top();
+    compositionBuffer.data.pop();
+    padding.data.bottom = compositionBuffer.data.top();
+    compositionBuffer.data.pop();
+    padding.data.top = compositionBuffer.data.top();
+    compositionBuffer.data.pop();
+    
+    size.data.y = compositionBuffer.data.top();
+    compositionBuffer.data.pop();
+    size.data.x = compositionBuffer.data.top();
+    compositionBuffer.data.pop();
+    padding.leave();
+    size.leave();
+    compositionBuffer.leave();
+    SDL_SetRenderTarget(renderer, compositionRendererTargetBuffer);
+}
+
+Object& Object::compose(SDL_Renderer * renderer, const float dpiK){
+#ifdef LANUI_DEBUG_MODE
+    Core::log(Core::Warning, ("Composing object [" + std::to_string((long long)this) + "]. (if you use the compositionMode all interactive objects embedded in Z from this object will be disabled).").c_str());
+#endif
+    
+    this->renderer = renderer;
+    _start_composition_mode(renderer, dpiK);
+    _compile(renderer, dpiK);
+    _lock_renderer_in_bounds(renderer, dpiK);
+    _render(renderer, 0, 0, dpiK, true);
+    _unlock_renderer_from_bounds(renderer);
+    
+    // reset x & y to renderer embedded objects correctly
+    sizeBuffer.hold();
+    sizeBuffer.data.x = sizeBuffer.data.y = 0;
+    sizeBuffer.leave();
+    size.hold();
+    size.data.x = size.data.y = 0;
+    size.leave();
+    
+    _renderEmbedded(renderer, 0, 0, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
+    _stop_composition_mode(renderer);
     return (*this);
 }

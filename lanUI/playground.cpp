@@ -18,40 +18,62 @@
 int main(){
     Core olamundo;
     
-    Window janela("hello", 300,300);
+    Window janela("hello", 400,500);
     
     janela.set_window_clear_color(Colors::White_smoke);
     
-    DrawableObject test;
+    Container cont;
     
-    Text hello("Continue");
+    Object test;
     
-    hello.bold(12).set_foreground_color(Colors::White).set_alignment(Object::Right);
+    Paragraph parag;
     
-    test.embedInZ(hello);
+    std::stringstream stream;
     
-    test.set_size(150,30);
+    stream << "\\size:14 \\color:rgb(255,255,255) " << "Hello world \\n lorem ipsum";
     
-    hello.set_padding({0,0});
+    parag.from_stringstream(stream, Paragraph::Wrapper::Char, 23);
+    parag.set_padding({20,20});
+//    hello.bold(12).set_foreground_color(Colors::White).set_alignment(Object::Center);
+    
+    test.set_size(300,450);
+            
+    cont.set_content(test);
         
-    janela.embedInZ(test);
+    cont.set_alignment(Object::Center);
+    
+    janela.embedInZ(cont);
     
     test.set_alignment(Object::Center);
+    
+    test.set_foreground_color(Colors::fromColorA(Colors::Black, 100));
+    test.set_background_color(Colors::Hot_pink);
+    
+    test.embedInZ(parag);
     
     test.set_renderer_callback(CallbackExpr({
         test.sizeBuffer.hold();
         test.foregroundColor.hold();
         test.backgroundColor.hold();
-        static float radius = 15;
+        static float radius = 20;
 
-        primitives::roundedBoxColor(test.renderer_param, (int)test.sizeBuffer.data.x, (int)test.sizeBuffer.data.y, (int)test.sizeBuffer.data.w, (int)test.sizeBuffer.data.h, (int)radius*test.dpiK_param, test.foregroundColor.data);
+        primitives::roundedBoxColor(test.param_renderer, (int)test.sizeBuffer.data.x, (int)test.sizeBuffer.data.y, (int)test.sizeBuffer.data.w, (int)test.sizeBuffer.data.h, (int)radius*test.param_dpiK, test.foregroundColor.data);
         test.sizeBuffer.leave();
         test.foregroundColor.leave();
         test.backgroundColor.leave();
     }));
     
-    test.set_foreground_color(Colors::fromColorA(Colors::Black, 200));
-    test.set_background_color(Colors::Hot_pink);
+//    cont.compose(janela.sdlRenderer.get(), 2);
+//    janela.sdlRenderer.leave();
+//    cont.set_draw_mode(Object::CompositionMode);
     
+//    test.compose(janela.sdlRenderer.get(), 2);
+//    janela.sdlRenderer.leave();
+//    test.set_draw_mode(Object::CompositionMode);
+    
+    test.compose(janela.sdlRenderer.get(), 2);
+    janela.sdlRenderer.leave();
+    test.set_draw_mode(Object::CompositionMode);
+
     olamundo.events();
 }
