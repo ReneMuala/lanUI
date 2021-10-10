@@ -49,7 +49,7 @@
 
 namespace primitives {
 
-/* Note: all ___Color routines expect the color to be in format 0xRRGGBBAA */
+/* [-] Note: all ___Color routines expect the color to be in format 0xRRGGBBAA */
 
 /* Pixel */
 

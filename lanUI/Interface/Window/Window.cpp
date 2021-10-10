@@ -17,12 +17,10 @@ Window::Window(const char * title, float width, float height, Definition definit
     }
     
     for(int i = 0 ; i < (WinRequests::totalRequests) ; i++){
-        winRequests[i].leave();
         winRequests[i].set(false);
     }
     
     for(int i = 0 ; i < (CallBacks::totalCallBacks) ; i++){
-        callbacks[i].leave();
         callbacks[i].set(false);
     }
     
@@ -134,6 +132,9 @@ void Window::_handle_requests(){
         embedInZ(*newView.get());
         newView.data = nullptr;
         newView.leave();
+    } if(winRequests[WinRequests::Hide].get()) {
+        SDL_HideWindow(sdlWindow.get());
+        sdlWindow.leave();
     }
     // we are not reseting the busy state in ths if's
     for(int i = 0 ; i < (WinRequests::totalRequests) ; i++){
@@ -168,17 +169,16 @@ void Window::_handle_callBacks(const uint8_t window_event, const uint32_t input_
         on_maximized_callback();
     } if(callbacks[OnResized].get() && (window_event == SDL_WINDOWEVENT_RESIZED || window_event == SDL_WINDOWEVENT_SIZE_CHANGED)){
         on_resized_callback();
-    } if(input_event == SDL_MOUSEBUTTONDOWN && callbacks[OnMouseButtonDown].get()){
+    } if(callbacks[OnMouseButtonDown].get() && input_event == SDL_MOUSEBUTTONDOWN){
         on_mouse_button_down_callback();
-    } if(input_event == SDL_MOUSEBUTTONUP && callbacks[OnMouseButtonUp].get()){
+    } if(callbacks[OnMouseButtonUp].get() && input_event == SDL_MOUSEBUTTONUP){
         on_mouse_button_up_callback();
-    }  if(input_event == SDL_KEYDOWN && callbacks[OnKeyDown].get()){
+    }  if(callbacks[OnKeyDown].get() && input_event == SDL_KEYDOWN){
         on_key_down_callback();
-    } if(input_event == SDL_KEYUP && callbacks[OnKeyUp].get()){
+    } if(callbacks[OnKeyUp].get() && input_event == SDL_KEYUP){
         on_key_up_callback();
     }
-    
-    hasMouseFocus.leave();
+        
     // we are not reseting the busy state in ths if's
     for(int i = 0 ; i < (CallBacks::totalCallBacks) ; i++){
         callbacks[i].leave();
@@ -189,7 +189,8 @@ void Window::_run_default_animation(){
     if(nextInZ.get()) {
         nextInZ.leave();
         nextInZ.data->_run_default_animation();
-    } nextInZ.leave();
+    } else
+        nextInZ.leave();
 }
 
 void Window::_compute_DPIConstant(){
@@ -206,11 +207,11 @@ void Window::_compile(){
         nextInZ.data->_compile(sdlRenderer.get(), DPIConstant.get());
         sdlRenderer.leave();
         DPIConstant.leave();
-    } nextInZ.leave();
+    } else
+        nextInZ.leave();
 }
 
 void Window::_clear(){
-    hasKeyboardFocus.leave();
     sdlWindowClearColor.hold();
     // hold renderer
     SDL_SetRenderDrawColor(sdlRenderer.get(), sdlWindowClearColor.data.r,sdlWindowClearColor.data.g,sdlWindowClearColor.data.b, sdlWindowClearColor.data.a);

@@ -9,7 +9,7 @@
 #ifndef Object_hpp
 #define Object_hpp
 
-#include "../../Semaphore.hpp"
+#include "../../Semaphore/Semaphore.hpp"
 #include "../Color/Color.hpp"
 
 #include "../../Core/Graphics/SDL2_rotozoom.hpp"
@@ -21,7 +21,6 @@
 #include <functional>
 
 class Object {
-    
     
     /*
      
@@ -211,6 +210,7 @@ public:
         ColorSchemeMode,
         CallbackMode,
         CompositionMode,
+        CanvasCompositionMode,
     } DrawMode;
     
     struct Animation {
@@ -239,7 +239,7 @@ public:
     Semaphore<Color> foregroundColor, backgroundColor, borderColor;
     Semaphore<Animation> default_animation;
     
-    /// Used to protect important data during composition mode
+    /// Used to save || protect important data during composition mode
     Semaphore<std::stack<float>> compositionBuffer;
     Texture* compositionRendererTargetBuffer;
     
@@ -283,7 +283,7 @@ public:
     
     void _render_using_callback(SDL_Renderer*, float x, float y, const float dpiK);
     
-    virtual void _render(SDL_Renderer*, float x, float y, float dpiK, bool isComposition = false);
+    virtual void _render(SDL_Renderer*, float x, float y, float dpiK, bool inComposition = false);
     
     SDL_Renderer * param_renderer;
     float param_dpiK;
@@ -298,6 +298,10 @@ public:
     
     Object& compose(SDL_Renderer*, const float dpiK);
     
+    Object& compose_canvas(SDL_Renderer*, const float dpiK);
+    
+    Object& export_composition_as_PNG(SDL_Renderer*, const char * filename);
+        
     Object();
     
     ~Object();
@@ -349,6 +353,7 @@ class InterativeObject: public __IOContainer {
      */
     
     bool focus_repeated;
+    Semaphore<bool> was_resized;
     bool no_focus_repeated;
     
     // callbacks

@@ -12,7 +12,7 @@
 #include <string>
 #include <functional>
 #include <SDL2/SDL.h>
-#include "../../Semaphore.hpp"
+#include "../../Semaphore/Semaphore.hpp"
 #include "../Color/Color.hpp"
 #include "../Object/Object.hpp"
 

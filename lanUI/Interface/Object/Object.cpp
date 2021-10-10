@@ -154,7 +154,8 @@ Object& Object::set_size(const float size_w, const float size_h){
     if(root.get()) {
         root.leave();
         root.data->reload();
-    } root.leave();
+    } else
+        root.leave();
     return (*this);
 }
 
@@ -183,7 +184,8 @@ Object& Object::set_padding(Padding padding){
     if(root.get()) {
         root.leave();
         root.data->reload();
-    } root.leave();
+    } else
+        root.leave();
     return (*this);
 }
 
@@ -442,11 +444,13 @@ void Object::_handle_others(Event& event, const float dpiK){
     if(nextInX.get()){
         nextInX.leave();
         _handle_others_routine(event, nextInX.data, dpiK);
-    } nextInX.leave();
+    } else
+        nextInX.leave();
     if(nextInY.get()) {
         nextInY.leave();
         _handle_others_routine(event, nextInY.data, dpiK);
-    } nextInY.leave();
+    } else
+        nextInY.leave();
 }
 
 using namespace InteractiveObjecsData;
@@ -459,7 +463,6 @@ bool Object::_has_focus(const float dpiK){
      && (cursor.data.x <= (size.data.x + size.data.w)*dpiK)
      && (cursor.data.y <= (size.data.y + size.data.h)*dpiK)
      );
-    padding.leave();
     size.leave();
     cursor.leave();
     return focus;
@@ -468,7 +471,6 @@ bool Object::_has_focus(const float dpiK){
 void Object::_handle_events(Event & event, const float dpiK){
     if(inRootBoundsBuffer.get()){
         inRootBoundsBuffer.leave();
-        size.leave();
         if(this->_has_focus(dpiK)){
             // ignore this object if the nextInZ has focus
             if(nextInZ.get()){
@@ -479,15 +481,18 @@ void Object::_handle_events(Event & event, const float dpiK){
                 } else {
                     drawMode.leave();
                 }
-            } nextInZ.leave();
+            } else
+                nextInZ.leave();
         } else {
             if(nextInZ.get()){
                 nextInZ.leave();
                 _handle_others_routine(event, nextInZ.data, dpiK);
-            } nextInZ.leave();
+            } else
+                nextInZ.leave();
             _handle_others(event, dpiK);
         }
-    } inRootBoundsBuffer.leave();
+    } else
+        inRootBoundsBuffer.leave();
 }
 
 void Object::_run_others_default_animation(){
@@ -523,7 +528,6 @@ void Object::_align(float &x, float &y){
 Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false),reloadingDisabled(false) /*rootType(OtherRoot)*/, canvas(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Transparent), backgroundColor(Colors::Transparent), borderColor(Colors::Transparent), angle(0), drawMode(DrawMode::DefaultMode), delay(0), wasCompiled(false) {
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
-        requests[i].leave();
         requests[i].set(false);
     }
     default_animation.get()._using = false;

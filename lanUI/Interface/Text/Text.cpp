@@ -124,7 +124,6 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         
         source.leave();
         foregroundColor.leave();
-        backgroundColor.leave();
         if(internCall){
             this->canvas.set(SDL_CreateTextureFromSurface(renderer, surfc));
             if(!fixCall)
@@ -184,7 +183,7 @@ void Text::_render_background(SDL_Renderer * renderer, Rect * rect){
     SDL_RenderFillRectF(renderer, rect);
 }
 
-void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, bool isComposition){
+void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, bool inComposition){
     
         if(_inRootBounds(x, y)){
             _align(x, y);
@@ -201,7 +200,7 @@ void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, 
         }
     
 #ifdef LANUI_DEBUG_MODE
-    if(isComposition)
+    if(inComposition)
         SDL_SetRenderDrawColor(renderer, 200, 200, 255, 50);
     else
         SDL_SetRenderDrawColor(renderer, 255, 200, 200, 50);
@@ -211,7 +210,7 @@ void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, 
     sizeBuffer.leave();
 #endif
     
-    if(!isComposition)
+    if(!inComposition)
         _renderEmbedded(renderer, x, y, dpiK, _renderOnlyNextInX_Y);
 };
 

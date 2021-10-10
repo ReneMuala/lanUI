@@ -407,8 +407,10 @@ int main(int argc, const char * argv[]) {
 //
     Home.compose(window.sdlRenderer.get(), 2);
     window.sdlRenderer.leave();
-    Home.set_draw_mode(Object::CompositionMode);
-    
+//    Home.set_draw_mode(Object::CompositionMode);
+    Home.export_composition_as_PNG(window.sdlRenderer.get(), "Home.png");
+    window.sdlRenderer.leave();
+
     Core::events();
     
     std::cout << "Hello, World!\n";

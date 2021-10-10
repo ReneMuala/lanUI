@@ -12,15 +12,10 @@
 #include <stdio.h>
 #include <thread>
 #include <string>
-#include "../Semaphore.hpp"
+
+#include "../Settings.hpp"
+#include "../Semaphore/Semaphore.hpp"
 #include <SDL2/SDL.h>
-
-/// Lambda body to be passed as a function argument
-#define CallbackExpr(x) [&]{x}
-#define lanUIVersion "lanUI 0.2"
-
-//#define LANUI_DEBUG_MODE
-//^^^^^^^^^^^^^^^^^^^^^^^ Uncomment the line above to enable debug mode (BEFORE BUILDING LANUI)
 
 class Core {
 

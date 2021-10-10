@@ -17,14 +17,16 @@ Semaphore<std::map<const char *, SDL_Surface*>> surfacesCache;
 
 SDL_Surface * get_surface(const char * source){
     SDL_Surface * surfc = nullptr;
-    if((surfc = DrawableObjectsData::surfacesCache.get()[source])){
-        DrawableObjectsData::surfacesCache.leave();
-    } else if((surfc = IMG_Load(source))){
-        DrawableObjectsData::surfacesCache.data[source] = surfc;
+    if(!(surfc = DrawableObjectsData::surfacesCache.get()[source])){
+        if((surfc = IMG_Load(source))){
+            DrawableObjectsData::surfacesCache.data[source] = surfc;
+        } else {
+            goto get_surface_error;
+        }
     } else {
+        get_surface_error:
         Core::log(Core::Warning, (std::string("Unable to load image source from path: ") + source).c_str());
-    } DrawableObjectsData::surfacesCache
-    .leave();
+    } DrawableObjectsData::surfacesCache.leave();
     return surfc;
 }
 
@@ -123,8 +125,8 @@ void Object::_clear_canvas(Renderer * renderer, Semaphore<Texture *> & canvas){
     Texture* buffer = SDL_GetRenderTarget(renderer);
     canvas.hold();
     SDL_SetRenderTarget(renderer, canvas.data);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
     canvas.leave();
     SDL_SetRenderTarget(renderer, buffer);
@@ -198,8 +200,8 @@ void Object::_render_using_callback(SDL_Renderer * renderer, float x, float y, f
     renderer_callback.leave();
 }
 
-void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, bool isComposition){
-    if(_inRootBounds(x, y) || isComposition){
+void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, bool inComposition){
+    if(_inRootBounds(x, y) || inComposition){
         _align(x, y);
         size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
         _render_routine(dpiK);
@@ -214,13 +216,19 @@ void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK
                     } break;
                 case DrawMode::CallbackMode:
                     if(using_renderer_callback){
-                        this->renderer.leave();
                         _render_using_callback(renderer, x, y, dpiK);
+                    } else {
+                        _render_default(renderer, x, y, dpiK);
+                    } break;
+                case DrawMode::CompositionMode:
+                    if(renderer == this->renderer.get()){
+                        this->renderer.leave();
+                        _render_composition(renderer, x, y, dpiK);
                     } else {
                         this->renderer.leave();
                         _render_default(renderer, x, y, dpiK);
                     } break;
-                case DrawMode::CompositionMode:
+                case DrawMode::CanvasCompositionMode:
                     if(renderer == this->renderer.get()){
                         this->renderer.leave();
                         _render_composition(renderer, x, y, dpiK);
@@ -235,21 +243,20 @@ void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK
                     _render_default(renderer, x, y, dpiK);
                     break;
             }
-        if(drawMode.data != CompositionMode && !isComposition)
+        if(drawMode.data != CompositionMode && !inComposition)
             _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
 
         drawMode.leave();
 #ifdef LANUI_DEBUG_MODE
-        if(!isComposition){
+        if(!inComposition){
             //SDL_SetRenderDrawColor(renderer, 255, 200, 200, 10);
             //SDL_RenderFillRectF(renderer, &sizeBuffer.get());
             SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
             SDL_RenderDrawRectF(renderer, &sizeBuffer.data);
-            sizeBuffer.leave();
         }
 #endif
     }
-    if(!isComposition) _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInX_Y);
+    if(!inComposition) _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInX_Y);
 }
 
 Object& Object::set_renderer_callback(VoidCallback callback){
@@ -349,5 +356,74 @@ Object& Object::compose(SDL_Renderer * renderer, const float dpiK){
     
     _renderEmbedded(renderer, 0, 0, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
     _stop_composition_mode(renderer);
+    return (*this);
+}
+
+Object& Object::compose_canvas(SDL_Renderer * renderer, const float dpiK){
+#ifdef LANUI_DEBUG_MODE
+    Core::log(Core::Message, ("Composing canvas of object [" + std::to_string((long long)this) + "]. (make sure to use CanvasCompositionMode).").c_str());
+#endif
+    this->renderer = renderer;
+    _start_composition_mode(renderer, dpiK);
+    _compile(renderer, dpiK);
+    _lock_renderer_in_bounds(renderer, dpiK);
+    _render(renderer, 0, 0, dpiK, true);
+    _unlock_renderer_from_bounds(renderer);
+    // reset x & y to renderer embedded objects correctly
+    sizeBuffer.hold();
+    sizeBuffer.data.x = sizeBuffer.data.y = 0;
+    sizeBuffer.leave();
+    size.hold();
+    size.data.x = size.data.y = 0;
+    size.leave();
+    _stop_composition_mode(renderer);
+    return (*this);
+}
+
+Object& Object::export_composition_as_PNG(SDL_Renderer * renderer, const char * filename){
+    compositionCanvas.hold();
+    if(compositionCanvas.data){
+        int width, height;
+
+        SDL_QueryTexture(compositionCanvas.data, NULL, NULL, &width, &height);
+
+        // Masks are needed to allow alfa channel
+        Uint32 rmask, gmask, bmask, amask;
+       #if SDL_BYTEORDER == SDL_BIG_ENDIAN
+           rmask = 0xff000000;
+           gmask = 0x00ff0000;
+           bmask = 0x0000ff00;
+           amask = 0x000000ff;
+       #else
+           rmask = 0x000000ff;
+           gmask = 0x0000ff00;
+           bmask = 0x00ff0000;
+           amask = 0xff000000;
+       #endif
+
+        SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32, rmask, gmask, bmask, amask);
+
+        SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
+                
+        SDL_Texture* target = SDL_GetRenderTarget(renderer);
+        SDL_SetRenderTarget(renderer, compositionCanvas.data);
+        
+        SDL_RenderReadPixels(renderer, NULL, surface->format->format, surface->pixels, surface->pitch);
+        
+        IMG_SavePNG(surface, filename);
+        
+        SDL_FreeSurface(surface);
+        
+        SDL_SetRenderTarget(renderer, target);
+        
+#ifdef LANUI_DEBUG_MODE
+    Core::log(Core::Message, ("The composition [" + std::to_string((long long)compositionCanvas.data) + "] will be destroyed after exported to avoid renderer errors.").c_str());
+#endif
+        
+        } else {
+        Core::log(Core::Warning, "Object::export_composition_as_PNG: empty compositions cannot be exported");
+    }
+    compositionCanvas.leave();
+    _free_canvas(compositionCanvas);
     return (*this);
 }

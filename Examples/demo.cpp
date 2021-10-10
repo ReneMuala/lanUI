@@ -24,7 +24,7 @@
 class MyHomeView : public View {
 public:
     
-    DrawableObject rock[5];
+    Object rock[5];
     Spacer spacer;
     Text text[5];
     Container textContainer;
@@ -36,7 +36,7 @@ public:
         create(win);
     }
 
-    DrawableObject& body(Window& window) override {
+    Object& body(Window& window) override {
         for(int i = 0 ; i < 5 ; i ++){
             rock[i].fromFile("lanUI.Bundle/System/Resources/rock.png", window.sdlRenderer.get());
             window.sdlRenderer.leave();

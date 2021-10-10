@@ -14,9 +14,8 @@ Semaphore<SDL_Point> cursor;
 
 using namespace InteractiveObjecsData;
 
-InterativeObject::InterativeObject(): scrollGain({0,0}), focus_repeated(false), no_focus_repeated(false), isActive(false) {
+InterativeObject::InterativeObject(): scrollGain({0,0}), focus_repeated(false), no_focus_repeated(false), isActive(false),was_resized(false) {
     for(int i = 0 ; i < (CallBacks::totalCallBacks) ; i++){
-        callbacks[i].leave();
         callbacks[i].set(false);
     }
 }
@@ -58,18 +57,28 @@ void InterativeObject::_handle_events(Event & event, const float dpiK){
                 scrollGain.vertical = event.wheel.y;
                 scrollGain.horizontal = event.wheel.x;
                 on_scroll_callback();
+            } if(callbacks[OnResized].get()){
+                if(was_resized.get()){
+                    on_resized_callback();
+                    callbacks[OnResized].leave();
+                }
+                was_resized.data = false;
+                was_resized.leave();
             }
             
             for(int i = 0 ; i < (CallBacks::totalCallBacks) ; i++)
-                callbacks[i].leave();
+                if(i != 1)
+                    callbacks[i].leave();
             if(nextInZ.get()){
+                nextInZ.leave();
                 if(drawMode.get() != CompositionMode) {
                     drawMode.leave();
                     _handle_others_routine(event, nextInZ.data, dpiK);
                 } else {
                     drawMode.leave();
                 }
-            } nextInZ.leave();
+            } else
+                nextInZ.leave();
             focus_repeated = true;
             no_focus_repeated = true;
         } else {
@@ -80,20 +89,20 @@ void InterativeObject::_handle_events(Event & event, const float dpiK){
             if(nextInZ.get()){
                 nextInZ.leave();
                 _handle_others_routine(event, nextInZ.data, dpiK);
-            } nextInZ.leave();
+            } else
+                nextInZ.leave();
             _handle_others(event, dpiK);
             no_focus_repeated = true;
             focus_repeated = false;
         }
-    } inRootBoundsBuffer.leave();
+    } else
+        inRootBoundsBuffer.leave();
     isActive.leave();
 }
 
 InterativeObject& InterativeObject::set_size(const float w, const float h){
     Object::set_size(w, h);
-    if(callbacks[OnResized].get())
-        on_resized_callback();
-    callbacks[OnResized].leave();
+    was_resized.set(true);        
     return (*this);
 }
 

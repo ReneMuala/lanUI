@@ -29,7 +29,7 @@ public:
     ZStack mainArea;
     Image background;
     InterativeObject interative;
-    DrawableObject example[5];
+    Object example[5];
     ZStack myList;
     List listDemo;
     VStack mainStack;
@@ -78,7 +78,7 @@ public:
         titleArea.disable_reloading();
     }
     
-    DrawableObject& body(Window& window) override {
+    Object& body(Window& window) override {
         window.disable_resizing(true);
         createBackgound(window);
         createHeader();
@@ -87,10 +87,9 @@ public:
             &actionArea
             //&example[0],&example[1],&example[2],&example[3]
         });
-        codeList.compute<DrawableObject, 100>(CallbackExpr(
-                                                          return &(DrawableObject&)(new DrawableObject)->set_foreground_color(Colors::fromColorA(Colors::White, 50)).set_size(580, 500).set_padding({10,10,10,10});
-                                                          )
-                                             );
+        codeList.compute<Object, 100>(CallbackExpr({
+            return &(Object&)(new Object)->set_foreground_color(Colors::fromColorA(Colors::White, 50)).set_size(580, 500).set_padding({10,10,10,10});
+        }));
         //actionArea.set_foreground_color(Colors::fromColorA(Colors::White, 50));
         actionArea.set_size(1200, 550);
         actionArea.fromList(std::list<Object *>{&codeList});

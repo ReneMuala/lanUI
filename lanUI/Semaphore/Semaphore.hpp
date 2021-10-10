@@ -9,9 +9,21 @@
 #define Semaphore_hpp
 
 #include <thread>
+#include "Settings.hpp"
+
+#ifdef LANUI_DEBUG_MODE
+namespace SemaphoreDebuggingExtension {
+void _hold_debug_callback(void*, bool, const bool);
+void _leave_debug_callback(void*, bool, const bool);
+}
+#endif
 
 template <typename any>
 struct Semaphore {
+    
+#ifdef LANUI_DEBUG_MODE
+    bool errorless = false;
+#endif
     
     bool isBusy;
     any data;
@@ -26,12 +38,18 @@ struct Semaphore {
     }
     
     void hold(){
+#ifdef LANUI_DEBUG_MODE
+        SemaphoreDebuggingExtension::_hold_debug_callback(this, isBusy, errorless);
+#endif
         while(isBusy)
             std::this_thread::sleep_for((const std::chrono::milliseconds)1);
         isBusy = true;
     }
     
     void leave(){
+#ifdef LANUI_DEBUG_MODE
+        SemaphoreDebuggingExtension::_leave_debug_callback(this, isBusy, errorless);
+#endif
         isBusy = false;
     }
     

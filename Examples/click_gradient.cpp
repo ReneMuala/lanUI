@@ -28,7 +28,7 @@ public:
     Image gradient;
     VStack mainArea;
     InterativeObject interative;
-    DrawableObject example;
+    Object example;
     ZStack myList;
     Text mainText;
     List listDemo;
@@ -46,7 +46,7 @@ public:
         
     }
 
-    DrawableObject& body(Window& window) override {
+    Object& body(Window& window) override {
 //        interative
 //        .on_click(
 //                 CallbackExpr(
@@ -66,13 +66,16 @@ public:
         
         mainText.set_foreground_color(Colors::White);
         
+        window.sdlRenderer.hold();
+        
         mainText.from_string(" Click ", window.sdlRenderer.data);
         
+        window.sdlRenderer.leave();
+
         mainText.set_background_color(Colors::Dark_violet);
         
         //gradient.set_angle(45);
         
-        window.sdlRenderer.leave();
         mainText.set_alignment(Alignment::Center);
         
         interative.set_content(mainText);
@@ -156,6 +159,8 @@ int main(int argc, const char * argv[]) {
     Window window("Window 1", 350, 500, Window::HighDefinition);
 
     auto Home = MyHomeView(window);
+    
+    //.embedInZ(box[0]);
     
     window
 
@@ -267,8 +272,12 @@ int main(int argc, const char * argv[]) {
     
     .set_title("lanUI Demo");
 
-    //.embedInZ(box[0]);
-
+    
+    Home.compose(window.sdlRenderer.get(), 2);
+    window.sdlRenderer.leave();
+    Home.export_composition_as_PNG(window.sdlRenderer.get(), "Home.png");
+    window.sdlRenderer.leave();
+    
     Core::events();
     
     std::cout << "Hello, World!\n";

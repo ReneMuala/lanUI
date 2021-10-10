@@ -30,7 +30,7 @@ int main(){
     
     std::stringstream stream;
     
-    stream << "\\size:14 \\color:rgb(255,255,255) " << "Hello world \\n lorem ipsum";
+    stream << "\\size:36 \\color:rgb(255,255,255) " << "\\b Test \\n {10}";
     
     parag.from_stringstream(stream, Paragraph::Wrapper::Char, 23);
     parag.set_padding({20,20});
@@ -46,7 +46,7 @@ int main(){
     
     test.set_alignment(Object::Center);
     
-    test.set_foreground_color(Colors::fromColorA(Colors::Black, 100));
+    test.set_foreground_color(Colors::fromColorA(Colors::Orange_red, 255));
     test.set_background_color(Colors::Hot_pink);
     
     test.embedInZ(parag);
@@ -55,7 +55,7 @@ int main(){
         test.sizeBuffer.hold();
         test.foregroundColor.hold();
         test.backgroundColor.hold();
-        static float radius = 20;
+        static float radius = 50;
 
         primitives::roundedBoxColor(test.param_renderer, (int)test.sizeBuffer.data.x, (int)test.sizeBuffer.data.y, (int)test.sizeBuffer.data.w, (int)test.sizeBuffer.data.h, (int)radius*test.param_dpiK, test.foregroundColor.data);
         test.sizeBuffer.leave();
@@ -73,7 +73,12 @@ int main(){
     
     test.compose(janela.sdlRenderer.get(), 2);
     janela.sdlRenderer.leave();
+//    test.set_draw_mode(Object::CompositionMode);
+    test.export_composition_as_PNG(janela.sdlRenderer.get(), "test2.png");
+    janela.sdlRenderer.leave();
+    test.compose(janela.sdlRenderer.get(), 2);
+    janela.sdlRenderer.leave();
     test.set_draw_mode(Object::CompositionMode);
-
+    
     olamundo.events();
 }

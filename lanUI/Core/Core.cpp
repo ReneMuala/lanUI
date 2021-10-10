@@ -7,6 +7,7 @@
 //
 
 #include "Core.hpp"
+
 #include "../Interface/Window/Window.hpp"
 #include "../Interface/Font/Font.hpp"
 #include "../Project/CustomFonts/CustomFonts.hpp"
@@ -19,7 +20,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
-
 
 namespace CoreData
 {
@@ -49,7 +49,8 @@ namespace Fonts {
 
 Core::Core(): terminated(false){
 #ifdef LANUI_DEBUG_MODE
-        Core::log(Core::Message, "Using LANUI_DEBUG_MODE");
+    Core::log(Core::Message, "Using LANUI_DEBUG_MODE");
+    CoreData::programWindowsCount.errorless = true;
 #endif
     init();
     load_fonts();
@@ -180,9 +181,9 @@ bool Core::unsubscribe(void * address){
             return true;
         }
     }
-    CoreData::programWindowsCount.leave();
     if(CoreData::programWindowsCount.data)
         log(Error, "Unable to unsubscribe window, unknowon address.");
+    CoreData::programWindowsCount.leave();
     return false;
 }
 
