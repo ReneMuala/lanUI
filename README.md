@@ -2,7 +2,7 @@
 
 ![default.png](https://res.craft.do/user/full/da5dba86-5438-393d-2ee9-d1bb4ea84ad3/doc/98CEFE86-7C1D-4E6D-B668-B31107E4B4E7/2CDA04AA-C3A5-43BC-AFCE-AC489E52D2FD_2/default.png)
 
-   ## **C++** $$\land$$ SDL2
+   ## **C++** & SDL2
 
 ---
 
