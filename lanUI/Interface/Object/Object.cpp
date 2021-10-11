@@ -525,7 +525,7 @@ void Object::_align(float &x, float &y){
         root.leave();
 }
 
-Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false),reloadingDisabled(false) /*rootType(OtherRoot)*/, canvas(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Transparent), backgroundColor(Colors::Transparent), borderColor(Colors::Transparent), angle(0), drawMode(DrawMode::DefaultMode), delay(0), wasCompiled(false) {
+Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false),reloadingDisabled(false) /*rootType(OtherRoot)*/, canvas(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Transparent), backgroundColor(Colors::Transparent), borderColor(Colors::Transparent), angle(0), drawMode(DrawMode::DefaultMode), delay(0), wasCompiled(false), index(0) {
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
         requests[i].set(false);

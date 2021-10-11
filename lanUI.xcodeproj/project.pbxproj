@@ -31,6 +31,7 @@
 		17DE7ED12708AF7B007667BA /* SDL2_gfxPrimitives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17DE7ECF2708AF7B007667BA /* SDL2_gfxPrimitives.cpp */; };
 		17FC391827130EC500E47CAF /* Semaphore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17FC391727130EC500E47CAF /* Semaphore.cpp */; };
 		17FC391E27134C6700E47CAF /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
+		17FC39222713999800E47CAF /* TextField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17FC39202713999800E47CAF /* TextField.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -109,6 +110,8 @@
 		17DE7ED32708AFF2007667BA /* SDL2_rotozoom.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SDL2_rotozoom.hpp; sourceTree = "<group>"; };
 		17FC391427130C8B00E47CAF /* Settings.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Settings.hpp; sourceTree = "<group>"; };
 		17FC391727130EC500E47CAF /* Semaphore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Semaphore.cpp; sourceTree = "<group>"; };
+		17FC39202713999800E47CAF /* TextField.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TextField.cpp; sourceTree = "<group>"; };
+		17FC39212713999800E47CAF /* TextField.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextField.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -182,6 +185,7 @@
 				17BE74A726AC04FC009A3D8C /* View */,
 				17D997C826B3283000219F36 /* Font */,
 				17C7970926D8F73C00CF551B /* Paragraph */,
+				17FC391F2713701000E47CAF /* TextField */,
 				17D997BB26B3187D00219F36 /* Text */,
 				17241E2326B6EDFD009912C9 /* Container */,
 				173504DB26B89A9900359EF5 /* Spacer */,
@@ -373,6 +377,15 @@
 			path = Semaphore;
 			sourceTree = "<group>";
 		};
+		17FC391F2713701000E47CAF /* TextField */ = {
+			isa = PBXGroup;
+			children = (
+				17FC39202713999800E47CAF /* TextField.cpp */,
+				17FC39212713999800E47CAF /* TextField.hpp */,
+			);
+			path = TextField;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -431,6 +444,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17FC39222713999800E47CAF /* TextField.cpp in Sources */,
 				17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */,
 				17BE74A426AC0364009A3D8C /* Color.cpp in Sources */,
 				17D997C726B3282A00219F36 /* Font.cpp in Sources */,

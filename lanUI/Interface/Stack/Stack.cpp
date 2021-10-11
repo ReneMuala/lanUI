@@ -21,6 +21,7 @@ Stack& VStack::reload(){
         {
             width = (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
             height+= row->size.data.h + row->padding.data.top + row->padding.data.bottom;
+            
             row->size.leave();
             row->padding.leave();
         } set_size(width, height);//({0,0,width, height});
@@ -31,6 +32,7 @@ Stack& VStack::reload(){
 
 Stack VStack::fromList(std::list<Object*> objects){
     float width(0), height(0);
+    unsigned long index(0);
     last = nullptr;
     for(auto row : objects){
         //row->rootType.set(Object::VStackRoot);
@@ -41,6 +43,7 @@ Stack VStack::fromList(std::list<Object*> objects){
         height+= row->size.data.h + row->padding.data.top + row->padding.data.bottom;
         row->size.leave();
         row->padding.leave();
+        row->index.set(index);
         if(!last) {
             embedInZ(*row);
             first = row;
@@ -67,6 +70,7 @@ Stack& HStack::reload(){
 
 Stack HStack::fromList(std::list<Object*> objects){
     float width(0), height(0);
+    unsigned long index(0);
     last = nullptr;
     for(auto row : objects){
         //row->rootType.set(Object::HStackRoot);
@@ -76,6 +80,7 @@ Stack HStack::fromList(std::list<Object*> objects){
         height= (height < row->size.data.h + row->padding.data.top + row->padding.data.bottom) ? row->size.data.h + row->padding.data.top + row->padding.data.bottom : height;
         row->size.leave();
         row->padding.leave();
+        row->index.set(index);
         if(!last) {
             embedInZ(*row);
             first = row;
@@ -101,6 +106,7 @@ Stack& ZStack::reload(){
 
 Stack ZStack::fromList(std::list<Object*> objects){
     float width(0), height(0);
+    unsigned long index(0);
     last = nullptr;
     for(auto row : objects){
         //row->rootType.set(Object::ZStackRoot);
@@ -109,6 +115,7 @@ Stack ZStack::fromList(std::list<Object*> objects){
         height = (height < row->size.data.h + row->padding.data.top + row->padding.data.bottom) ? row->size.data.h + row->padding.data.top + row->padding.data.bottom : height;
         row->size.leave();
         row->padding.leave();
+        row->index.set(index);
         if(!last) {
             embedInZ(*row);
             first = row;

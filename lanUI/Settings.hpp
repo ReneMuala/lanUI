@@ -70,6 +70,6 @@
 /// Lambda body to be passed as a function argument
 #define CallbackExpr(x) [&]{x}
 
-#define lanUIVersion "lanUI 0.2"
+#define lanUIVersion "lanUI 0.3"
 
 #endif /* Debug_h */

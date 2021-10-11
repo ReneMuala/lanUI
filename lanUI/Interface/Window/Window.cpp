@@ -235,7 +235,7 @@ void Window::_render(){
 }
 
 Semaphore<Object*> Window::view(){
-    if(!nextInZ.get()) Core::log(Core::Error, "A window view must do be declared befure using window.view()");
+    if(!nextInZ.get()) Core::log(Core::Error, "A window view must to be declared befure using window.view()");
     nextInZ.leave();
     return nextInZ;
 }

@@ -106,6 +106,9 @@ public:
     Semaphore<bool> inRootBoundsBuffer;
     Semaphore<bool> isVericallyAfterRootBeginning, isVericallyBeforeRootEnding;
     Semaphore<bool> reloadingDisabled;
+    
+    /// Object index inside of the root
+    Semaphore<unsigned long> index;
 
     // embedded objects & root
     Semaphore<Object*> root;

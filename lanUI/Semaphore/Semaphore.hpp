@@ -9,7 +9,7 @@
 #define Semaphore_hpp
 
 #include <thread>
-#include "Settings.hpp"
+#include "../Settings.hpp"
 
 #ifdef LANUI_DEBUG_MODE
 namespace SemaphoreDebuggingExtension {
