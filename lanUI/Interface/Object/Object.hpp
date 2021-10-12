@@ -117,6 +117,9 @@ public:
     /// random access buffer
     Semaphore<Rect> sizeBuffer;
     
+    // [From interactive object] to allow no_focus events
+    bool no_focus_repeated;
+    
 public:
     
     virtual Object& operator=(Object&);
@@ -175,13 +178,13 @@ public:
         
     bool _has_focus(const float dpiK);
         
-    void _handle_others_routine(Event&, Object*, const float dpiK);
+    void _handle_others_routine(Event&, Object*, const float dpiK, const bool no_focus);
     
     /// Handle events for nextInX & nextInY
-    void _handle_others(Event&, const float dpiK);
+    void _handle_others(Event&, const float dpiK, const bool no_focus);
     
     // Fixes object-compatibility issues
-    virtual void _handle_events(Event&, const float dpiK);
+    virtual void _handle_events(Event&, const float dpiK, const bool no_focus);
     
     void _run_others_default_animation();
     
@@ -318,7 +321,7 @@ public:
         static float width(0), height(0);
         if(!reloadingDisabled.get() && nextInZ.data){
             width = (nextInZ.data->size.get().w + nextInZ.data->padding.get().left + nextInZ.data->padding.data.right);
-            height = (nextInZ.data->size.data.h + nextInZ.data->padding.data.top + nextInZ.data->padding.data.top);
+            height = (nextInZ.data->size.data.h + nextInZ.data->padding.data.top + nextInZ.data->padding.data.bottom);
             nextInZ.data->size.leave();
             nextInZ.data->padding.leave();
             set_size(width, height);
@@ -357,7 +360,7 @@ class InterativeObject: public __IOContainer {
     
     bool focus_repeated;
     Semaphore<bool> was_resized;
-    bool no_focus_repeated;
+//     bool no_focus_repeated; [became a Object:: property]
     
     // callbacks
     VoidCallback on_focus_gained_callback;
@@ -403,7 +406,7 @@ public:
     
     InterativeObject();
     
-    void _handle_events(Event&, const float dpiK) override;
+    void _handle_events(Event&, const float dpiK, const bool no_focus) override;
     
     InterativeObject& set_size(const float w, const float h) override;
 

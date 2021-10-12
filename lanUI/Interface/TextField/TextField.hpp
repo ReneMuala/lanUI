@@ -21,18 +21,26 @@ class TextField : public InterativeObject {
     Semaphore<std::string>& source;
     std::string placeholder;
     std::stringstream sourceStream;
-    
-    struct Cursor {
-        unsigned long line, colummn;
-        std::stack<unsigned long> multipleSelectionElemnts;
+public:
+    class TextSurface : public Paragraph {
+//
+//    public:
+//
+//        struct Cursor {
+//            unsigned long line, colummn;
+//            std::stack<unsigned long> selectedIndexes;
+//
+//            bool show;
+//            Semaphore<Color> color;
+//            Cursor(): line(0), colummn(0), show(true), color(Colors::Blue){}
+//        } cusor;
         
-        bool show;
-        Semaphore<Color> color;
-        Cursor(): line(0), colummn(0), show(true), color(Colors::Blue){}
-    } cusor;
+    } surface ;
     
 public:
     TextField(Semaphore<std::string>& source, const std::string placeholder = "");
+    TextField& set_size(const float w, const float h) override;
+    void _compile(Renderer*, const float dpiK) override;
 };
 
 #endif /* TextField_hpp */

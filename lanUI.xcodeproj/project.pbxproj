@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		17115C3026FE783C0028BD55 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 179819CF2687CA4500CCBC43 /* Object.cpp */; };
+		17304DC4271596A4004F9AB3 /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
 		1734118626BAB77300444E40 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1734118426BAB77300444E40 /* Image.cpp */; };
 		173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 173504D626B859FF00359EF5 /* CustomFonts.cpp */; };
 		1746B21926AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */; };
@@ -30,7 +31,6 @@
 		17DE7ED02708AF7B007667BA /* SDL2_rotozoom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17DE7ECE2708AF7B007667BA /* SDL2_rotozoom.cpp */; };
 		17DE7ED12708AF7B007667BA /* SDL2_gfxPrimitives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17DE7ECF2708AF7B007667BA /* SDL2_gfxPrimitives.cpp */; };
 		17FC391827130EC500E47CAF /* Semaphore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17FC391727130EC500E47CAF /* Semaphore.cpp */; };
-		17FC391E27134C6700E47CAF /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
 		17FC39222713999800E47CAF /* TextField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17FC39202713999800E47CAF /* TextField.cpp */; };
 /* End PBXBuildFile section */
 
@@ -449,11 +449,11 @@
 				17BE74A426AC0364009A3D8C /* Color.cpp in Sources */,
 				17D997C726B3282A00219F36 /* Font.cpp in Sources */,
 				177C47F72711C1DF00A0B99D /* Text.cpp in Sources */,
+				17304DC4271596A4004F9AB3 /* playground.cpp in Sources */,
 				174F1F132682533B009B8159 /* Window.cpp in Sources */,
 				174F1F1826825427009B8159 /* Core.cpp in Sources */,
 				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,
 				17115C3026FE783C0028BD55 /* Object.cpp in Sources */,
-				17FC391E27134C6700E47CAF /* playground.cpp in Sources */,
 				17DE7ED12708AF7B007667BA /* SDL2_gfxPrimitives.cpp in Sources */,
 				1781821126C41BCB00F986B6 /* List.cpp in Sources */,
 				17FC391827130EC500E47CAF /* Semaphore.cpp in Sources */,

@@ -34,7 +34,7 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
             _add_word((line.empty() ? buffer : (!hint_noSpace ? " " : "")+buffer).c_str(), hint_style, hint_size);
             hint_noSpace = false;
             hint_space = false;
-            if(wraper.fieldsCount){
+            if(wraper.fieldsCount || wraper.mode == Wrapper::Infty){
                 line+=buffer;
                 switch (wraper.mode) {
                     case Wrapper::Char:
@@ -97,11 +97,11 @@ void Paragraph::_parse_hint(const std::string src, std::string & line , Font::St
     } else if(std::regex_match(src, rgbREG)){
         short rgb[3];
         sscanf(src.c_str(), "\\color:rgb(%hd,%hd,%hd)", &rgb[0], &rgb[1],&rgb[2]);
-        textColor = Colors::fromRGBA(rgb[0], rgb[1], rgb[2]);
+        textColor = Color(rgb[0], rgb[1], rgb[2]);
     } else if(std::regex_match(src, rgbaREG)){
         short rgba[4];
         sscanf(src.c_str(), "\\color:rgba(%hd,%hd,%hd,%hd)", &rgba[0], &rgba[1],&rgba[2],&rgba[3]);
-        textColor = Colors::fromRGBA(rgba[0], rgba[1],rgba[2],rgba[3]);
+        textColor = Color(rgba[0], rgba[1],rgba[2],rgba[3]);
     } else if(std::regex_match(src, newlnREG)){
         if(!words.empty()) {
             _new_line(words);

@@ -8,6 +8,9 @@
 
 #include "lanUI.hpp"
 #include <regex>
+
+#include "Interface/TextField/TextField.hpp"
+
 /*
  Note:
     On Xcode, it will be necessary to disable metal api validation.
@@ -22,63 +25,31 @@ int main(){
     
     janela.set_window_clear_color(Colors::White_smoke);
     
-    Container cont;
+    Semaphore<std::string> fieldData;
+
+    auto field = TextField(fieldData, "Username");
+
+    field.set_foreground_color(Colors::White);
+
+    field.set_border_color(Colors::Blue.from_a(100));
+
+    field.set_alignment(Object::Center);
+
+    field.set_size(150, 25);
     
-    Object test;
+    janela.embedInZ(field);
     
-    Paragraph parag;
+    olamundo.events();
+    
+    Paragraph test;
     
     std::stringstream stream;
     
-    stream << "\\size:36 \\color:rgb(255,255,255) " << "\\b Test \\n {10}";
+    stream << "\\regular \\size:12 \\color:rgb(255,0,0) " << "Hello world";
     
-    parag.from_stringstream(stream, Paragraph::Wrapper::Char, 23);
-    parag.set_padding({20,20});
-//    hello.bold(12).set_foreground_color(Colors::White).set_alignment(Object::Center);
+    test.from_stringstream(stream);
     
-    test.set_size(300,450);
-            
-    cont.set_content(test);
-        
-    cont.set_alignment(Object::Center);
-    
-    janela.embedInZ(cont);
-    
-    test.set_alignment(Object::Center);
-    
-    test.set_foreground_color(Colors::fromColorA(Colors::Orange_red, 255));
-    test.set_background_color(Colors::Hot_pink);
-    
-    test.embedInZ(parag);
-    
-    test.set_renderer_callback(CallbackExpr({
-        test.sizeBuffer.hold();
-        test.foregroundColor.hold();
-        test.backgroundColor.hold();
-        static float radius = 50;
+    janela.embedInZ(test);
 
-        primitives::roundedBoxColor(test.param_renderer, (int)test.sizeBuffer.data.x, (int)test.sizeBuffer.data.y, (int)test.sizeBuffer.data.w, (int)test.sizeBuffer.data.h, (int)radius*test.param_dpiK, test.foregroundColor.data);
-        test.sizeBuffer.leave();
-        test.foregroundColor.leave();
-        test.backgroundColor.leave();
-    }));
-    
-//    cont.compose(janela.sdlRenderer.get(), 2);
-//    janela.sdlRenderer.leave();
-//    cont.set_draw_mode(Object::CompositionMode);
-    
-//    test.compose(janela.sdlRenderer.get(), 2);
-//    janela.sdlRenderer.leave();
-//    test.set_draw_mode(Object::CompositionMode);
-    
-    test.compose(janela.sdlRenderer.get(), 2);
-    janela.sdlRenderer.leave();
-//    test.set_draw_mode(Object::CompositionMode);
-    test.export_composition_as_PNG(janela.sdlRenderer.get(), "test2.png");
-    janela.sdlRenderer.leave();
-    test.compose(janela.sdlRenderer.get(), 2);
-    janela.sdlRenderer.leave();
-    test.set_draw_mode(Object::CompositionMode);
-    
     olamundo.events();
 }

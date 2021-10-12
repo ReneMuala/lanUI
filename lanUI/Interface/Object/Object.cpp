@@ -18,8 +18,8 @@ void Object::__align_center(float &x, float &y){
     root.get()->size.get();
     size.hold();
     padding.hold();
-    x += (root.data->size.data.w / 2 - ((size.data.w)/2));
-    y += (root.data->size.data.h / 2 - ((size.data.h)/2));
+    x += (root.data->size.data.w / 2 - ((size.data.w + padding.data.left + padding.data.right)/2));
+    y += (root.data->size.data.h / 2 - ((size.data.h + padding.data.top + padding.data.bottom)/2));
     padding.leave();
     size.leave();
     root.data->size.leave();
@@ -64,8 +64,6 @@ void Object::__align_bottom(float &x, float &y){
     root.leave();
     size.leave();
     __align_center(x, y);
-    x += padding.get().left;
-    padding.leave();
     y = initial_y;
 }
 
@@ -436,19 +434,19 @@ void Object::_render_routine(float dpiK){
     sizeBuffer.leave();
 }
 
-void Object::_handle_others_routine(Event& event, Object * next, const float dpiK){
-    (next)->_handle_events(event, dpiK);
+void Object::_handle_others_routine(Event& event, Object * next, const float dpiK, const bool no_focus){
+    (next)->_handle_events(event, dpiK, no_focus);
 }
 
-void Object::_handle_others(Event& event, const float dpiK){
+void Object::_handle_others(Event& event, const float dpiK, const bool no_focus){
     if(nextInX.get()){
         nextInX.leave();
-        _handle_others_routine(event, nextInX.data, dpiK);
+        _handle_others_routine(event, nextInX.data, dpiK, no_focus);
     } else
         nextInX.leave();
     if(nextInY.get()) {
         nextInY.leave();
-        _handle_others_routine(event, nextInY.data, dpiK);
+        _handle_others_routine(event, nextInY.data, dpiK, no_focus);
     } else
         nextInY.leave();
 }
@@ -468,8 +466,8 @@ bool Object::_has_focus(const float dpiK){
     return focus;
 }
 
-void Object::_handle_events(Event & event, const float dpiK){
-    if(inRootBoundsBuffer.get()){
+void Object::_handle_events(Event & event, const float dpiK, const bool no_focus){
+    if(inRootBoundsBuffer.get() && !no_focus){
         inRootBoundsBuffer.leave();
         if(this->_has_focus(dpiK)){
             // ignore this object if the nextInZ has focus
@@ -477,7 +475,7 @@ void Object::_handle_events(Event & event, const float dpiK){
                 nextInZ.leave();
                 if(drawMode.get() != CompositionMode) {
                     drawMode.leave();
-                    _handle_others_routine(event, nextInZ.data, dpiK);
+                    _handle_others_routine(event, nextInZ.data, dpiK, false);
                 } else {
                     drawMode.leave();
                 }
@@ -486,13 +484,14 @@ void Object::_handle_events(Event & event, const float dpiK){
         } else {
             if(nextInZ.get()){
                 nextInZ.leave();
-                _handle_others_routine(event, nextInZ.data, dpiK);
+                _handle_others_routine(event, nextInZ.data, dpiK, false);
             } else
                 nextInZ.leave();
-            _handle_others(event, dpiK);
+            _handle_others(event, dpiK, false);
         }
-    } else
+    } else {
         inRootBoundsBuffer.leave();
+    }
 }
 
 void Object::_run_others_default_animation(){
@@ -525,7 +524,7 @@ void Object::_align(float &x, float &y){
         root.leave();
 }
 
-Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false),reloadingDisabled(false) /*rootType(OtherRoot)*/, canvas(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Transparent), backgroundColor(Colors::Transparent), borderColor(Colors::Transparent), angle(0), drawMode(DrawMode::DefaultMode), delay(0), wasCompiled(false), index(0) {
+Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false),reloadingDisabled(false) /*rootType(OtherRoot)*/, canvas(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Transparent), backgroundColor(Colors::Transparent), borderColor(Colors::Transparent), angle(0), drawMode(DrawMode::DefaultMode), delay(0), wasCompiled(false), index(0), no_focus_repeated(false) {
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
         requests[i].set(false);

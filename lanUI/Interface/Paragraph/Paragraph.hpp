@@ -26,6 +26,7 @@ public:
         typedef enum {
             Char,
             Word,
+            Infty,
         } Mode;
         Mode mode;
         int fieldsCount;
@@ -42,7 +43,7 @@ public:
     
     Paragraph& from_stringstream(std::stringstream& , Wrapper::Mode, int fileldsCount);
     
-    Paragraph& from_stringstream(std::stringstream& , Wrapper wraper = {Wrapper::Mode::Char,0});
+    Paragraph& from_stringstream(std::stringstream& , Wrapper wraper = {Wrapper::Mode::Infty,0});
     
     void _parse_hint(const std::string src, std::string & line ,Font::Style &style, unsigned int &size, bool &noSpace,bool &space);
     void _add_word(const char *, Font::Style style, const unsigned int size);

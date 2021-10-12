@@ -18,21 +18,35 @@ struct Color : public SDL_Color {
         r=g=b=0;
         a=0xff;
     };
+    
     Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0xff){
         this->r = r;
         this->g = g;
         this->b = b;
         this->a = a;
     }
+    
+    Color from_r(uint8_t r) const {
+        return Color({r,g,b,a});
+    }
+    
+    Color from_g(uint8_t g) const {
+        return Color({r,g,b,a});
+    }
+    
+    Color from_b(uint8_t b) const {
+        return Color({r,g,b,a});
+    }
+    
+    Color from_a(uint8_t a) const {
+        return Color({r,g,b,a});
+    }
+    
     const std::string toStr() const;
 };
 /*! lanUI standard colors.
 Special thanks to https://www.rapidtables.com/web/color/RGB_Color.html */
 namespace Colors {
-const Color fromRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0xff);
-/** Generate a new color by changing the alpha channel of an existing one.
- */
-const Color fromColorA(const Color, uint8_t a);
 const Color Transparent{0,0,0,0};
 const Color White = {255,255,255,255};
 const Color Black = {0,0,0,255};

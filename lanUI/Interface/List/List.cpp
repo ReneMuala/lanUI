@@ -59,4 +59,3 @@ List& List::fit_content(const float width, const float height){
     content.disable_reloading();
     return (*this);
 }
-

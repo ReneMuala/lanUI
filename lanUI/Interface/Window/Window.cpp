@@ -92,7 +92,7 @@ void Window::_handle_events(){
             _handle_callBacks(sdlEvent.data.window.event, sdlEvent.data.type);
             
             if(nextInZ.get())
-                _handle_others_routine(sdlEvent.data, nextInZ.data, DPIConstant.get());
+                _handle_others_routine(sdlEvent.data, nextInZ.data, DPIConstant.get(), false);
             DPIConstant.leave();
             nextInZ.leave();
         }
