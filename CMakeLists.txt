@@ -14,6 +14,7 @@
 # -> libSDL2_image
 # Make sure to install those dependeces berofe trying to build lanUI
 
+
 cmake_minimum_required(VERSION 3.7)
 project(lanUI)
 
