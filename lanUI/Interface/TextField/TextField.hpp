@@ -13,34 +13,31 @@
 #include <stack>
 #include <string>
 #include <sstream>
+#include <unicode/unistr.h>
 #include "../Object/Object.hpp"
 #include "../Paragraph/Paragraph.hpp"
 
 class TextField : public InterativeObject {
-    bool activated;
-    Semaphore<std::string>& source;
+    Semaphore<bool> activated;
+    std::stringstream stream;
+    icu::UnicodeString uniSource;
+    Semaphore<std::wstring> wideSource;
+    Semaphore<std::string> source, inputBuffer;
+    Semaphore<std::string> inputStyle, placeholderStyle;
     std::string placeholder;
-    std::stringstream sourceStream;
-public:
-    class TextSurface : public Paragraph {
-//
-//    public:
-//
-//        struct Cursor {
-//            unsigned long line, colummn;
-//            std::stack<unsigned long> selectedIndexes;
-//
-//            bool show;
-//            Semaphore<Color> color;
-//            Cursor(): line(0), colummn(0), show(true), color(Colors::Blue){}
-//        } cusor;
-        
-    } surface ;
-    
-public:
-    TextField(Semaphore<std::string>& source, const std::string placeholder = "");
-    TextField& set_size(const float w, const float h) override;
-    void _compile(Renderer*, const float dpiK) override;
+    class TextSurface : public Paragraph{
+    } textSurface;
+    void _init(Semaphore<std::string>&source, const std::string plabeholder = "");
+    public:
+    TextField(Semaphore<std::string>&source, const std::string plabeholder = "");
+    TextField(TextField const & other);
+    void _sync_strings();
+    void _compile_source();
+    void _compile(Renderer * renderer, const float dpiK) override;
+    void _handle_events(Event & event, const float dpiK, const bool no_focus) override;
+    TextField& set_input_style(const std::string);
+    TextField& set_placeholder_style(const std::string);
+    ~TextField();
 };
 
 #endif /* TextField_hpp */

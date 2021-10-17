@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		17115C3026FE783C0028BD55 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 179819CF2687CA4500CCBC43 /* Object.cpp */; };
 		17304DC4271596A4004F9AB3 /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
+		17319C67271788F400FD1EEC /* libicuuc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 17319C66271788F400FD1EEC /* libicuuc.dylib */; };
+		17319C68271788F400FD1EEC /* libicuuc.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 17319C66271788F400FD1EEC /* libicuuc.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1734118626BAB77300444E40 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1734118426BAB77300444E40 /* Image.cpp */; };
 		173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 173504D626B859FF00359EF5 /* CustomFonts.cpp */; };
 		1746B21926AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */; };
@@ -43,6 +45,7 @@
 			files = (
 				17D997BE26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Embed Libraries */,
 				1746B21A26AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Embed Libraries */,
+				17319C68271788F400FD1EEC /* libicuuc.dylib in Embed Libraries */,
 				174F1F0B268252AE009B8159 /* libSDL2-2.0.0.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
@@ -61,6 +64,10 @@
 
 /* Begin PBXFileReference section */
 		17241E2126B6EDF8009912C9 /* Container.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Container.hpp; sourceTree = "<group>"; };
+		17319C5B2717867100FD1EEC /* libicuio.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicuio.dylib; path = ../../../../../opt/local/lib/libicuio.dylib; sourceTree = "<group>"; };
+		17319C5E2717868800FD1EEC /* libicuio.67.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicuio.67.1.dylib; path = ../../../../../opt/local/lib/libicuio.67.1.dylib; sourceTree = "<group>"; };
+		17319C612717869400FD1EEC /* libicudata.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicudata.dylib; path = ../../../../../opt/local/lib/libicudata.dylib; sourceTree = "<group>"; };
+		17319C66271788F400FD1EEC /* libicuuc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicuuc.dylib; path = ../../../../../opt/local/lib/libicuuc.dylib; sourceTree = "<group>"; };
 		1734118426BAB77300444E40 /* Image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Image.cpp; sourceTree = "<group>"; };
 		1734118526BAB77300444E40 /* Image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Image.hpp; sourceTree = "<group>"; };
 		173504D426B843E600359EF5 /* CustomFonts.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CustomFonts.hpp; sourceTree = "<group>"; };
@@ -121,6 +128,7 @@
 			files = (
 				17D997BD26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Frameworks */,
 				1746B21926AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Frameworks */,
+				17319C67271788F400FD1EEC /* libicuuc.dylib in Frameworks */,
 				174F1F0A268252AE009B8159 /* libSDL2-2.0.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -166,6 +174,10 @@
 		174F1F08268252AE009B8159 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				17319C66271788F400FD1EEC /* libicuuc.dylib */,
+				17319C612717869400FD1EEC /* libicudata.dylib */,
+				17319C5E2717868800FD1EEC /* libicuio.67.1.dylib */,
+				17319C5B2717867100FD1EEC /* libicuio.dylib */,
 				17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */,
 				1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */,
 				174F1F09268252AE009B8159 /* libSDL2-2.0.0.dylib */,

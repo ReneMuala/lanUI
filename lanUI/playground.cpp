@@ -11,6 +11,7 @@
 
 #include "Interface/TextField/TextField.hpp"
 
+
 /*
  Note:
     On Xcode, it will be necessary to disable metal api validation.
@@ -18,7 +19,50 @@
     (Disable it on: Scheme > Edit Scheme... > Run > Diagnostics or Options > Metal API Validation).
  */
 
+
+#include <unicode/unistr.h>
+#include <iostream>
+
 int main(){
+    
+    
+    /*
+     The text that the user see isn't the text that he edits;
+     
+     he should edit the wstring version to avoid utf-8 errors, and that wstring version shoud be syncronized with the string that is the source of the TextField.
+     */
+    
+    
+    std::wstring buffer;
+
+    icu::UnicodeString unistring = icu::UnicodeString::fromUTF8("rené");
+    
+    setlocale(LC_ALL, ".UTF8");
+    
+    std::wstring wtext = L"ãeńné";
+    
+    char * text;
+    
+    size_t len;
+           
+    len = wcstombs(text, wtext.c_str(), wtext.length()*2);
+    
+    std::cout << "\'"  <<  text << "\' :: " << len << "," << wtext.length() <<  std::endl;
+    
+    // --------
+    
+    return 0;
+    
+    for(int i = 0 ; i < unistring.length() ; i++){
+        buffer += (wchar_t)unistring[i];
+    }
+
+    for (auto test : buffer) {
+        std::cout << test << ",";
+    }
+
+    return 0;
+    
     Core olamundo;
     
     Window janela("hello", 400,500);
