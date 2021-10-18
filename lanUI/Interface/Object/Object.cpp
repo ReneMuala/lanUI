@@ -339,20 +339,23 @@ void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float
     
     static Padding padding_buffer;
     static Rect size_buffer;
+    static ScrollingFactor scrollingFactor_buffer;
     
     padding_buffer = padding.get();
     size_buffer = size.get();
+    scrollingFactor_buffer = scrollingFactor.get();
     
     padding.leave();
     size.leave();
+    scrollingFactor.leave();
     
     if(!(_renderEmbeddedMode & _renderOnlyNextInX_Y))
     {
         _lock_renderer_in_bounds(renderer, dpiK);
         if(nextInZ.get())
             __renderEmbedded_routine(renderer, nextInZ.data,
-                                     x + padding_buffer.left,
-                                     y + padding_buffer.top,
+                                     x + padding_buffer.left + scrollingFactor_buffer.horizontal,
+                                     y + padding_buffer.top + scrollingFactor_buffer.vertical,
                                      dpiK);
         
         nextInZ.leave();
@@ -456,11 +459,12 @@ using namespace InteractiveObjecsData;
 bool Object::_has_focus(const float dpiK){
     static bool focus(false);
     (focus =
-     (cursor.get().x >= ((size.get().x)*dpiK))
-     && (cursor.data.y >= ((size.data.y)*dpiK))
+     (cursor.get().x >= ((size.get().x + scrollingFactor.get().vertical)*dpiK))
+     && (cursor.data.y >= ((size.data.y + scrollingFactor.data.horizontal)*dpiK))
      && (cursor.data.x <= (size.data.x + size.data.w)*dpiK)
      && (cursor.data.y <= (size.data.y + size.data.h)*dpiK)
      );
+    scrollingFactor.leave();
     size.leave();
     cursor.leave();
     return focus;

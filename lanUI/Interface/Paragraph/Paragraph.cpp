@@ -17,7 +17,7 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper::Mode
 }
 
 Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wraper){
-    std::regex hintREG("^\\\\[[:alnum:](,)_:]+$");
+    static std::regex hintREG("^\\\\[[:alnum:](,)_:]+$");
     std::string line, buffer;
     int wordCount(0);
     Font::Style hint_style = Font::Regular;
@@ -76,21 +76,21 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
 }
 
 void Paragraph::_parse_hint(const std::string src, std::string & line , Font::Style &style, unsigned int &size, bool &noSpace, bool &space){
-    std::regex sizeREG("^\\\\size:\\d+$");
-    std::regex rgbREG("^\\\\color:rgb\\(\\d{1,3},\\d{1,3},\\d{1,3}\\)$");
-    std::regex rgbaREG("^\\\\color:rgba\\(\\d{1,3},\\d{1,3},\\d{1,3},\\d{1,3}\\)$");
-    std::regex newlnREG("^\\\\(newln|n)$");
-    std::regex regularREG("^\\\\regular$");
-    std::regex boldREG("^\\\\(bold|b)$");
-    std::regex boldObliqueREG("^\\\\(boldOblique|bo)$");
-    std::regex extraLightREG("^\\\\(extraLight|el)$");
-    std::regex obliqueREG("^\\\\(oblique|o)$");
-    std::regex condensed_BoldREG("^\\\\(condensed_Bold|cb)$");
-    std::regex condensed_BoldObliqueREG("^\\\\(condensed_BoldOblique|cbo)$");
-    std::regex condensed_ObliqueREG("^\\\\(condensed_Oblique|co)$");
-    std::regex condensedREG("^\\\\(condensed|c)$");
-    std::regex nospaceREG("^\\\\(nospace|noSpace|ns)$");
-    std::regex spaceREG("^\\\\(space|s)$");
+    static std::regex sizeREG("^\\\\size:\\d+$");
+    static std::regex rgbREG("^\\\\color:rgb\\(\\d{1,3},\\d{1,3},\\d{1,3}\\)$");
+    static std::regex rgbaREG("^\\\\color:rgba\\(\\d{1,3},\\d{1,3},\\d{1,3},\\d{1,3}\\)$");
+    static std::regex newlnREG("^\\\\(newln|n)$");
+    static std::regex regularREG("^\\\\(regular|r)$");
+    static std::regex boldREG("^\\\\(bold|b)$");
+    static std::regex boldObliqueREG("^\\\\(boldOblique|bo)$");
+    static std::regex extraLightREG("^\\\\(extraLight|el)$");
+    static std::regex obliqueREG("^\\\\(oblique|o)$");
+    static std::regex condensed_BoldREG("^\\\\(condensed_Bold|cb)$");
+    static std::regex condensed_BoldObliqueREG("^\\\\(condensed_BoldOblique|cbo)$");
+    static std::regex condensed_ObliqueREG("^\\\\(condensed_Oblique|co)$");
+    static std::regex condensedREG("^\\\\(condensed|c)$");
+    static std::regex nospaceREG("^\\\\(nospace|noSpace|ns)$");
+    static std::regex spaceREG("^\\\\(space|s)$");
 
     if(std::regex_match(src, sizeREG)){
         sscanf(src.c_str(), "\\size:%d", &size);

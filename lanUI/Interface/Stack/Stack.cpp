@@ -30,6 +30,22 @@ Stack& VStack::reload(){
     return (*this);
 }
 
+Object * VStack::requestObject(size_t index){
+    Object * ptr = nextInZ.get();
+    Object * last_ptr = nullptr;
+    size_t subIndex = 0;
+    while (ptr && subIndex < index) {
+        last_ptr = ptr;
+        ptr = ptr->nextInY.get();
+        last_ptr->nextInY.leave();
+        subIndex++;
+    } nextInZ.leave();
+    if(ptr && subIndex == index)
+        return ptr;
+    else
+        return nullptr;
+}
+
 Stack VStack::fromList(std::list<Object*> objects){
     float width(0), height(0);
     unsigned long index(0);
@@ -68,6 +84,23 @@ Stack& HStack::reload(){
     return (*this);
 }
 
+Object * HStack::requestObject(size_t index){
+    Object * ptr = nextInZ.get();
+    Object * last_ptr = nullptr;
+    size_t subIndex = 0;
+    while (ptr && subIndex < index) {
+        last_ptr = ptr;
+        ptr = ptr->nextInX.get();
+        last_ptr->nextInX.leave();
+        subIndex++;
+    } nextInZ.leave();
+    
+    if(ptr && subIndex == index)
+        return ptr;
+    else
+        return nullptr;
+}
+
 Stack HStack::fromList(std::list<Object*> objects){
     float width(0), height(0);
     unsigned long index(0);
@@ -102,6 +135,22 @@ Stack& ZStack::reload(){
         } set_size(width, height);
     } reloadingDisabled.leave();
     return (*this);
+}
+
+Object * ZStack::requestObject(size_t index){
+    Object * ptr = nextInZ.get();
+    Object * last_ptr = nullptr;
+    size_t subIndex = 0;
+    while (ptr && subIndex < index) {
+        last_ptr = ptr;
+        ptr = ptr->nextInZ.get();
+        last_ptr->nextInZ.leave();
+        subIndex++;
+    } nextInZ.leave();
+    if(ptr && subIndex == index)
+        return ptr;
+    else
+        return nullptr;
 }
 
 Stack ZStack::fromList(std::list<Object*> objects){

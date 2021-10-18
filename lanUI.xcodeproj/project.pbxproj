@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		17115C3026FE783C0028BD55 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 179819CF2687CA4500CCBC43 /* Object.cpp */; };
 		17304DC4271596A4004F9AB3 /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
-		17319C67271788F400FD1EEC /* libicuuc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 17319C66271788F400FD1EEC /* libicuuc.dylib */; };
-		17319C68271788F400FD1EEC /* libicuuc.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 17319C66271788F400FD1EEC /* libicuuc.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1734118626BAB77300444E40 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1734118426BAB77300444E40 /* Image.cpp */; };
 		173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 173504D626B859FF00359EF5 /* CustomFonts.cpp */; };
 		1746B21926AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */; };
@@ -23,6 +21,8 @@
 		17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17734DA526BDD31E00212851 /* InteractiveObject.cpp */; };
 		177C47F72711C1DF00A0B99D /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B826B3186E00219F36 /* Text.cpp */; };
 		1781821126C41BCB00F986B6 /* List.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1781820F26C41BCB00F986B6 /* List.cpp */; };
+		17A43EC5271C54320063E2F3 /* UTF8CharList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A43EBB271C54310063E2F3 /* UTF8CharList.cpp */; };
+		17A43EC6271C54320063E2F3 /* UTF8Char.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A43EBC271C54310063E2F3 /* UTF8Char.cpp */; };
 		17BE74A426AC0364009A3D8C /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A326AC0364009A3D8C /* Color.cpp */; };
 		17BE74AA26AC5B87009A3D8C /* DrawableObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A926AC5B87009A3D8C /* DrawableObject.cpp */; };
 		17C7970C26D8F85F00CF551B /* Paragraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970A26D8F85F00CF551B /* Paragraph.cpp */; };
@@ -36,6 +36,16 @@
 		17FC39222713999800E47CAF /* TextField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17FC39202713999800E47CAF /* TextField.cpp */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		17A43EC2271C54320063E2F3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 17A43EBE271C54310063E2F3 /* lanUTF.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 17421A192718DAF900ADAD18;
+			remoteInfo = lanUTF;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		174F1F0C268252AE009B8159 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -45,7 +55,6 @@
 			files = (
 				17D997BE26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Embed Libraries */,
 				1746B21A26AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Embed Libraries */,
-				17319C68271788F400FD1EEC /* libicuuc.dylib in Embed Libraries */,
 				174F1F0B268252AE009B8159 /* libSDL2-2.0.0.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
@@ -95,6 +104,11 @@
 		179819CE2687B71A00CCBC43 /* Color.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Color.hpp; sourceTree = "<group>"; };
 		179819CF2687CA4500CCBC43 /* Object.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
 		179819D02687CA4500CCBC43 /* Object.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Object.hpp; sourceTree = "<group>"; };
+		17A43EB9271C54310063E2F3 /* UTF8CharList.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UTF8CharList.hpp; sourceTree = "<group>"; };
+		17A43EBB271C54310063E2F3 /* UTF8CharList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UTF8CharList.cpp; sourceTree = "<group>"; };
+		17A43EBC271C54310063E2F3 /* UTF8Char.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UTF8Char.cpp; sourceTree = "<group>"; };
+		17A43EBD271C54310063E2F3 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		17A43EBE271C54310063E2F3 /* lanUTF.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = lanUTF.xcodeproj; sourceTree = "<group>"; };
 		17BB16D926FDFECC00C14BA6 /* aves.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = aves.cpp; sourceTree = "<group>"; };
 		17BE74A326AC0364009A3D8C /* Color.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Color.cpp; sourceTree = "<group>"; };
 		17BE74A826AC052C009A3D8C /* lanUI.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = lanUI.hpp; sourceTree = "<group>"; };
@@ -128,7 +142,6 @@
 			files = (
 				17D997BD26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Frameworks */,
 				1746B21926AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Frameworks */,
-				17319C67271788F400FD1EEC /* libicuuc.dylib in Frameworks */,
 				174F1F0A268252AE009B8159 /* libSDL2-2.0.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -267,6 +280,7 @@
 			isa = PBXGroup;
 			children = (
 				17FC391427130C8B00E47CAF /* Settings.hpp */,
+				17A43EB7271C54310063E2F3 /* lanUTF */,
 				17FC391627130EB000E47CAF /* Semaphore */,
 				17BE74A826AC052C009A3D8C /* lanUI.hpp */,
 				174F1F1526825410009B8159 /* Core */,
@@ -293,6 +307,34 @@
 				173504D526B843FA00359EF5 /* CustomTextStyles.hpp */,
 			);
 			path = CustomTextStyles;
+			sourceTree = "<group>";
+		};
+		17A43EB7271C54310063E2F3 /* lanUTF */ = {
+			isa = PBXGroup;
+			children = (
+				17A43EB8271C54310063E2F3 /* lanUTF */,
+				17A43EBD271C54310063E2F3 /* README.md */,
+				17A43EBE271C54310063E2F3 /* lanUTF.xcodeproj */,
+			);
+			path = lanUTF;
+			sourceTree = "<group>";
+		};
+		17A43EB8271C54310063E2F3 /* lanUTF */ = {
+			isa = PBXGroup;
+			children = (
+				17A43EB9271C54310063E2F3 /* UTF8CharList.hpp */,
+				17A43EBB271C54310063E2F3 /* UTF8CharList.cpp */,
+				17A43EBC271C54310063E2F3 /* UTF8Char.cpp */,
+			);
+			path = lanUTF;
+			sourceTree = "<group>";
+		};
+		17A43EBF271C54310063E2F3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				17A43EC3271C54320063E2F3 /* lanUTF */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		17BE74A526AC03C5009A3D8C /* Color */ = {
@@ -444,6 +486,12 @@
 			mainGroup = 1792B901260328B200836D7A;
 			productRefGroup = 1792B90B260328B200836D7A /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 17A43EBF271C54310063E2F3 /* Products */;
+					ProjectRef = 17A43EBE271C54310063E2F3 /* lanUTF.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				1792B909260328B200836D7A /* lanUI */,
@@ -451,11 +499,22 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXReferenceProxy section */
+		17A43EC3271C54320063E2F3 /* lanUTF */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			path = lanUTF;
+			remoteRef = 17A43EC2271C54320063E2F3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
 /* Begin PBXSourcesBuildPhase section */
 		1792B906260328B200836D7A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17A43EC5271C54320063E2F3 /* UTF8CharList.cpp in Sources */,
 				17FC39222713999800E47CAF /* TextField.cpp in Sources */,
 				17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */,
 				17BE74A426AC0364009A3D8C /* Color.cpp in Sources */,
@@ -474,6 +533,7 @@
 				17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */,
 				17BE74AA26AC5B87009A3D8C /* DrawableObject.cpp in Sources */,
 				17C7970C26D8F85F00CF551B /* Paragraph.cpp in Sources */,
+				17A43EC6271C54320063E2F3 /* UTF8Char.cpp in Sources */,
 				17DE7ED02708AF7B007667BA /* SDL2_rotozoom.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -108,7 +108,7 @@ public:
     Semaphore<bool> reloadingDisabled;
     
     /// Object index inside of the root
-    Semaphore<unsigned long> index;
+    Semaphore<size_t> index;
 
     // embedded objects & root
     Semaphore<Object*> root;

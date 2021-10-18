@@ -14,11 +14,37 @@
 #include <iostream>
 #include <clocale>
 
+TextField::TextSurface::Cursor::Cursor(): line(0), colummn(0), empty(true),active(false), hidden(false), size({0,0,0,0}), color(Colors::Dark_cyan){
+}
+
+void TextField::TextSurface::_render(SDL_Renderer * renderer, float x, float y, float dpiK, bool inComposition){
+    Paragraph::_render(renderer, x, y, dpiK, inComposition);
+    cursor.hold();
+    Object * letter = nullptr;
+    if(nextInZ.get()){
+        letter = ((HStack *)nextInZ.data)->requestObject((cursor.data.colummn-1 < 0) ? 0 : cursor.data.colummn-1);
+    } nextInZ.leave();
+
+    if(letter && cursor.data.active && !cursor.data.hidden){
+        letter->sizeBuffer.hold();
+        
+        cursor.data.size = {
+            (!cursor.data.colummn) ? letter->sizeBuffer.data.x : letter->sizeBuffer.data.x + letter->sizeBuffer.data.w,
+            letter->sizeBuffer.data.y,
+            2 * dpiK,
+            letter->sizeBuffer.data.h,
+        };
+        letter->sizeBuffer.leave();
+        SDL_SetRenderDrawColor(renderer, cursor.data.color.r, cursor.data.color.g, cursor.data.color.b, cursor.data.color.a);
+        SDL_RenderFillRectF(renderer, &cursor.data.size);
+    }
+    cursor.leave();
+}
+
 void TextField::_init(Semaphore<std::string>& source, const std::string placeholder){
     activated = (false);
     this->source = (source);
     this->placeholder = (placeholder);
-    uniSource.remove();
     stream.str("");
     Core::log(Core::Warning, "TextField isn't stable yet.");
     disable_reloading();
@@ -26,8 +52,17 @@ void TextField::_init(Semaphore<std::string>& source, const std::string placehol
     textSurface.set_alignment(Left);
     textSurface.set_padding({5,5});
     
+    textSurface.set_default_animation
+    (60,CallbackExpr({
+        textSurface.cursor.get().hidden = !textSurface.cursor.data.hidden;
+        textSurface.cursor.leave();
+        return true;
+    }));
+    
     on_click(CallbackExpr({
         activated.set(true);
+        textSurface.cursor.get().active = true;
+        textSurface.cursor.leave();
         SDL_StartTextInput();
     }));
     
@@ -36,6 +71,8 @@ void TextField::_init(Semaphore<std::string>& source, const std::string placehol
             SDL_StopTextInput();
             activated.data = false;
             activated.leave();
+            textSurface.cursor.get().active = false;
+            textSurface.cursor.leave();
         } else
             activated.leave();
     }));
@@ -60,51 +97,39 @@ TextField::~TextField(){
 }
 
 void TextField::_sync_strings(){
-    if(inputBuffer.get().length()){
-        std::mbstate_t state;
-        
-        size_t c_wstr_len;
-        const char * _char = inputBuffer.data.c_str();
-        // get the len
-        c_wstr_len = mbsrtowcs(NULL, &_char, 0, &state);
-        
-        if(c_wstr_len){
-            // initialize buffer
-            std::wstring wbuffer(c_wstr_len, L'\0');
-            
-            size_t converted_len = mbsrtowcs(&wbuffer[0], &_char, c_wstr_len, &state);
-            
-            if(converted_len == static_cast<std::size_t>(-1)){
-                std::cout << "error!" << std::endl;
-            }
-            
-            if(converted_len){
-                std::cout << "working, len: " << converted_len << std::endl;
-            }
-        }
-        inputBuffer.leave();
-    } else
-        inputBuffer.leave();
     
-    wideSource.leave();
+    size_t c_string_len = inputBuffer.get().c_str_size();
+    
+    char c_string [c_string_len];
+    
+    bzero(c_string, c_string_len);
+    
+    c_string[0] = '\0';
+        
+    inputBuffer.data.composeCStr(c_string, c_string_len);
+    
+    source.set(c_string);
+    
+    input_size = inputBuffer.data.size();
+            
+    inputBuffer.leave();
 }
 
 void TextField::_compile_source(){
-    std::regex spaceInput("[[:space:]]");
-    std::regex textInput("[[:print:]]");
-    
-        
-    stream << source.get();
-    source.leave();
-    
-//    for (char element : source.get()) {
-//        buffer = element;
-//        if(std::regex_match(buffer, spaceInput)){
-//            stream << " \\s ";
-//        } else if (std::regex_match(buffer, textInput)){
-//            stream << " \\ns " << buffer;
-//        }
-//    } source.leave();
+    static std::regex spaceInput("[[:space:]]");
+    std::string buffer;
+    inputBuffer.hold();
+    stream.clear();
+    stream << inputStyle.get() << ' ';
+    inputStyle.leave();
+    for (int i = 0 ; i < inputBuffer.data.size() ; i++) {
+        buffer = inputBuffer.data[i];
+        if(std::regex_match(buffer, spaceInput)){
+            stream << " \\s ";
+        } else {
+            stream << " \\ns " << buffer;
+        }
+    } inputBuffer.leave();
 }
 
 void TextField::_compile(Renderer * renderer, const float dpiK){
@@ -114,20 +139,18 @@ void TextField::_compile(Renderer * renderer, const float dpiK){
         
         _sync_strings();
         
-        stream.clear();
+        _refresh_cursor(dpiK);
+        
         source.hold();
         if(source.data.empty()){
+            stream.clear();
             source.leave();
             stream << placeholderStyle.get() << ' ' << placeholder;
             placeholderStyle.leave();
         } else {
-            source.leave();
-            stream << inputStyle.get() << ' ';
             _compile_source();
-            inputStyle.leave();
         }
-        
-        source.leave();
+            source.leave();
         textSurface.from_stringstream(stream);
     } else
         wasCompiled.leave();
@@ -144,18 +167,87 @@ TextField& TextField::set_placeholder_style(const std::string style){
     return (*this);
 }
 
+void TextField::_refresh_cursor(const float dpiK){
+    
+    if(cursor_change_flag){
+        if(cursor_change_flag > 0){
+            if(input_size_change) textSurface.cursor.get().colummn+=input_size_change;
+            else textSurface.cursor.get().colummn++;
+        } else {
+            textSurface.cursor.hold();
+            if(textSurface.cursor.data.colummn - 1 < 0){
+                textSurface.cursor.data.colummn = 0;
+            } else {
+                textSurface.cursor.data.colummn--;
+            }
+        }
+        
+        if(textSurface.cursor.data.colummn > input_size){
+            textSurface.cursor.data.colummn = input_size;
+        }
+        
+        textSurface.cursor.data.hidden = false;
+        if(!input_size) textSurface.cursor.data.empty = true;
+        else textSurface.cursor.data.empty = false;
+        
+        textSurface.scrollingFactor.hold();
+        sizeBuffer.hold();
+        
+        static float sizeBuffer_x_area;
+        sizeBuffer_x_area = (sizeBuffer.data.x/dpiK) + (sizeBuffer.data.w/dpiK);
+        static float cursor_x_area;
+        cursor_x_area = (textSurface.cursor.data.size.x/dpiK)+(textSurface.cursor.data.size.w/dpiK);
+        if(cursor_x_area > sizeBuffer_x_area){
+            textSurface.scrollingFactor.data.horizontal += (sizeBuffer_x_area - cursor_x_area);
+            printf("\t>> %f\n", (sizeBuffer_x_area - cursor_x_area));
+        } else {
+            printf("<<\n");
+        }
+        
+        sizeBuffer.leave();
+        textSurface.scrollingFactor.leave();
+        
+        
+        textSurface.cursor.leave();
+        
+        input_size_change = 0;
+        cursor_change_flag = 0;
+        
+        }
+    
+}
+
 void TextField::_handle_events(Event & event, const float dpiK, const bool no_focus){
     InterativeObject::_handle_events(event, dpiK, no_focus);
     if(activated.get()){
         if(event.type == SDL_TEXTINPUT){
-            inputBuffer.get() +=event.text.text;
+            input_size_change +=
+            (textSurface.cursor.get().colummn < input_size) ?
+            inputBuffer.get().append(event.text.text, textSurface.cursor.data.colummn) :
+            inputBuffer.get().append(event.text.text);
+            textSurface.cursor.leave();
             inputBuffer.leave();
             wasCompiled.set(false);
-        } if (event.key.type == SDL_KEYDOWN){
+            cursor_change_flag = 1;
+        } else if (event.key.type == SDL_KEYDOWN){
             if(event.key.keysym.sym == SDLK_BACKSPACE){
-                if(!wideSource.get().empty()){
-                    wideSource.data.pop_back();
-                } wideSource.leave();
+                if (textSurface.cursor.get().colummn < input_size){
+                    if(textSurface.cursor.data.colummn-1 >= 0){
+                        inputBuffer.get().remove(textSurface.cursor.data.colummn-1);
+                    } textSurface.cursor.leave();
+                } else {
+                    inputBuffer.get().remove_last();
+                    textSurface.cursor.leave();
+                } inputBuffer.leave();
+                wasCompiled.set(false);
+                cursor_change_flag = -1;
+            } else if(event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_TAB){
+                activated = false;
+            } else if (event.key.keysym.sym == SDLK_LEFT){
+                cursor_change_flag = -1;
+                wasCompiled.set(false);
+            } else if (event.key.keysym.sym == SDLK_RIGHT){
+                cursor_change_flag = 1;
                 wasCompiled.set(false);
             }
         }
