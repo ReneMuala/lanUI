@@ -46,7 +46,7 @@ List::List(const Sint32 maxSpeed){
         
         content.first->isVericallyAfterRootBeginning.leave();
         content.last->isVericallyBeforeRootEnding.leave();
-        
+                
         if(content.nextInZ.get()) content.nextInZ.data->set_scrollingFactor({0,state.data.VScroll});
         content.nextInZ.leave();
         state.leave();

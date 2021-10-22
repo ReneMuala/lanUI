@@ -9,7 +9,7 @@
 #ifndef Debug_h
 #define Debug_h
 
-//  #define LANUI_DEBUG_MODE
+  #define LANUI_DEBUG_MODE
 /*  ^^^^^^^^^^^^^^^^^^^^^^^
  
  USAGE: Uncomment the line above to enable debug mode (BEFORE BUILDING LANUI)
@@ -65,6 +65,32 @@
  -------------------------------------------------------------------------------
  
  */
+
+
+
+//  #define LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
+/*  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+ USAGE: enable debug mode and uncomment the line above
+ 
+ DESCRIPTION: LANUI will print the new size of renderer draw area whenever the renderer is locked or unlocked.
+ 
+ -------------------------------------------------------------------------------
+ 
+ */
+
+  #define LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
+/*  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 
+ USAGE: enable debug mode and uncomment the line above
+ 
+ DESCRIPTION: LANUI will print show messages whenever an error related to text objects occurs.
+ 
+ -------------------------------------------------------------------------------
+ 
+ */
+
+
 #endif
 
 /// Lambda body to be passed as a function argument

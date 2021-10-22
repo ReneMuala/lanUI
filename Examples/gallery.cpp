@@ -58,7 +58,7 @@ public:
         background.set_size(1200, 650);
         background.set_alignment(Alignment::Center);
         
-        background.fromLinearGradient(Image::Vertical, Image::GradientElement(Colors::fromRGBA(255-200, 100-100, 255-200), 1.0), Image::GradientElement(Colors::fromRGBA(31/2, 68/2, 128/2), 1.0), window.sdlRenderer.get(), window.sdlWindow.get(), 1,2);
+        background.fromLinearGradient(Image::Vertical, Image::GradientElement(Color(255-200, 100-100, 255-200), 1.0), Image::GradientElement(Color(31/2, 68/2, 128/2), 1.0), window.sdlRenderer.get(), window.sdlWindow.get(), 1,2);
         window.sdlRenderer.leave();
         window.sdlWindow.leave();
     }
@@ -66,7 +66,7 @@ public:
     void createHeader(){
         title[0].from_string("Galeria").set_foreground_color(Colors::Orange).bold(65);
         title[1].from_string("LanUI").set_font(CustomFonts::Lobster).regular(65).set_foreground_color(Colors::Dark_violet).set_scrollingFactor(Object::ScrollingFactor({70,-40}));
-        titleDescrition.from_string("LanUI é uma biblioteca para criar interfaces gráficas em Cpp").regular(18).set_foreground_color(Colors::fromColorA(Colors::White, 100));
+        titleDescrition.from_string("LanUI é uma biblioteca para criar interfaces gráficas em Cpp").regular(18).set_foreground_color(Colors::White.from_a(100));
         titleDescritionArea.set_content(titleDescrition);
         titleDescritionArea.set_size(1200, 20);
         titleDescritionArea.disable_reloading();
@@ -88,7 +88,7 @@ public:
             //&example[0],&example[1],&example[2],&example[3]
         });
         codeList.compute<Object, 100>(CallbackExpr({
-            return &(Object&)(new Object)->set_foreground_color(Colors::fromColorA(Colors::White, 50)).set_size(580, 500).set_padding({10,10,10,10});
+            return &(Object&)(new Object)->set_foreground_color(Colors::White.from_a(50)).set_size(580, 500).set_padding({10,10,10,10});
         }));
         //actionArea.set_foreground_color(Colors::fromColorA(Colors::White, 50));
         actionArea.set_size(1200, 550);
@@ -217,7 +217,7 @@ int main(int argc, const char * argv[]) {
                                )
                   )
 
-    .set_window_clear_color(Colors::fromRGBA(25, 10, 25, 0.5))
+    .set_window_clear_color(Color(25, 10, 25, 0.5))
 
     .set_title("lanUI Demo");
 

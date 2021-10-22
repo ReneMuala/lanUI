@@ -13,7 +13,6 @@
 #include <stack>
 #include <string>
 #include <sstream>
-#include <unicode/unistr.h>
 #include "../Object/Object.hpp"
 #include "../Paragraph/Paragraph.hpp"
 #include "../../lanUTF/lanUTF/UTF8CharList.hpp"
@@ -54,7 +53,6 @@ public:
     void _handle_events(Event & event, const float dpiK, const bool no_focus) override;
     TextField& set_input_style(const std::string);
     TextField& set_placeholder_style(const std::string);
-    ~TextField();
 };
 
 #endif /* TextField_hpp */

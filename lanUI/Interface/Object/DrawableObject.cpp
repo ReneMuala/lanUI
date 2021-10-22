@@ -31,15 +31,20 @@ SDL_Surface * get_surface(const char * source){
 }
 
 void Object::_compile_embedded(SDL_Renderer* renderer, const float dpiK){
-    if(nextInX.get())
+    if(nextInX.get()) {
+        nextInX.leave();
         nextInX.data->_compile(renderer, dpiK);
-    nextInX.leave();
-    if(nextInY.get())
+    } else nextInX.leave();
+    
+    if(nextInY.get()){
+        nextInY.leave();
         nextInY.data->_compile(renderer, dpiK);
-    nextInY.leave();
-    if(nextInZ.get())
+    } else nextInY.leave();
+    
+    if(nextInZ.get()) {
+        nextInZ.leave();
         nextInZ.data->_compile(renderer, dpiK);
-    nextInZ.leave();
+    } else nextInZ.leave();
 }
 
 void Object::_compile(SDL_Renderer* renderer, const float dpiK){
@@ -102,8 +107,9 @@ Object& Object::set_draw_mode(DrawMode mode){
 }
 
 void Object::_free_canvas(Semaphore<Texture *>& canvas){
-    if (canvas.get())
+    if (canvas.get()){
         SDL_DestroyTexture(canvas.data);
+    }
     canvas.data = nullptr;
     canvas.leave();
 }
@@ -203,7 +209,7 @@ void Object::_render_using_callback(SDL_Renderer * renderer, float x, float y, f
 void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, bool inComposition){
     if(_inRootBounds(x, y) || inComposition){
         _align(x, y);
-        size.hold(); padding.hold(); size.data.x = x + padding.data.left; size.data.y = y + padding.data.top; size.leave(); padding.leave();
+        _set_position(x, y);
         _render_routine(dpiK);
             switch (drawMode.get()) {
                 case DrawMode::ImageMode:

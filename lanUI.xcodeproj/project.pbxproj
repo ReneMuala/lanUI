@@ -7,12 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		17115C3026FE783C0028BD55 /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 179819CF2687CA4500CCBC43 /* Object.cpp */; };
-		17304DC4271596A4004F9AB3 /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
 		1734118626BAB77300444E40 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1734118426BAB77300444E40 /* Image.cpp */; };
 		173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 173504D626B859FF00359EF5 /* CustomFonts.cpp */; };
 		1746B21926AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */; };
 		1746B21A26AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1748FBBC2721AB650087D5EC /* Object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 179819CF2687CA4500CCBC43 /* Object.cpp */; };
+		1748FBC02721AEB40087D5EC /* aves.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BB16D926FDFECC00C14BA6 /* aves.cpp */; };
+		1748FBC12721AED00087D5EC /* DrawableObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A926AC5B87009A3D8C /* DrawableObject.cpp */; };
 		174F1F0A268252AE009B8159 /* libSDL2-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 174F1F09268252AE009B8159 /* libSDL2-2.0.0.dylib */; };
 		174F1F0B268252AE009B8159 /* libSDL2-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 174F1F09268252AE009B8159 /* libSDL2-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		174F1F132682533B009B8159 /* Window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 174F1F112682533B009B8159 /* Window.cpp */; };
@@ -24,7 +25,6 @@
 		17A43EC5271C54320063E2F3 /* UTF8CharList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A43EBB271C54310063E2F3 /* UTF8CharList.cpp */; };
 		17A43EC6271C54320063E2F3 /* UTF8Char.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A43EBC271C54310063E2F3 /* UTF8Char.cpp */; };
 		17BE74A426AC0364009A3D8C /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A326AC0364009A3D8C /* Color.cpp */; };
-		17BE74AA26AC5B87009A3D8C /* DrawableObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A926AC5B87009A3D8C /* DrawableObject.cpp */; };
 		17C7970C26D8F85F00CF551B /* Paragraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970A26D8F85F00CF551B /* Paragraph.cpp */; };
 		17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B326B2B6CF00219F36 /* Stack.cpp */; };
 		17D997BD26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */; };
@@ -516,25 +516,25 @@
 			files = (
 				17A43EC5271C54320063E2F3 /* UTF8CharList.cpp in Sources */,
 				17FC39222713999800E47CAF /* TextField.cpp in Sources */,
+				1748FBBC2721AB650087D5EC /* Object.cpp in Sources */,
 				17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */,
+				1748FBC12721AED00087D5EC /* DrawableObject.cpp in Sources */,
 				17BE74A426AC0364009A3D8C /* Color.cpp in Sources */,
 				17D997C726B3282A00219F36 /* Font.cpp in Sources */,
 				177C47F72711C1DF00A0B99D /* Text.cpp in Sources */,
-				17304DC4271596A4004F9AB3 /* playground.cpp in Sources */,
 				174F1F132682533B009B8159 /* Window.cpp in Sources */,
 				174F1F1826825427009B8159 /* Core.cpp in Sources */,
 				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,
-				17115C3026FE783C0028BD55 /* Object.cpp in Sources */,
 				17DE7ED12708AF7B007667BA /* SDL2_gfxPrimitives.cpp in Sources */,
 				1781821126C41BCB00F986B6 /* List.cpp in Sources */,
 				17FC391827130EC500E47CAF /* Semaphore.cpp in Sources */,
 				17550B4E26C0082600A697E6 /* Button.cpp in Sources */,
 				1734118626BAB77300444E40 /* Image.cpp in Sources */,
 				17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */,
-				17BE74AA26AC5B87009A3D8C /* DrawableObject.cpp in Sources */,
 				17C7970C26D8F85F00CF551B /* Paragraph.cpp in Sources */,
 				17A43EC6271C54320063E2F3 /* UTF8Char.cpp in Sources */,
 				17DE7ED02708AF7B007667BA /* SDL2_rotozoom.cpp in Sources */,
+				1748FBC02721AEB40087D5EC /* aves.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

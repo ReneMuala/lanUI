@@ -10,9 +10,7 @@
 #include "../../Core/Core.hpp"
 #include <regex>
 #include <string>
-#include <unicode/unistr.h>
 #include <iostream>
-#include <clocale>
 
 TextField::TextSurface::Cursor::Cursor(): line(0), colummn(0), empty(true),active(false), hidden(false), size({0,0,0,0}), color(Colors::Dark_cyan){
 }
@@ -34,6 +32,7 @@ void TextField::TextSurface::_render(SDL_Renderer * renderer, float x, float y, 
             2 * dpiK,
             letter->sizeBuffer.data.h,
         };
+        
         letter->sizeBuffer.leave();
         SDL_SetRenderDrawColor(renderer, cursor.data.color.r, cursor.data.color.g, cursor.data.color.b, cursor.data.color.a);
         SDL_RenderFillRectF(renderer, &cursor.data.size);
@@ -57,6 +56,36 @@ void TextField::_init(Semaphore<std::string>& source, const std::string placehol
         textSurface.cursor.get().hidden = !textSurface.cursor.data.hidden;
         textSurface.cursor.leave();
         return true;
+    }));
+    
+    set_default_animation
+    (0, CallbackExpr({
+//        textSurface.scrollingFactor.hold();
+//        sizeBuffer.hold();
+//        textSurface.cursor.hold();
+//
+//        const float sizeBuffer_x_area;
+//        sizeBuffer_x_area = (sizeBuffer.data.x/param_dpiK) + (sizeBuffer.data.w/param_dpiK);
+//        const float cursor_x_area;
+//        cursor_x_area = (textSurface.cursor.data.size.x/param_dpiK)+(textSurface.cursor.data.size.w/param_dpiK);
+//
+////        if(textSurface.cursor.data.active && cursor_x_area >= sizeBuffer_x_area){
+////            textSurface.scrollingFactor.data.horizontal -= 5;
+////            std::cout << ">>" << textSurface.scrollingFactor.data.horizontal <<std::endl;
+////        }
+//        printf("%f %f\n", textSurface.cursor.data.size.x, sizeBuffer_x_area);
+////        else {
+//////            printf("<<\n");
+////        }
+//
+//        textSurface.cursor.leave();
+//        sizeBuffer.leave();
+//        textSurface.scrollingFactor.leave();
+        return true;
+    }));
+    
+    on_focus_gained(CallbackExpr({
+        printf("Has focus\n");
     }));
     
     on_click(CallbackExpr({
@@ -92,10 +121,6 @@ TextField::TextField(TextField const & other){
     _init((Semaphore<std::string>&)ptr, other.placeholder);
 }
 
-TextField::~TextField(){
-    
-}
-
 void TextField::_sync_strings(){
     
     size_t c_string_len = inputBuffer.get().c_str_size();
@@ -116,7 +141,7 @@ void TextField::_sync_strings(){
 }
 
 void TextField::_compile_source(){
-    static std::regex spaceInput("[[:space:]]");
+    static const std::regex spaceInput("[[:space:]]");
     std::string buffer;
     inputBuffer.hold();
     stream.clear();
@@ -144,16 +169,13 @@ void TextField::_compile(Renderer * renderer, const float dpiK){
         source.hold();
         if(source.data.empty()){
             stream.clear();
-            source.leave();
             stream << placeholderStyle.get() << ' ' << placeholder;
             placeholderStyle.leave();
         } else {
             _compile_source();
-        }
-            source.leave();
+        } source.leave();
         textSurface.from_stringstream(stream);
-    } else
-        wasCompiled.leave();
+    } else wasCompiled.leave();
     _compile_embedded(renderer, dpiK);
 }
 
@@ -189,24 +211,6 @@ void TextField::_refresh_cursor(const float dpiK){
         textSurface.cursor.data.hidden = false;
         if(!input_size) textSurface.cursor.data.empty = true;
         else textSurface.cursor.data.empty = false;
-        
-        textSurface.scrollingFactor.hold();
-        sizeBuffer.hold();
-        
-        static float sizeBuffer_x_area;
-        sizeBuffer_x_area = (sizeBuffer.data.x/dpiK) + (sizeBuffer.data.w/dpiK);
-        static float cursor_x_area;
-        cursor_x_area = (textSurface.cursor.data.size.x/dpiK)+(textSurface.cursor.data.size.w/dpiK);
-        if(cursor_x_area > sizeBuffer_x_area){
-            textSurface.scrollingFactor.data.horizontal += (sizeBuffer_x_area - cursor_x_area);
-            printf("\t>> %f\n", (sizeBuffer_x_area - cursor_x_area));
-        } else {
-            printf("<<\n");
-        }
-        
-        sizeBuffer.leave();
-        textSurface.scrollingFactor.leave();
-        
         
         textSurface.cursor.leave();
         

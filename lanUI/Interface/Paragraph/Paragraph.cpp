@@ -17,7 +17,8 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper::Mode
 }
 
 Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wraper){
-    static std::regex hintREG("^\\\\[[:alnum:](,)_:]+$");
+    free();
+    static const std::regex hintREG("^\\\\[[:alnum:](,)_:]+$");
     std::string line, buffer;
     int wordCount(0);
     Font::Style hint_style = Font::Regular;
@@ -28,6 +29,9 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
     while (!stream.eof()) {
         stream >> buffer;
         if(!std::regex_match(buffer, hintREG)){
+            if(empty) {
+                empty = false;
+            }
             wordCount++;
             __line_creation_begin:
             if(!hint_noSpace) line+=" ";
@@ -75,22 +79,34 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
     return (*this);
 }
 
+void Paragraph::free(){
+    for(auto * word : wordsBuffer){
+        delete (Text*)word;
+        word = nullptr;
+    }
+    wordsBuffer.clear();
+    for(auto * line : linesBuffer){
+        delete line;
+        line = nullptr;
+    } linesBuffer.clear();
+}
+
 void Paragraph::_parse_hint(const std::string src, std::string & line , Font::Style &style, unsigned int &size, bool &noSpace, bool &space){
-    static std::regex sizeREG("^\\\\size:\\d+$");
-    static std::regex rgbREG("^\\\\color:rgb\\(\\d{1,3},\\d{1,3},\\d{1,3}\\)$");
-    static std::regex rgbaREG("^\\\\color:rgba\\(\\d{1,3},\\d{1,3},\\d{1,3},\\d{1,3}\\)$");
-    static std::regex newlnREG("^\\\\(newln|n)$");
-    static std::regex regularREG("^\\\\(regular|r)$");
-    static std::regex boldREG("^\\\\(bold|b)$");
-    static std::regex boldObliqueREG("^\\\\(boldOblique|bo)$");
-    static std::regex extraLightREG("^\\\\(extraLight|el)$");
-    static std::regex obliqueREG("^\\\\(oblique|o)$");
-    static std::regex condensed_BoldREG("^\\\\(condensed_Bold|cb)$");
-    static std::regex condensed_BoldObliqueREG("^\\\\(condensed_BoldOblique|cbo)$");
-    static std::regex condensed_ObliqueREG("^\\\\(condensed_Oblique|co)$");
-    static std::regex condensedREG("^\\\\(condensed|c)$");
-    static std::regex nospaceREG("^\\\\(nospace|noSpace|ns)$");
-    static std::regex spaceREG("^\\\\(space|s)$");
+    static const std::regex sizeREG("^\\\\size:\\d+$");
+    static const std::regex rgbREG("^\\\\color:rgb\\(\\d{1,3},\\d{1,3},\\d{1,3}\\)$");
+    static const std::regex rgbaREG("^\\\\color:rgba\\(\\d{1,3},\\d{1,3},\\d{1,3},\\d{1,3}\\)$");
+    static const std::regex newlnREG("^\\\\(newln|n)$");
+    static const std::regex regularREG("^\\\\(regular|r)$");
+    static const std::regex boldREG("^\\\\(bold|b)$");
+    static const std::regex boldObliqueREG("^\\\\(boldOblique|bo)$");
+    static const std::regex extraLightREG("^\\\\(extraLight|el)$");
+    static const std::regex obliqueREG("^\\\\(oblique|o)$");
+    static const std::regex condensed_BoldREG("^\\\\(condensed_Bold|cb)$");
+    static const std::regex condensed_BoldObliqueREG("^\\\\(condensed_BoldOblique|cbo)$");
+    static const std::regex condensed_ObliqueREG("^\\\\(condensed_Oblique|co)$");
+    static const std::regex condensedREG("^\\\\(condensed|c)$");
+    static const std::regex nospaceREG("^\\\\(nospace|noSpace|ns)$");
+    static const std::regex spaceREG("^\\\\(space|s)$");
 
     if(std::regex_match(src, sizeREG)){
         sscanf(src.c_str(), "\\size:%d", &size);
@@ -139,14 +155,16 @@ void Paragraph::_parse_hint(const std::string src, std::string & line , Font::St
 void Paragraph::_add_word(const char * str, Font::Style style, const unsigned int size){
     Text * word = new Text(str);
     word->set_foreground_color(textColor);
-    word->font.set_style(style);
+    word->font->set_style(style);
     word->fontVirtualSize.set(size);
     word->tryCompile();
     words.push_back(word);
+    wordsBuffer.push_back(word);
 }
 
 void Paragraph::_new_line(std::list<Object *> words){
     HStack * line = new HStack;
     line->fromList(words);
     lines.push_back(line);
+    linesBuffer.push_back(line);
 }

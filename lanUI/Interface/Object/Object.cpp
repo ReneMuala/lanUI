@@ -27,16 +27,14 @@ void Object::__align_center(float &x, float &y){
 }
 
 void Object::__align_left(float &x, float &y){
-    static float initial_x(0);
-    initial_x = x;
+    const float initial_x = x;
     __align_center(x, y);
     x = initial_x;
 }
 
 void Object::__align_right(float &x, float &y){
-    static float initial_x(0);
     padding.hold();
-    initial_x = x + (root.get()->size.get().w - size.get().w) - (padding.data.right + padding.data.left);
+    const float initial_x = x + (root.get()->size.get().w - size.get().w) - (padding.data.right + padding.data.left);
     padding.leave();
     root.data->size.leave();
     root.leave();
@@ -46,19 +44,17 @@ void Object::__align_right(float &x, float &y){
 }
 
 void Object::__align_top(float &x, float &y){
-    static float initial_y(0);
-    initial_y = y;
+    const float initial_y = y;
     __align_center(x, y);
     y = initial_y;
 }
 
 void Object::__align_bottom(float &x, float &y){
-    static float initial_y(0);
     padding.hold();
     size.hold();
     root.hold();
     root.data->size.get();
-    initial_y = y + (root.data->size.data.h - size.data.h) - (padding.data.bottom + padding.data.top);
+    const float initial_y = y + (root.data->size.data.h - size.data.h) - (padding.data.bottom + padding.data.top);
     padding.leave();
     root.data->size.leave();
     root.leave();
@@ -167,9 +163,8 @@ void Object::_fix_size(const float w, const float h){
 Object& Object::set_relative_size(const float size_w, const float size_h, const float w_correction, const float h_correction){
     if(!root.get()) Core::log(Core::Error, "set_relative_size(...) must to be used in embedded objects.");
     root.data->size.hold();
-    static float w(0), h(0);
-    w = root.data->size.data.w * size_w;
-    h = root.data->size.data.h * size_h;
+    const float w = root.data->size.data.w * size_w;
+    const float h = root.data->size.data.h * size_h;
     root.data->size.leave();
     root.leave();
     set_size((w) + w_correction,
@@ -190,13 +185,17 @@ Object& Object::set_padding(Padding padding){
 Object& Object::set_scrollingFactor(ScrollingFactor scrollingFactor){
     this->scrollingFactor.set(scrollingFactor);
     
-    if(nextInX.get())
+    if(nextInX.get()) {
+        nextInX.leave();
         nextInX.data->set_scrollingFactor(scrollingFactor);
-    nextInX.leave();
+    } else
+        nextInX.leave();
     
-    if(nextInY.get())
+    if(nextInY.get()) {
+        nextInY.leave();
         nextInY.data->set_scrollingFactor(scrollingFactor);
-    nextInY.leave();
+    } else
+        nextInY.leave();
     
     return (*this);
 }
@@ -267,13 +266,10 @@ bool Object::_inRootBounds(float x, float y){
         return true;
     } usingRootBounds.leave();
     
-    static bool inBounds;
-    inBounds = true;
+    bool inBounds = true;
     
     root.hold();
-    root.data->sizeBuffer.hold();
-    static SDL_Rect rootRect;
-    rootRect =
+    const SDL_Rect rootRect =
     {
         (int)(root.data->size.data.x),
         (int)(root.data->size.data.y),
@@ -281,13 +277,11 @@ bool Object::_inRootBounds(float x, float y){
         (int)(root.data->size.data.h),
     };
     root.leave();
-    root.data->sizeBuffer.leave();
     
     size.hold();
     padding.hold();
     scrollingFactor.hold();
-    static SDL_Rect thisRect;
-    thisRect =
+    const SDL_Rect thisRect =
     {
         (int)(x+scrollingFactor.data.horizontal),
         (int)(y+scrollingFactor.data.vertical),
@@ -298,32 +292,17 @@ bool Object::_inRootBounds(float x, float y){
     padding.leave();
     scrollingFactor.leave();
     
-    if(root.get()){
-        root.data->size.get();
-        size.get(); padding.get();
-        x+=scrollingFactor.get().horizontal;
-        y+=scrollingFactor.data.vertical;
-        scrollingFactor.leave();
-        if((inBounds = SDL_HasIntersection(&thisRect, &rootRect))){
-            if(thisRect.y >= rootRect.y)
-                isVericallyAfterRootBeginning.set(true);
-            else
-                isVericallyAfterRootBeginning.set(false);
-            
-            if(thisRect.y + thisRect.h <= rootRect.y+rootRect.h)
-                isVericallyBeforeRootEnding.set(true);
-            else
-                isVericallyBeforeRootEnding.set(false);
-        }
+    if((inBounds = SDL_HasIntersection(&thisRect, &rootRect))){
+        if(thisRect.y >= rootRect.y)
+            isVericallyAfterRootBeginning.set(true);
+        else
+            isVericallyAfterRootBeginning.set(false);
         
-//        inBounds = ((x + padding.data.left >= root.data->size.data.x)
-//                    && (y + padding.data.top >= root.data->size.data.y)
-//                    && (x+(padding.data.left + size.data.w + padding.data.right)) <= (root.data->size.data.x + root.data->size.data.w)
-//                    && (y+(padding.data.top + size.data.h + padding.data.bottom)) <= (root.data->size.data.y + root.data->size.data.h));
-        size.leave(); padding.leave();
-        root.data->size.leave();
-    } root.leave();
-    inRootBoundsBuffer.set(inBounds);
+        if(thisRect.y + thisRect.h <= rootRect.y+rootRect.h)
+            isVericallyBeforeRootEnding.set(true);
+        else
+            isVericallyBeforeRootEnding.set(false);
+    } inRootBoundsBuffer.set(inBounds);
     return inBounds;
 }
 
@@ -337,13 +316,9 @@ void Object::__renderEmbedded_routine(SDL_Renderer * renderer, Object * embedded
 
 void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float y, float dpiK, _RenderEmbeddedMode _renderEmbeddedMode){
     
-    static Padding padding_buffer;
-    static Rect size_buffer;
-    static ScrollingFactor scrollingFactor_buffer;
-    
-    padding_buffer = padding.get();
-    size_buffer = size.get();
-    scrollingFactor_buffer = scrollingFactor.get();
+    const Padding padding_buffer = padding.get();
+    const Rect size_buffer = size.get();
+    const ScrollingFactor scrollingFactor_buffer = scrollingFactor.get();
     
     padding.leave();
     size.leave();
@@ -382,9 +357,9 @@ void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float
 }
 
 void Object::_lock_renderer_in_bounds(SDL_Renderer * renderer, float dpiK){
-    static SDL_Rect bounds, inter;
+    SDL_Rect inter;
     sizeBuffer.hold();
-    bounds =
+    const SDL_Rect bounds =
     {
         (int)(sizeBuffer.data.x),
         (int)(sizeBuffer.data.y),
@@ -396,14 +371,25 @@ void Object::_lock_renderer_in_bounds(SDL_Renderer * renderer, float dpiK){
     if(rendererClips.empty()){
         SDL_RenderSetClipRect(renderer, &bounds);
         rendererClips.push(bounds);
+#ifdef LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
+        printf("(1) renderer lock: [%d %d %d %d]\n", rendererClips.top().x, rendererClips.top().y, rendererClips.top().w, rendererClips.top().h);
+#endif
+
+        
     } else {
         SDL_IntersectRect(&bounds,&rendererClips.top(), &inter);
         if(SDL_RectEmpty(&inter)){
             SDL_RenderSetClipRect(renderer, &rendererClips.top());
             rendererClips.push(bounds);
+#ifdef LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
+            printf("(2) renderer lock: [%d %d %d %d]\n", rendererClips.top().x, rendererClips.top().y, rendererClips.top().w, rendererClips.top().h);
+#endif
         } else {
             SDL_RenderSetClipRect(renderer, &inter);
             rendererClips.push(inter);
+#ifdef LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
+            printf("(3) renderer lock: [%d %d %d %d]\n", rendererClips.top().x, rendererClips.top().y, rendererClips.top().w, rendererClips.top().h);
+#endif
         }
     }
     
@@ -418,8 +404,17 @@ void Object::_lock_renderer_in_bounds(SDL_Renderer * renderer, float dpiK){
 void Object::_unlock_renderer_from_bounds(SDL_Renderer * renderer){
     rendererClips.pop();
     if(!rendererClips.empty()){
+#ifdef LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
+
+        printf("renderer unlock: [%d %d %d %d]\n", rendererClips.top().x, rendererClips.top().y, rendererClips.top().w, rendererClips.top().h);
+#endif
+
         SDL_RenderSetClipRect(renderer, &rendererClips.top());
     } else {
+#ifdef LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
+        printf("renderer unlock: [full screen]\n");
+#endif
+
         SDL_RenderSetClipRect(renderer, nullptr);
     }
 }
@@ -427,8 +422,8 @@ void Object::_unlock_renderer_from_bounds(SDL_Renderer * renderer){
 void Object::_render_routine(float dpiK){
     sizeBuffer.hold();
     sizeBuffer.data = {
-        ((size.get().x+scrollingFactor.get().horizontal)*dpiK),
-        ((size.data.y+scrollingFactor.data.vertical)*dpiK),
+        ((size.get().x)*dpiK),
+        ((size.data.y)*dpiK),
         (size.data.w)*dpiK,
         (size.data.h)*dpiK
     };
@@ -457,10 +452,11 @@ void Object::_handle_others(Event& event, const float dpiK, const bool no_focus)
 using namespace InteractiveObjecsData;
 
 bool Object::_has_focus(const float dpiK){
-    static bool focus(false);
+    bool focus(false);
     (focus =
-     (cursor.get().x >= ((size.get().x + scrollingFactor.get().vertical)*dpiK))
-     && (cursor.data.y >= ((size.data.y + scrollingFactor.data.horizontal)*dpiK))
+     // scrollingFactor doesn't need to be calculated because it is already added with size.
+     (cursor.get().x >= (size.get().x*dpiK))
+     && (cursor.data.y >= (size.data.y*dpiK))
      && (cursor.data.x <= (size.data.x + size.data.w)*dpiK)
      && (cursor.data.y <= (size.data.y + size.data.h)*dpiK)
      );
@@ -499,17 +495,26 @@ void Object::_handle_events(Event & event, const float dpiK, const bool no_focus
 }
 
 void Object::_run_others_default_animation(){
-    if(nextInZ.data)
+    if(nextInZ.get()){
+        nextInZ.leave();
+        nextInZ.data->param_dpiK = param_dpiK;
         nextInZ.data->_run_default_animation();
-    //nextInZ.leave();
+    } else
+        nextInZ.leave();
     
-    if(nextInX.data)
+    if(nextInX.get()){
+        nextInX.leave();
+        nextInX.data->param_dpiK = param_dpiK;
         nextInX.data->_run_default_animation();
-    //nextInX.leave();
+    } else
+        nextInX.leave();
     
-    if(nextInY.data)
+    if(nextInY.get()){
+        nextInY.leave();
+        nextInY.data->param_dpiK = param_dpiK;
         nextInY.data->_run_default_animation();
-    //nextInY.leave();
+    } else
+     nextInY.leave();
 }
 
 void Object::_align(float &x, float &y){
@@ -528,7 +533,11 @@ void Object::_align(float &x, float &y){
         root.leave();
 }
 
-Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr),nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false),reloadingDisabled(false) /*rootType(OtherRoot)*/, canvas(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Transparent), backgroundColor(Colors::Transparent), borderColor(Colors::Transparent), angle(0), drawMode(DrawMode::DefaultMode), delay(0), wasCompiled(false), index(0), no_focus_repeated(false) {
+void Object::_set_position(const float x, const float y){
+    size.hold(); padding.hold(); scrollingFactor.hold(); size.data.x = x + padding.data.left + scrollingFactor.data.horizontal; size.data.y = y + padding.data.top + scrollingFactor.data.vertical; size.leave(); padding.leave(); scrollingFactor.leave();
+}
+
+Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr), nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false), reloadingDisabled(false) /*rootType(OtherRoot)*/, canvas(nullptr), compositionCanvas(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Transparent), backgroundColor(Colors::Transparent), borderColor(Colors::Transparent), angle(0), drawMode(DrawMode::DefaultMode), delay(0), wasCompiled(false), index(0), no_focus_repeated(false) {
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
         requests[i].set(false);
@@ -539,5 +548,7 @@ Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}),
 }
 
 Object::~Object(){
+//    _deleteOthers();
     _free_canvas();
+    _free_canvas(compositionCanvas);
 }

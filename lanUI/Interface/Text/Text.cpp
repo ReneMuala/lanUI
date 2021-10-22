@@ -46,13 +46,24 @@ const std::string TextStyle::toStr() const {
     return str;
 }
 
-Text::Text(const std::string source, Font& font): wasCompiled(false), withBackground(false), source(source), fontVirtualSize(12){
-    this->font = font;
+#include <iostream>
+Text::Text(const std::string source, Font& font): wasCompiled(false), withBackground(false), source(source), fontVirtualSize(12), font(nullptr){
+    this->font = new Font(font);
     foregroundColor.set(Colors::Black);
-    backgroundColor.set(Colors::Red);
+    backgroundColor.set(Colors::Transparent);
     dpiK = 1;
     if(source.size())
-    from_string(source);
+        from_string(source);
+}
+
+Text::~Text(){
+    _free_font();
+    Object::~Object();
+}
+
+void Text::_free_font(){
+    if(font) delete font;
+    font = nullptr;
 }
 
 Text& Text::from_string(const std::string source, Renderer * renderer){
@@ -72,55 +83,72 @@ void Text::tryCompile(){
 
 void Text::_resetDPI(){
     dpiK = 1;
-    font.set_style(font.style, fontVirtualSize.get()*(1));
+    font->set_style(font->style, fontVirtualSize.get()*(1));
     fontVirtualSize.leave();
 }
 
 void Text::_adjustTextDPI(){
-    font.set_style(font.style, fontVirtualSize.get()*(dpiK));
-    //TTF_SetFontOutline(font.children[font.style], 1);
-    // TTF_SetFontHinting(font.children[font.style], TTF_HINTING_NORMAL);
+    font->set_style(font->style, fontVirtualSize.get()*(dpiK));
+    //TTF_SetFontOutline(font->children[font->style], 1);
+    // TTF_SetFontHinting(font->children[font->style], TTF_HINTING_NORMAL);
     fontVirtualSize.leave();
 }
 
 bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
-    if(renderer && source.get().size()){
+    if(renderer && !source.get().empty()){
         
         _free_canvas();
 
-        if(!font.child.get()){
-            font.child.leave();
+        if(!font->child.get()){
+            font->child.leave();
             source.leave();
             Core::log(Core::Warning, "Text compilation failed  (Invalid font style).");
             return false;
         }
         
-        static SDL_Surface * surfc = nullptr;
-        
-        surfc = nullptr;
+        SDL_Surface * surfc = nullptr;
         
         if(!compatibilityMode) {
-            if(!(surfc=TTF_RenderUTF8_Blended(font.child.data, source.data.data(), (SDL_Color)foregroundColor.get()))) {
-                 Core::log(Core::Warning, "Text: Render failed (invalid surfc).");
+            if(!(surfc=TTF_RenderUTF8_Blended(font->child.data, source.data.data(), (SDL_Color)foregroundColor.get()))) {
+#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
+                Core::log(Core::Warning, "Text: Render failed (invalid surfc).");
+#endif
+                foregroundColor.leave();
                 source.leave();
-                font.child.leave();
+                font->child.leave();
                 return false;
             }
         } else {
             switch (compatibilityMode) {
                 case RenderShadedMode:
-                    if(!(surfc=TTF_RenderUTF8_Shaded(font.child.data, source.data.data(), (SDL_Color)foregroundColor.get(), (SDL_Color)backgroundColor.get())))
+                    if(!(surfc=TTF_RenderUTF8_Shaded(font->child.data, source.data.data(), (SDL_Color)foregroundColor.get(), (SDL_Color)backgroundColor.get()))){
+#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
                         Core::log(Core::Warning, "Text (CompatibilityMode[RenderShadedMode]): Render failed.");
+#endif
+                        foregroundColor.leave();
+                        backgroundColor.leave();
+                        source.leave();
+                        font->child.leave();
+                        return false;
+                    } else
+                        backgroundColor.leave();
                     break;
                 case RenderSolidMode:
-                    if(!(surfc=TTF_RenderUTF8_Solid(font.child.data, source.data.data(), (SDL_Color)foregroundColor.get())))
+                    if(!(surfc=TTF_RenderUTF8_Solid(font->child.data, source.data.data(), (SDL_Color)foregroundColor.get()))){
+#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
                         Core::log(Core::Warning, "Text (CompatibilityMode[RenderSolidMode]): Render failed.");
+#endif
+                        foregroundColor.leave();
+                        source.leave();
+                        font->child.leave();
+                        return false;
+                    }
                     break;
                 default:break;
             }
         }
         
-        font.child.leave();
+        font->child.leave();
         
         source.leave();
         foregroundColor.leave();
@@ -142,12 +170,16 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         drawMode.set(DrawMode::ImageMode);
         return true;
     } else if (source.data.empty()) {
+#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
         Core::log(Core::Warning, "Text compilation ignored (invalid string).");
+#endif
         source.leave();
         return true;
     } drawMode.set(DrawMode::DefaultMode);
     source.leave();
+#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
     Core::log(Core::Warning, "Text compilation failed (invalid renderer or string).");
+#endif
     _free_canvas();
     return false;
 }
@@ -156,7 +188,7 @@ void Text::_compile(Renderer * renderer, const float dpiK){
     // prepare text
     while(!wasCompiled) {
         
-#ifdef LANUI_DEBUG_MODE
+#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
         Core::log(Core::Warning, "Text was not compiled, compiling... (MAIN CASE)");
 #endif
         wasCompiled = compile(renderer);
@@ -167,7 +199,7 @@ void Text::_compile(Renderer * renderer, const float dpiK){
         this->dpiK = dpiK;
         _adjustTextDPI();
         do {
-#ifdef LANUI_DEBUG_MODE
+#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
         Core::log(Core::Warning, "Text was not recompiled, recompiling... (DPIK CASE)");
 #endif
             wasCompiled = compile(renderer, true, true);
@@ -187,14 +219,11 @@ void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, 
     
         if(_inRootBounds(x, y)){
             _align(x, y);
-            size.hold(); padding.hold();
-            size.data.x = x + padding.data.left;
-            size.data.y = y + padding.data.top;
-            size.leave(); padding.leave();
+            _set_position(x, y);
             _render_routine(dpiK);
             _render_image(renderer, x, y, dpiK);
         } else {
-    #ifdef LANUI_DEBUG_MODE
+    #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
             Core::log(Core::Warning, "Text outside root bounds.");
     #endif
         }
@@ -226,15 +255,16 @@ Text& Text::inherit_background_color(){
 
 Text& Text::set_style(TextStyle preset){
     fontVirtualSize = preset.size;
-    font.set_style(preset.font_style, preset.size);
+    font->set_style(preset.font_style, preset.size);
     tryCompile();
     return (*this);
 }
 
 Text& Text::set_font(Font & new_font){
-    Font::Style last_font_style = font.style;
-    font = new_font;
-    font.set_style(last_font_style, fontVirtualSize.get()*dpiK);
+    Font::Style last_font_style = font->style;
+    _free_font();
+    font = new Font(new_font);
+    font->set_style(last_font_style, fontVirtualSize.get()*dpiK);
     fontVirtualSize.leave();
     tryCompile();
     return (*this);
@@ -248,63 +278,63 @@ Text& Text::set_foreground_color(const Color color){
 
 Text& Text::regular(const unsigned int size){
     fontVirtualSize = size;
-    font.set_style(Font::Regular, size*dpiK);
+    font->set_style(Font::Regular, size*dpiK);
     tryCompile();
     return (*this);
 }
 
 Text& Text::bold(const unsigned int size){
     fontVirtualSize = size;
-    font.set_style(Font::Bold, size*dpiK);
+    font->set_style(Font::Bold, size*dpiK);
     tryCompile();
     return (*this);
 }
 
 Text& Text::boldOblique(const unsigned int size){
     fontVirtualSize = size;
-    font.set_style(Font::BoldOblique, size*dpiK);
+    font->set_style(Font::BoldOblique, size*dpiK);
     tryCompile();
     return (*this);
 }
 
 Text& Text::extraLight(const unsigned int size){
     fontVirtualSize = size;
-    font.set_style(Font::ExtraLight, size*dpiK);
+    font->set_style(Font::ExtraLight, size*dpiK);
     tryCompile();
     return (*this);
 }
 
 Text& Text::oblique(const unsigned int size){
     fontVirtualSize = size;
-    font.set_style(Font::Oblique, size*dpiK);
+    font->set_style(Font::Oblique, size*dpiK);
     tryCompile();
     return (*this);
 }
 
 Text& Text::condensed_Bold(const unsigned int size){
     fontVirtualSize = size;
-    font.set_style(Font::Condensed_Bold, size*dpiK);
+    font->set_style(Font::Condensed_Bold, size*dpiK);
     tryCompile();
     return (*this);
 }
 
 Text& Text::condensed_BoldOblique(const unsigned int size){
     fontVirtualSize = size;
-    font.set_style(Font::Condensed_BoldOblique, size*dpiK);
+    font->set_style(Font::Condensed_BoldOblique, size*dpiK);
     tryCompile();
     return (*this);
 }
 
 Text& Text::condensed_Oblique(const unsigned int size){
     fontVirtualSize = size;
-    font.set_style(Font::Condensed_Oblique, size*dpiK);
+    font->set_style(Font::Condensed_Oblique, size*dpiK);
     tryCompile();
     return (*this);
 }
 
 Text& Text::condensed(const unsigned int size){
     fontVirtualSize = size;
-    font.set_style(Font::Condensed, size*dpiK);
+    font->set_style(Font::Condensed, size*dpiK);
     tryCompile();
     return (*this);
 }

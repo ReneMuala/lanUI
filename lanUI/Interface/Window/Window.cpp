@@ -90,10 +90,11 @@ void Window::_handle_events(){
                     break;
             }
             _handle_callBacks(sdlEvent.data.window.event, sdlEvent.data.type);
-            
-            if(nextInZ.get())
+
+            if(nextInZ.get()) {
                 _handle_others_routine(sdlEvent.data, nextInZ.data, DPIConstant.get(), false);
-            DPIConstant.leave();
+                DPIConstant.leave();
+            }
             nextInZ.leave();
         }
     }
@@ -188,13 +189,15 @@ void Window::_handle_callBacks(const uint8_t window_event, const uint32_t input_
 void Window::_run_default_animation(){
     if(nextInZ.get()) {
         nextInZ.leave();
+        nextInZ.data->param_dpiK = DPIConstant.get();
+        DPIConstant.leave();
         nextInZ.data->_run_default_animation();
     } else
         nextInZ.leave();
 }
 
 void Window::_compute_DPIConstant(){
-    static int realw, realh;
+    int realw, realh;
     SDL_GL_GetDrawableSize(sdlWindow.get(), &realw, &realh);
     DPIConstant.set((float)realw/size.get().w);
     size.leave();
@@ -225,6 +228,7 @@ void Window::_render(){
     sdlRenderer.hold();
     nextInZ.hold();
     DPIConstant.hold();
+    _render_routine(DPIConstant.data);
     _lock_renderer_in_bounds(sdlRenderer.data, DPIConstant.data);
     if(nextInZ.data) nextInZ.data->_render(sdlRenderer.data, 0.0, 0.0, DPIConstant.data);
     DPIConstant.leave();

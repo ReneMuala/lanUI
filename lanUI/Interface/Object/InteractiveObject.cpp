@@ -94,7 +94,7 @@ void InterativeObject::_handle_events(Event & event, const float dpiK, const boo
             _handle_others_routine(event, nextInZ.data, dpiK, true);
         } else
             nextInZ.leave();
-        _handle_others(event, dpiK, true);
+        _handle_others(event, dpiK, false);
         focus_repeated = false;
         no_focus_repeated = true;
     }

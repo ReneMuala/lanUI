@@ -33,7 +33,7 @@ class Text: public Object {
     int dpiK;
 public:
     Semaphore<unsigned int> fontVirtualSize;
-    Font font;
+    Font * font;
     
     typedef enum {
         /// TTF_RenderUTF8_Blended(...)
@@ -47,6 +47,10 @@ public:
     const CompatibilityRenderMode compatibilityMode = NormalMode;
     
     Text(const std::string source = "", Font& font = Fonts::DejaVuSans);
+        
+    ~Text();
+    
+    void _free_font();
     
     /// Creates a text image from std::string, set renderer when an imediate text output is required
     Text& from_string(const std::string source , Renderer * renderer = nullptr);
@@ -92,7 +96,7 @@ public:
     Text& condensed_Oblique(const unsigned int = 12);
     
     Text& condensed(const unsigned int = 0);
-        
+    
 };
 
 #endif /* Text_hpp */

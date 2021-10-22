@@ -99,7 +99,7 @@ public:
         if(next)
             forwardTxt.set_foreground_color(Colors::Orange);
         else
-            forwardTxt.set_foreground_color(Colors::fromColorA(Colors::Orange, 50));
+            forwardTxt.set_foreground_color(Colors::Orange.from_a(50));
         forwardTxt.bold(14);
         forwardTxt.set_alignment(Center);
         forwardBtn.set_content(forwardTxt);
@@ -134,7 +134,7 @@ public:
                                                  )
                                     );
             } else {
-                  forwardTxt.set_foreground_color(Colors::fromColorA(Colors::Orange, 50));
+                  forwardTxt.set_foreground_color(Colors::Orange.from_a(50));
             }
             if(last){
                 backwardBtn.on_click(CallbackExpr(
@@ -231,6 +231,7 @@ public:
         exitBtn.Object::set_size(600, 20);
         exitBtn.disable_reloading();
         exitBtn.set_padding({5,5});
+        
         exitBtn.on_click(CallbackExpr(
                                       window.shouldClose.set(true);
                                       )

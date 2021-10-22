@@ -14,9 +14,23 @@ Stack::Stack(){
     fromColorScheme(Colors::Transparent, Colors::Transparent);
 }
 
+void VStack::free(){
+    nextInZ.hold();
+    Object* row = nextInZ.data, * buffer = nullptr;
+    
+    while (row) {
+        buffer = row;
+        row = row->nextInY.data;
+        delete buffer;
+    }
+    Stack::free();
+    nextInZ.leave();
+}
+
 Stack& VStack::reload(){
     float width(0), height(0);
     if (!reloadingDisabled.get()) {
+        nextInZ.hold();
         for(Object* row = nextInZ.data; row ; row=row->nextInY.data)
         {
             width = (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
@@ -24,7 +38,9 @@ Stack& VStack::reload(){
             
             row->size.leave();
             row->padding.leave();
-        } set_size(width, height);//({0,0,width, height});
+        }
+        nextInZ.leave();
+        set_size(width, height);//({0,0,width, height});
     }
     reloadingDisabled.leave();
     return (*this);
@@ -69,9 +85,23 @@ Stack VStack::fromList(std::list<Object*> objects){
     return (*this);
 }
 
+void HStack::free(){
+    nextInZ.hold();
+    Object* row = nextInZ.data, * buffer = nullptr;
+    
+    while (row) {
+        buffer = row;
+        row = row->nextInX.data;
+        delete buffer;
+    }
+    Stack::free();
+    nextInZ.leave();
+}
+
 Stack& HStack::reload(){
     float width(0), height(0);
     if (!reloadingDisabled.get()) {
+        nextInZ.hold();
         for(Object* row = nextInZ.data; row ; row=row->nextInX.data)
         {
             width+= row->size.get().w + row->padding.get().left + row->padding.data.right;
@@ -79,6 +109,7 @@ Stack& HStack::reload(){
             row->size.leave();
             row->padding.leave();
         }
+        nextInZ.leave();
         set_size(width, height);
     } reloadingDisabled.leave();
     return (*this);
@@ -123,16 +154,32 @@ Stack HStack::fromList(std::list<Object*> objects){
     return (*this);
 }
 
+void ZStack::free(){
+    nextInZ.hold();
+    Object* row = nextInZ.data, * buffer = nullptr;
+    
+    while (row) {
+        buffer = row;
+        row = row->nextInZ.data;
+        delete buffer;
+    }
+    Stack::free();
+    nextInZ.leave();
+}
+
 Stack& ZStack::reload(){
     float width(0), height(0);
     if (!reloadingDisabled.get()) {
+        nextInZ.hold();
         for(Object* row = nextInZ.data; row ; row=row->nextInY.data)
         {
             width = (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
             height = (height < row->size.data.h + row->padding.data.top + row->padding.data.bottom) ? row->size.data.h + row->padding.data.top + row->padding.data.bottom : height;
             row->size.leave();
             row->padding.leave();
-        } set_size(width, height);
+        }
+        nextInZ.leave();
+        set_size(width, height);
     } reloadingDisabled.leave();
     return (*this);
 }

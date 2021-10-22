@@ -76,6 +76,14 @@ public:
     
     struct ScrollingFactor {
         float horizontal, vertical;
+        
+        bool operator==(const ScrollingFactor other){
+            return horizontal == other.horizontal && vertical == other.vertical;
+        }
+        
+        bool operator != (const ScrollingFactor other){
+            return !((*this) == other);
+        }
     };
     
     typedef enum {
@@ -181,10 +189,10 @@ public:
     void _handle_others_routine(Event&, Object*, const float dpiK, const bool no_focus);
     
     /// Handle events for nextInX & nextInY
-    void _handle_others(Event&, const float dpiK, const bool no_focus);
+    void _handle_others(Event&, const float dpiK, const bool no_focus = false);
     
     // Fixes object-compatibility issues
-    virtual void _handle_events(Event&, const float dpiK, const bool no_focus);
+    virtual void _handle_events(Event&, const float dpiK, const bool no_focus = false);
     
     void _run_others_default_animation();
     
@@ -192,7 +200,9 @@ public:
     virtual void _run_default_animation();
     
     void _align(float & x, float & y);
-            
+          
+    void _set_position(const float x, const float y);
+    
     /*
      
      -------------------------------------------------------------------------------
@@ -292,6 +302,7 @@ public:
     virtual void _render(SDL_Renderer*, float x, float y, float dpiK, bool inComposition = false);
     
     SDL_Renderer * param_renderer;
+    
     float param_dpiK;
     
     Object& set_renderer_callback(VoidCallback);
