@@ -24,7 +24,7 @@
 
 #ifdef LANUI_MEM_TESTING
 
-class MemTest : public Object {
+class MemTest : public Text {
     
 };
 
@@ -53,29 +53,43 @@ int main(){
     
     Window janela("hello", 400,500);
 
-    janela.set_window_clear_color(Colors::Blue_violet);
+    janela.set_window_clear_color(Colors::Light_gray);
+    
+    /*
+    MemTest * objs[10];
+    
+    for (int j = 0 ; j < 200 ; j++){
+        for(int i = 0 ; i < 10 ; i ++){
+            objs[i] = new MemTest;
+            objs[i] -> from_string("lanUI.Bundle/System/Resources/rock.png", janela.sdlRenderer.get());
+//            objs[i] -> fromFile("lanUI.Bundle/System/Resources/rock.png", janela.sdlRenderer.get());
+            janela.sdlRenderer.leave();
+            Core::clearCache();
+        }
+        
+        for(int i = 0 ; i < 10 ; i ++){
+            delete objs[i];
+            objs[i] = nullptr;
+        }
+        std::this_thread::sleep_for((std::chrono::milliseconds)500);
+    }
+        
+    return 0;
+     */
     
     Semaphore<std::string> fieldData;
-//
-    auto field = TextField(fieldData, "<>");
-//
+
+    auto field = TextField(fieldData, "Username");
+
     field.set_foreground_color(Colors::White);
-//
+
 //    field.set_border_color(Colors::Blue.from_a(100));
-//
-    field.set_alignment(Object::Center);
-//
-    field.set_size(200, 25);
-//
-    field.set_input_style("\\r \\size:13 \\color:rgb(0,0,0)");
-//
+
+    field.set_size(100, 25);
+    
     janela.embedInZ(field);
-//
+
     field.set_alignment(Object::Center);
-//
-    Text test("Hello world");
-//
-    field.embedInY(test);
     
     olamundo.events();
     

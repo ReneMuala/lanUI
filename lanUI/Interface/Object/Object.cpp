@@ -11,6 +11,7 @@
 #include <iostream>
 #include <string>
 #include <stack>
+#include <map>
 
 std::stack<SDL_Rect> rendererClips;
 
@@ -545,6 +546,34 @@ Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}),
     default_animation.get()._using = false;
     default_animation.data.delay = 0;
     default_animation.leave();
+}
+
+void Object::_delete_tree(){
+    if(nextInX.get()){
+        nextInX.leave();
+        nextInX.data->_delete_custom_data();
+        nextInX.data->_delete_tree();
+        nextInX.set(nullptr);
+    } else
+        nextInX.leave();
+    
+    if(nextInY.get()){
+        nextInY.leave();
+        nextInY.data->_delete_custom_data();
+        nextInY.data->_delete_tree();
+        nextInY.set(nullptr);
+    } else
+        nextInY.leave();
+    
+    if(nextInZ.get()){
+        nextInZ.leave();
+        nextInZ.data->_delete_custom_data();
+        nextInZ.data->_delete_tree();
+        nextInZ.set(nullptr);
+    } else
+        nextInZ.leave();
+
+    delete this;
 }
 
 Object::~Object(){

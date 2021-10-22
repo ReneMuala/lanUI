@@ -28,9 +28,10 @@ namespace TextStyles {
 }
 
 class Text: public Object {
-    bool wasCompiled, withBackground;
+    bool withBackground;
     Semaphore<std::string> source;
     int dpiK;
+    SDL_Surface * surfc;
 public:
     Semaphore<unsigned int> fontVirtualSize;
     Font * font;
@@ -47,8 +48,10 @@ public:
     const CompatibilityRenderMode compatibilityMode = NormalMode;
     
     Text(const std::string source = "", Font& font = Fonts::DejaVuSans);
-        
+    
     ~Text();
+    
+    void _delete_custom_data() override;
     
     void _free_font();
     

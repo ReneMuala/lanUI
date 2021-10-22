@@ -17,7 +17,6 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper::Mode
 }
 
 Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wraper){
-    free();
     static const std::regex hintREG("^\\\\[[:alnum:](,)_:]+$");
     std::string line, buffer;
     int wordCount(0);
@@ -72,7 +71,7 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
     } if (!line.empty()) {
         _new_line(words);
     }
-    
+    free();
     fromList(lines);
     words.clear();
     lines.clear();
@@ -80,15 +79,7 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
 }
 
 void Paragraph::free(){
-    for(auto * word : wordsBuffer){
-        delete (Text*)word;
-        word = nullptr;
-    }
-    wordsBuffer.clear();
-    for(auto * line : linesBuffer){
-        delete line;
-        line = nullptr;
-    } linesBuffer.clear();
+    VStack::free();
 }
 
 void Paragraph::_parse_hint(const std::string src, std::string & line , Font::Style &style, unsigned int &size, bool &noSpace, bool &space){
@@ -155,16 +146,15 @@ void Paragraph::_parse_hint(const std::string src, std::string & line , Font::St
 void Paragraph::_add_word(const char * str, Font::Style style, const unsigned int size){
     Text * word = new Text(str);
     word->set_foreground_color(textColor);
-    word->font->set_style(style);
+    if(word->font)
+        word->font->set_style(style);
     word->fontVirtualSize.set(size);
     word->tryCompile();
     words.push_back(word);
-    wordsBuffer.push_back(word);
 }
 
 void Paragraph::_new_line(std::list<Object *> words){
     HStack * line = new HStack;
     line->fromList(words);
     lines.push_back(line);
-    linesBuffer.push_back(line);
 }

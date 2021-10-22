@@ -14,16 +14,11 @@ Stack::Stack(){
     fromColorScheme(Colors::Transparent, Colors::Transparent);
 }
 
-void VStack::free(){
+void Stack::free(){
     nextInZ.hold();
-    Object* row = nextInZ.data, * buffer = nullptr;
-    
-    while (row) {
-        buffer = row;
-        row = row->nextInY.data;
-        delete buffer;
-    }
-    Stack::free();
+    Object* row = nextInZ.data;
+    if(row) row->_delete_tree();
+    first = last = nullptr;
     nextInZ.leave();
 }
 
@@ -81,21 +76,14 @@ Stack VStack::fromList(std::list<Object*> objects){
             first = row;
         } else last->embedInY(*row);
         last = row;
-    } set_size(width, height);
-    return (*this);
-}
-
-void HStack::free(){
-    nextInZ.hold();
-    Object* row = nextInZ.data, * buffer = nullptr;
-    
-    while (row) {
-        buffer = row;
-        row = row->nextInX.data;
-        delete buffer;
     }
-    Stack::free();
-    nextInZ.leave();
+    if(!reloadingDisabled.get()){
+        reloadingDisabled.leave();
+        set_size(width, height);
+    } else
+        reloadingDisabled.leave();
+
+    return (*this);
 }
 
 Stack& HStack::reload(){
@@ -150,21 +138,12 @@ Stack HStack::fromList(std::list<Object*> objects){
             first = row;
         } else last->embedInX(*row);
         last = row;
-    } set_size(width, height);
+    } if(!reloadingDisabled.get()){
+        reloadingDisabled.leave();
+        set_size(width, height);
+    } else
+        reloadingDisabled.leave();
     return (*this);
-}
-
-void ZStack::free(){
-    nextInZ.hold();
-    Object* row = nextInZ.data, * buffer = nullptr;
-    
-    while (row) {
-        buffer = row;
-        row = row->nextInZ.data;
-        delete buffer;
-    }
-    Stack::free();
-    nextInZ.leave();
 }
 
 Stack& ZStack::reload(){
@@ -217,6 +196,10 @@ Stack ZStack::fromList(std::list<Object*> objects){
             first = row;
         } else last->embedInZ(*row);
         last = row;
-    } set_size(width, height);
+    } if(!reloadingDisabled.get()){
+        reloadingDisabled.leave();
+        set_size(width, height);
+    } else
+        reloadingDisabled.leave();
     return (*this);
 }

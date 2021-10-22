@@ -16,26 +16,34 @@ TextField::TextSurface::Cursor::Cursor(): line(0), colummn(0), empty(true),activ
 }
 
 void TextField::TextSurface::_render(SDL_Renderer * renderer, float x, float y, float dpiK, bool inComposition){
+    Text * target = (nextInZ.get()) ? (Text*)((HStack*)nextInZ.data)->requestObject((cursor.data.colummn-1 < 0) ? 0 : cursor.data.colummn-1) : nullptr;
+    nextInZ.leave();
+    
+    
     Paragraph::_render(renderer, x, y, dpiK, inComposition);
     cursor.hold();
-    Object * letter = nullptr;
-    if(nextInZ.get()){
-        letter = ((HStack *)nextInZ.data)->requestObject((cursor.data.colummn-1 < 0) ? 0 : cursor.data.colummn-1);
-    } nextInZ.leave();
 
-    if(letter && cursor.data.active && !cursor.data.hidden){
-        letter->sizeBuffer.hold();
+    if(target && cursor.data.active && !cursor.data.hidden){
+        target->sizeBuffer.hold();
         
         cursor.data.size = {
-            (!cursor.data.colummn) ? letter->sizeBuffer.data.x : letter->sizeBuffer.data.x + letter->sizeBuffer.data.w,
-            letter->sizeBuffer.data.y,
+            (!cursor.data.colummn) ? target->sizeBuffer.data.x : target->sizeBuffer.data.x + target->sizeBuffer.data.w,
+            target->sizeBuffer.data.y,
             2 * dpiK,
-            letter->sizeBuffer.data.h,
+            target->sizeBuffer.data.h,
         };
         
-        letter->sizeBuffer.leave();
+        if(cursor.data.size.x > sizeBuffer.get().x + sizeBuffer.data.w){
+            first->scrollingFactor.get().horizontal = -(((cursor.data.size.x + cursor.data.size.w) - (sizeBuffer.data.x + sizeBuffer.data.w))/dpiK);
+            first->scrollingFactor.leave();
+        } sizeBuffer.leave();
+        
+        target->sizeBuffer.leave();
         SDL_SetRenderDrawColor(renderer, cursor.data.color.r, cursor.data.color.g, cursor.data.color.b, cursor.data.color.a);
         SDL_RenderFillRectF(renderer, &cursor.data.size);
+    } else if (!cursor.data.active){
+        first->scrollingFactor.get().horizontal = 0;
+        first->scrollingFactor.leave();
     }
     cursor.leave();
 }
@@ -46,46 +54,18 @@ void TextField::_init(Semaphore<std::string>& source, const std::string placehol
     this->placeholder = (placeholder);
     stream.str("");
     Core::log(Core::Warning, "TextField isn't stable yet.");
+    set_size(150, 25);
     disable_reloading();
+    textSurface.disable_reloading();
     set_draw_mode(ColorSchemeMode);
     textSurface.set_alignment(Left);
-    textSurface.set_padding({5,5});
+    textSurface.set_padding({0,5});
     
     textSurface.set_default_animation
     (60,CallbackExpr({
         textSurface.cursor.get().hidden = !textSurface.cursor.data.hidden;
         textSurface.cursor.leave();
         return true;
-    }));
-    
-    set_default_animation
-    (0, CallbackExpr({
-//        textSurface.scrollingFactor.hold();
-//        sizeBuffer.hold();
-//        textSurface.cursor.hold();
-//
-//        const float sizeBuffer_x_area;
-//        sizeBuffer_x_area = (sizeBuffer.data.x/param_dpiK) + (sizeBuffer.data.w/param_dpiK);
-//        const float cursor_x_area;
-//        cursor_x_area = (textSurface.cursor.data.size.x/param_dpiK)+(textSurface.cursor.data.size.w/param_dpiK);
-//
-////        if(textSurface.cursor.data.active && cursor_x_area >= sizeBuffer_x_area){
-////            textSurface.scrollingFactor.data.horizontal -= 5;
-////            std::cout << ">>" << textSurface.scrollingFactor.data.horizontal <<std::endl;
-////        }
-//        printf("%f %f\n", textSurface.cursor.data.size.x, sizeBuffer_x_area);
-////        else {
-//////            printf("<<\n");
-////        }
-//
-//        textSurface.cursor.leave();
-//        sizeBuffer.leave();
-//        textSurface.scrollingFactor.leave();
-        return true;
-    }));
-    
-    on_focus_gained(CallbackExpr({
-        printf("Has focus\n");
     }));
     
     on_click(CallbackExpr({
@@ -119,6 +99,14 @@ TextField::TextField(Semaphore<std::string>& source, const std::string placehold
 TextField::TextField(TextField const & other){
     void * ptr = (void*)&other.source;
     _init((Semaphore<std::string>&)ptr, other.placeholder);
+}
+
+TextField& TextField::set_size(const float w, const float h){
+    if(w < 5 || h < 5)
+        Core::log(Core::Error, "TextField::set_size(...) w and h must to be greater than 5px");
+    textSurface.set_size(w-5, h-5);
+    InterativeObject::set_size(w, h);
+    return (*this);
 }
 
 void TextField::_sync_strings(){

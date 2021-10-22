@@ -27,6 +27,8 @@ public:
     unsigned index;
     unsigned count;
     List(const Sint32 maxSpeed = 10);
+    ~List();
+    
     Semaphore<ScrollSate> state;
     VStack content;
     List& fit_content(const float width, const float height);
@@ -41,7 +43,9 @@ public:
                 baseList.push_back(obj);
             else
                 break;
-        } content.fromList(baseList);
+        }
+        content.free();
+        content.fromList(baseList);
         content.set_padding({0,0,0,0});
         return (*this);
     }

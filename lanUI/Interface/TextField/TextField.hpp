@@ -27,6 +27,7 @@ class TextField : public InterativeObject {
     int8_t cursor_change_flag;
     size_t input_size_change, input_size;
     struct TextSurface : public Paragraph{
+        float horizontalScrollPading;
     public:
         struct Cursor {
             ssize_t line,colummn;
@@ -46,6 +47,7 @@ public:
     
     TextField(Semaphore<std::string>&source, const std::string plabeholder = "");
     TextField(TextField const & other);
+    TextField& set_size(const float w, const float h) override;
     void _sync_strings();
     void _compile_source();
     void _compile(Renderer * renderer, const float dpiK) override;

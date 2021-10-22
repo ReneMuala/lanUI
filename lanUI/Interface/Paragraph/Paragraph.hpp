@@ -35,10 +35,12 @@ public:
     };
     
     Paragraph(): empty(true), textColor(Colors::Black){}
+    ~Paragraph() {
+        free();
+    }
     
-    
-    std::list<Object*> words, wordsBuffer;
-    std::list<Object*> lines, linesBuffer;
+    std::list<Object*> words;
+    std::list<Object*> lines;
     
     Paragraph& from_stringstream(std::stringstream& , Wrapper::Mode, int fileldsCount);
     

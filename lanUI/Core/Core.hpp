@@ -44,7 +44,6 @@ public:
     static bool unsubscribe(void*);
     static void clearCache();
     void load_fonts();
-    static void free_all_fonts();
     void set_sleep_time(std::chrono::milliseconds);
     void terminate();
 };

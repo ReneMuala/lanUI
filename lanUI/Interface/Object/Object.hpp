@@ -33,7 +33,7 @@ class Object {
      DESCRIPTION:   Handles basic object's data and operations.
      
      -------------------------------------------------------------------------------
-
+     
      */
     
 public:
@@ -53,9 +53,9 @@ private:
     void __align_center(float & x, float & y);
     
     void __align_top(float & x, float & y);
-
+    
     void __align_bottom(float & x, float & y);
-
+    
     void __align_left(float & x, float & y);
     
     void __align_right(float & x, float & y);
@@ -117,7 +117,7 @@ public:
     
     /// Object index inside of the root
     Semaphore<size_t> index;
-
+    
     // embedded objects & root
     Semaphore<Object*> root;
     Semaphore<Object*> nextInX, nextInY, nextInZ;
@@ -183,9 +183,9 @@ public:
     
     // prepare rect_buffer
     void _render_routine(float);
-        
+    
     bool _has_focus(const float dpiK);
-        
+    
     void _handle_others_routine(Event&, Object*, const float dpiK, const bool no_focus);
     
     /// Handle events for nextInX & nextInY
@@ -200,7 +200,7 @@ public:
     virtual void _run_default_animation();
     
     void _align(float & x, float & y);
-          
+    
     void _set_position(const float x, const float y);
     
     /*
@@ -306,9 +306,9 @@ public:
     float param_dpiK;
     
     Object& set_renderer_callback(VoidCallback);
-        
+    
     Object& set_default_animation(const FrameCount delay, BoolCallback);
-        
+    
     void _start_composition_mode(SDL_Renderer*, const float dpiK);
     
     void _stop_composition_mode(SDL_Renderer*);
@@ -318,8 +318,12 @@ public:
     Object& compose_canvas(SDL_Renderer*, const float dpiK);
     
     Object& export_composition_as_PNG(SDL_Renderer*, const char * filename);
-        
+    
     Object();
+    
+    void _delete_tree();
+    
+    virtual void _delete_custom_data(){};
     
     ~Object();
 };
@@ -342,12 +346,16 @@ public:
     }
     
     void set_content(Object& object){
-        set_size(
-                 object.size.get().w + object.padding.get().left + object.padding.data.right,
-                 object.size.data.h + object.padding.data.top + object.padding.data.bottom
-                 );
-        object.size.leave();
-        object.padding.leave();
+        if(!reloadingDisabled.get()){
+            reloadingDisabled.leave();
+            set_size(
+                     object.size.get().w + object.padding.get().left + object.padding.data.right,
+                     object.size.data.h + object.padding.data.top + object.padding.data.bottom
+                     );
+            object.size.leave();
+            object.padding.leave();
+        } else
+            reloadingDisabled.leave();
         embedInZ(object);
         object._useRootBounds();
     };
@@ -371,7 +379,7 @@ class InterativeObject: public __IOContainer {
     
     bool focus_repeated;
     Semaphore<bool> was_resized;
-//     bool no_focus_repeated; [became a Object:: property]
+    //     bool no_focus_repeated; [became a Object:: property]
     
     // callbacks
     VoidCallback on_focus_gained_callback;
@@ -389,7 +397,7 @@ class InterativeObject: public __IOContainer {
     
     // may handle events?
     Semaphore<bool> isActive;
-   
+    
 public:
     
     typedef enum {
@@ -420,13 +428,13 @@ public:
     void _handle_events(Event&, const float dpiK, const bool no_focus) override;
     
     InterativeObject& set_size(const float w, const float h) override;
-
+    
     InterativeObject& main_actiivity(VoidCallback);
     
     InterativeObject& on_focus_gained(VoidCallback);
     
     InterativeObject& on_focus_lost(VoidCallback);
-        
+    
     InterativeObject& on_resized(VoidCallback);
     
     InterativeObject& on_click(VoidCallback);

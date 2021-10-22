@@ -16,7 +16,7 @@
 class Stack : public Object {
 public:
     Object * first, * last;
-    virtual void free(){first = last = nullptr;};
+    virtual void free();
     virtual Object * requestObject(size_t index){return nullptr;};
     virtual Stack fromList(std::list<Object*>){return *this;};
     Stack();
@@ -27,7 +27,6 @@ public:
  */
 class VStack : public Stack {
 public:
-    void free() override;
     Stack& reload() override;
     Object * requestObject(size_t index) override;
     Stack fromList(std::list<Object*>) override;
@@ -38,7 +37,6 @@ public:
  */
 class HStack : public Stack {
 public:
-    void free() override;
     Stack& reload() override;
     Object * requestObject(size_t index) override;
     Stack fromList(std::list<Object*>) override;
@@ -50,7 +48,6 @@ public:
 // (CAN'T EMBED MORE THAN ONE TEXT, OR STACK-BASED OBJECT)
 class ZStack : public Stack {
 public:
-    void free() override;
     Stack& reload() override;
     Object * requestObject(size_t index) override;
     Stack fromList(std::list<Object*>) override;

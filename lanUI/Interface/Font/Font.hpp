@@ -36,16 +36,18 @@ public:
 private:
     std::string path_copy[Style::totalStyles];
 public:
-      
+    
     bool ready;
     
     int size;
     
     Style style;
-
-    Semaphore<TTF_Font*> child;
+    
+    Semaphore<TTF_Font*> ttfFont;
     
     Font();
+    
+    ~Font();
     
     /**Free font.
      Clears font data.

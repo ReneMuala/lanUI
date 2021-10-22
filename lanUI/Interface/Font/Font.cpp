@@ -10,23 +10,27 @@
 #include <list>
 
 namespace Fonts {
-std::list<Font*> allFonts;
 Font DejaVuSans;
 }
 
 Font::Font(){
-    Fonts::allFonts.push_back(this);
     style = Regular;
     ready = false;
-    child = nullptr;
+    ttfFont = nullptr;
     for(int i = 0 ; i < totalStyles ; i++)
-    path_copy[i] = "";
+        path_copy[i].clear();
+}
+
+Font::~Font(){
+    free();
+    for(int i = 0 ; i < totalStyles ; i++)
+        path_copy[i].clear();
 }
 
 void Font::free(){
     ready = false;
-    if(child.get()) TTF_CloseFont(child.data); child.data = nullptr;
-    child.leave();
+    if(ttfFont.get()) TTF_CloseFont(ttfFont.data); ttfFont.data = nullptr;
+    ttfFont.leave();
 }
 
 bool Font::_test(const char *path){
@@ -39,8 +43,9 @@ bool Font::_test(const char *path){
 
 bool Font::_load(const char *path, const int size){
     free();
-    if(!(child.get() = TTF_OpenFont(path, size))) Core::log(Core::Error, ("Unable to open font file: " + std::string(path)).c_str());
-    child.leave();
+    if(!(ttfFont.get() = TTF_OpenFont(path, size)))
+        Core::log(Core::Error, ("Unable to open font file: " + std::string(path)).c_str());
+    ttfFont.leave();
     ready = true;
     return true;
 }

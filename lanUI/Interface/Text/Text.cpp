@@ -47,7 +47,7 @@ const std::string TextStyle::toStr() const {
 }
 
 #include <iostream>
-Text::Text(const std::string source, Font& font): wasCompiled(false), withBackground(false), source(source), fontVirtualSize(12), font(nullptr){
+Text::Text(const std::string source, Font& font): withBackground(false), source(source), fontVirtualSize(12), font(nullptr), surfc(nullptr){
     this->font = new Font(font);
     foregroundColor.set(Colors::Black);
     backgroundColor.set(Colors::Transparent);
@@ -57,12 +57,18 @@ Text::Text(const std::string source, Font& font): wasCompiled(false), withBackgr
 }
 
 Text::~Text(){
-    _free_font();
+    _delete_custom_data();
     Object::~Object();
 }
 
+void Text::_delete_custom_data(){
+    source.data.clear();
+    _free_font();
+}
+
 void Text::_free_font(){
-    if(font) delete font;
+    if(font)
+        delete font;
     font = nullptr;
 }
 
@@ -83,7 +89,7 @@ void Text::tryCompile(){
 
 void Text::_resetDPI(){
     dpiK = 1;
-    font->set_style(font->style, fontVirtualSize.get()*(1));
+    if(font) font->set_style(font->style, fontVirtualSize.get()*(1));
     fontVirtualSize.leave();
 }
 
@@ -99,48 +105,49 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         
         _free_canvas();
 
-        if(!font->child.get()){
-            font->child.leave();
+        if(!font->ttfFont.get()){
+            font->ttfFont.leave();
             source.leave();
             Core::log(Core::Warning, "Text compilation failed  (Invalid font style).");
             return false;
         }
         
-        SDL_Surface * surfc = nullptr;
+        if(surfc) SDL_FreeSurface(surfc);
+        surfc = nullptr;
         
         if(!compatibilityMode) {
-            if(!(surfc=TTF_RenderUTF8_Blended(font->child.data, source.data.data(), (SDL_Color)foregroundColor.get()))) {
+            if(!(surfc=TTF_RenderUTF8_Blended(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.get()))) {
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
                 Core::log(Core::Warning, "Text: Render failed (invalid surfc).");
 #endif
                 foregroundColor.leave();
                 source.leave();
-                font->child.leave();
+                font->ttfFont.leave();
                 return false;
             }
         } else {
             switch (compatibilityMode) {
                 case RenderShadedMode:
-                    if(!(surfc=TTF_RenderUTF8_Shaded(font->child.data, source.data.data(), (SDL_Color)foregroundColor.get(), (SDL_Color)backgroundColor.get()))){
+                    if(!(surfc=TTF_RenderUTF8_Shaded(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.get(), (SDL_Color)backgroundColor.get()))){
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
                         Core::log(Core::Warning, "Text (CompatibilityMode[RenderShadedMode]): Render failed.");
 #endif
                         foregroundColor.leave();
                         backgroundColor.leave();
                         source.leave();
-                        font->child.leave();
+                        font->ttfFont.leave();
                         return false;
                     } else
                         backgroundColor.leave();
                     break;
                 case RenderSolidMode:
-                    if(!(surfc=TTF_RenderUTF8_Solid(font->child.data, source.data.data(), (SDL_Color)foregroundColor.get()))){
+                    if(!(surfc=TTF_RenderUTF8_Solid(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.get()))){
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
                         Core::log(Core::Warning, "Text (CompatibilityMode[RenderSolidMode]): Render failed.");
 #endif
                         foregroundColor.leave();
                         source.leave();
-                        font->child.leave();
+                        font->ttfFont.leave();
                         return false;
                     }
                     break;
@@ -148,8 +155,7 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
             }
         }
         
-        font->child.leave();
-        
+        font->ttfFont.leave();
         source.leave();
         foregroundColor.leave();
         if(internCall){
@@ -167,6 +173,7 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
         }
         
         SDL_FreeSurface(surfc);
+        surfc = nullptr;
         drawMode.set(DrawMode::ImageMode);
         return true;
     } else if (source.data.empty()) {
@@ -186,13 +193,14 @@ bool Text::compile(SDL_Renderer * renderer, bool internCall, bool fixCall){
 
 void Text::_compile(Renderer * renderer, const float dpiK){
     // prepare text
-    while(!wasCompiled) {
+    while(!wasCompiled.get()) {
         
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
         Core::log(Core::Warning, "Text was not compiled, compiling... (MAIN CASE)");
 #endif
+        wasCompiled.leave();
         wasCompiled = compile(renderer);
-    }
+    } wasCompiled.leave();
 
     // adjust DPI
     if(this->dpiK != dpiK){
@@ -202,8 +210,10 @@ void Text::_compile(Renderer * renderer, const float dpiK){
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
         Core::log(Core::Warning, "Text was not recompiled, recompiling... (DPIK CASE)");
 #endif
+            wasCompiled.leave();
             wasCompiled = compile(renderer, true, true);
-        } while(!wasCompiled);
+        } while(!wasCompiled.get());
+        wasCompiled.leave();
     }
     _compile_embedded(renderer, dpiK);
 }
@@ -216,7 +226,6 @@ void Text::_render_background(SDL_Renderer * renderer, Rect * rect){
 }
 
 void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, bool inComposition){
-    
         if(_inRootBounds(x, y)){
             _align(x, y);
             _set_position(x, y);
@@ -227,7 +236,7 @@ void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, 
             Core::log(Core::Warning, "Text outside root bounds.");
     #endif
         }
-    
+
 #ifdef LANUI_DEBUG_MODE
     if(inComposition)
         SDL_SetRenderDrawColor(renderer, 200, 200, 255, 50);

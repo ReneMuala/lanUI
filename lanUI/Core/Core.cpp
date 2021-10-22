@@ -43,7 +43,6 @@ namespace InteractiveObjecsData {
 }
 
 namespace Fonts {
-    extern std::list<Font*> allFonts;
     extern Font DejaVuSans;
 }
 
@@ -67,7 +66,6 @@ Core::~Core(){
         //CoreData::eventHandler.join();
         CoreData::renderHandler.join();
         clearCache();
-        free_all_fonts();
         close_SDL();
         terminated = true;
     }
@@ -204,12 +202,6 @@ void Core::load_fonts(){
     Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSansCondensed-BoldOblique.ttf", Font::Style::Condensed_BoldOblique);
     Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSansCondensed.ttf", Font::Style::Condensed);
     CustomFonts::_loadCustomFonts();
-}
-
-void Core::free_all_fonts(){
-    for (auto & it : Fonts::allFonts) {
-        it->free();
-    }
 }
 
 void Core::set_sleep_time(std::chrono::milliseconds sleepTime){

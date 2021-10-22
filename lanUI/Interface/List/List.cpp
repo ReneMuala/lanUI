@@ -54,6 +54,11 @@ List::List(const Sint32 maxSpeed){
     }));
 }
 
+List::~List(){
+    content.free();
+    InterativeObject::~InterativeObject();
+}
+
 List& List::fit_content(const float width, const float height){
     content.set_size(width, height);
     content.disable_reloading();

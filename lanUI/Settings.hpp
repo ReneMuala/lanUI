@@ -79,7 +79,7 @@
  
  */
 
-  #define LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
+//  #define LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
 /*  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  
  USAGE: enable debug mode and uncomment the line above
