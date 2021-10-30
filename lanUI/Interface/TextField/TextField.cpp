@@ -12,62 +12,15 @@
 #include <string>
 #include <iostream>
 
-TextField::TextSurface::Cursor::Cursor(): line(0), colummn(0), empty(true),active(false), hidden(false), size({0,0,0,0}), color(Colors::Dark_cyan){
-}
-
-void TextField::TextSurface::_render(SDL_Renderer * renderer, float x, float y, float dpiK, bool inComposition){
-    Text * target = (nextInZ.get()) ? (Text*)((HStack*)nextInZ.data)->requestObject((cursor.data.colummn-1 < 0) ? 0 : cursor.data.colummn-1) : nullptr;
-    nextInZ.leave();
-    
-    
-    Paragraph::_render(renderer, x, y, dpiK, inComposition);
-    cursor.hold();
-
-    if(target && cursor.data.active && !cursor.data.hidden){
-        target->sizeBuffer.hold();
-        
-        cursor.data.size = {
-            (!cursor.data.colummn) ? target->sizeBuffer.data.x : target->sizeBuffer.data.x + target->sizeBuffer.data.w,
-            target->sizeBuffer.data.y,
-            2 * dpiK,
-            target->sizeBuffer.data.h,
-        };
-        
-        if(cursor.data.size.x > sizeBuffer.get().x + sizeBuffer.data.w){
-            first->scrollingFactor.get().horizontal = -(((cursor.data.size.x + cursor.data.size.w) - (sizeBuffer.data.x + sizeBuffer.data.w))/dpiK);
-            first->scrollingFactor.leave();
-        } sizeBuffer.leave();
-        
-        target->sizeBuffer.leave();
-        SDL_SetRenderDrawColor(renderer, cursor.data.color.r, cursor.data.color.g, cursor.data.color.b, cursor.data.color.a);
-        SDL_RenderFillRectF(renderer, &cursor.data.size);
-    } else if (!cursor.data.active){
-        first->scrollingFactor.get().horizontal = 0;
-        first->scrollingFactor.leave();
-    }
-    cursor.leave();
-}
-
-void TextField::_init(Semaphore<std::string>& source, const std::string placeholder){
-    activated = (false);
-    this->source = (source);
-    this->placeholder = (placeholder);
-    stream.str("");
-    Core::log(Core::Warning, "TextField isn't stable yet.");
+void TextField::_init(Semaphore<std::string> &source, const std::string placeholder){
+    activated.set(true);
     set_size(150, 25);
+    cursor_change_flag = 0;
+    this->source = &source;
+    this->placeholder = placeholder;
+    Core::log(Core::Warning, "TextField isn't stable yet.");
     disable_reloading();
-    textSurface.disable_reloading();
-    set_draw_mode(ColorSchemeMode);
-    textSurface.set_alignment(Left);
-    textSurface.set_padding({0,5});
-    
-    textSurface.set_default_animation
-    (60,CallbackExpr({
-        textSurface.cursor.get().hidden = !textSurface.cursor.data.hidden;
-        textSurface.cursor.leave();
-        return true;
-    }));
-    
+
     on_click(CallbackExpr({
         activated.set(true);
         textSurface.cursor.get().active = true;
@@ -86,99 +39,10 @@ void TextField::_init(Semaphore<std::string>& source, const std::string placehol
             activated.leave();
     }));
     
-    inputStyle.set("\\regular \\size:13 \\color:rgb(0,0,0)");
-    placeholderStyle.set("\\regular \\size:13 \\color:rgba(0,0,0,100)");
-    
     set_content(textSurface);
 }
 
-TextField::TextField(Semaphore<std::string>& source, const std::string placeholder){
-    _init(source, placeholder);
-}
-
-TextField::TextField(TextField const & other){
-    void * ptr = (void*)&other.source;
-    _init((Semaphore<std::string>&)ptr, other.placeholder);
-}
-
-TextField& TextField::set_size(const float w, const float h){
-    if(w < 5 || h < 5)
-        Core::log(Core::Error, "TextField::set_size(...) w and h must to be greater than 5px");
-    textSurface.set_size(w-5, h-5);
-    InterativeObject::set_size(w, h);
-    return (*this);
-}
-
-void TextField::_sync_strings(){
-    
-    size_t c_string_len = inputBuffer.get().c_str_size();
-    
-    char c_string [c_string_len];
-    
-    bzero(c_string, c_string_len);
-    
-    c_string[0] = '\0';
-        
-    inputBuffer.data.composeCStr(c_string, c_string_len);
-    
-    source.set(c_string);
-    
-    input_size = inputBuffer.data.size();
-            
-    inputBuffer.leave();
-}
-
-void TextField::_compile_source(){
-    static const std::regex spaceInput("[[:space:]]");
-    std::string buffer;
-    inputBuffer.hold();
-    stream.clear();
-    stream << inputStyle.get() << ' ';
-    inputStyle.leave();
-    for (int i = 0 ; i < inputBuffer.data.size() ; i++) {
-        buffer = inputBuffer.data[i];
-        if(std::regex_match(buffer, spaceInput)){
-            stream << " \\s ";
-        } else {
-            stream << " \\ns " << buffer;
-        }
-    } inputBuffer.leave();
-}
-
-void TextField::_compile(Renderer * renderer, const float dpiK){
-    if(!wasCompiled.get()){
-        wasCompiled.data = true;
-        wasCompiled.leave();
-        
-        _sync_strings();
-        
-        _refresh_cursor(dpiK);
-        
-        source.hold();
-        if(source.data.empty()){
-            stream.clear();
-            stream << placeholderStyle.get() << ' ' << placeholder;
-            placeholderStyle.leave();
-        } else {
-            _compile_source();
-        } source.leave();
-        textSurface.from_stringstream(stream);
-    } else wasCompiled.leave();
-    _compile_embedded(renderer, dpiK);
-}
-
-TextField& TextField::set_input_style(const std::string style){
-    inputStyle.set(style);
-    return (*this);
-}
-
-TextField& TextField::set_placeholder_style(const std::string style){
-    placeholderStyle.set(style);
-    return (*this);
-}
-
 void TextField::_refresh_cursor(const float dpiK){
-    
     if(cursor_change_flag){
         if(cursor_change_flag > 0){
             if(input_size_change) textSurface.cursor.get().colummn+=input_size_change;
@@ -204,9 +68,81 @@ void TextField::_refresh_cursor(const float dpiK){
         
         input_size_change = 0;
         cursor_change_flag = 0;
-        
         }
+}
+
+void TextField::_compute_cursor_position(Renderer * renderer){
+    if(textSurface.font && !textSurface.source.get().empty()){
+        if(textSurface.font->ttfFont.get() && textSurface.font->scalingFactorConstant > 1){
+            const int constantBuffer = textSurface.font->scalingFactorConstant;
+            textSurface.font->ttfFont.leave();
+            textSurface.font->set_scaling_factor(1);
+            int w, h;
+            
+            
+            textSurface.cursor.hold();
+            
+            inputBuffer.hold();
+            
+            const size_t text_len_at_cur = inputBuffer.data.c_index_at(textSurface.cursor.data.colummn);
+            
+            std::cout << "\"" << textSurface.source.data.substr(0, (text_len_at_cur)).c_str() << "\"" << "\t >>> " << text_len_at_cur << "\t" <<  textSurface.cursor.data.colummn << std::endl;
+            
+            inputBuffer.leave();
+            //(text_len_at_cur-1>0 ? text_len_at_cur-1 : 0)
+            TTF_SizeUTF8(textSurface.font->ttfFont.data, textSurface.source.data.substr(0, textSurface.cursor.data.colummn).c_str(), &w, &h);
+            textSurface.cursor.data.hBuffer = h;
+            textSurface.cursor.data.xBuffer = w;
+            textSurface.cursor.leave();
+            textSurface.font->set_scaling_factor(constantBuffer);
+        } else
+            textSurface.font->ttfFont.leave();
+    } textSurface.source.leave();
+    textSurface.source.leave();
+}
+
+void TextField::_compile(Renderer * renderer, const float dpiK){
+    if(!wasCompiled.get()){
+        _sync_strings();
+        if(source->get().empty()){
+            textSurface.from_string(placeholder);
+        } else {
+            textSurface.from_string(source->data.c_str());
+        } source->leave();
+        _refresh_cursor(dpiK);
+        wasCompiled.data = true;
+    } wasCompiled.leave();
+    _compute_cursor_position(renderer);
+    _compile_embedded(renderer, dpiK);
+}
+
+TextField::TextField(Semaphore<std::string>&source, const std::string placeholder){
+    _init(source, placeholder);
+}
+
+TextField::TextField(TextField const & other){
+    void * ptr = (void*)&other.source;
+    _init((Semaphore<std::string>&)ptr, other.placeholder);
+}
+
+
+void TextField::_sync_strings(){
     
+    size_t c_string_len = inputBuffer.get().c_str_size();
+    
+    char c_string [c_string_len];
+    
+    bzero(c_string, c_string_len);
+    
+    c_string[0] = '\0';
+        
+    inputBuffer.data.composeCStr(c_string, c_string_len);
+    
+    source->set(c_string);
+        
+    input_size = inputBuffer.data.size();
+            
+    inputBuffer.leave();
 }
 
 void TextField::_handle_events(Event & event, const float dpiK, const bool no_focus){

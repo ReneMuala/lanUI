@@ -19,42 +19,47 @@
 
 class TextField : public InterativeObject {
     Semaphore<bool> activated;
-    std::stringstream stream;
     Semaphore<UTF8CharList> inputBuffer;
-    Semaphore<std::string> source;
-    Semaphore<std::string> inputStyle, placeholderStyle;
+    Semaphore<std::string>* source;
     std::string placeholder;
-    int8_t cursor_change_flag;
     size_t input_size_change, input_size;
-    struct TextSurface : public Paragraph{
+    int8_t cursor_change_flag;
+    struct TextSurface : public Text {
         float horizontalScrollPading;
     public:
         struct Cursor {
-            ssize_t line,colummn;
+            ssize_t line, colummn;
             Rect size;
+            float weight, xBuffer, hBuffer;
             Color color;
             bool empty;
             bool hidden;
             bool active;
+                        
             Cursor();
+            void _render(SDL_Renderer*, float x, float y, const float dpiK);
         };
+        
         Semaphore<Cursor> cursor;
-        void _render(SDL_Renderer*, float x, float y, float dpiK, bool inComposition = false) override;
+                
+        TextSurface();
+        
+        void _renderEmbedded(SDL_Renderer*, const float x, const float y, float dpiK, _RenderEmbeddedMode mode = _RenderEmbeddedMode::_renderAllNexts) override;
+        
+        void _render(SDL_Renderer*, float x, float y, const float dpiK, bool isComposition) override;
+        
     } textSurface;
+    
     void _init(Semaphore<std::string>&source, const std::string plabeholder = "");
     
 public:
-    
-    TextField(Semaphore<std::string>&source, const std::string plabeholder = "");
-    TextField(TextField const & other);
-    TextField& set_size(const float w, const float h) override;
     void _sync_strings();
-    void _compile_source();
-    void _compile(Renderer * renderer, const float dpiK) override;
-    void _refresh_cursor( const float dpiK);
-    void _handle_events(Event & event, const float dpiK, const bool no_focus) override;
-    TextField& set_input_style(const std::string);
-    TextField& set_placeholder_style(const std::string);
+    void _handle_events(Event & event, const float dpiK, const bool no_focus = false) override;
+    void _refresh_cursor(const float dpiK);
+    void _compute_cursor_position(Renderer* );
+    void _compile(Renderer*, const float dpiK) override;
+    TextField(Semaphore<std::string>&source, const std::string placeholder = "");
+    TextField(TextField const & other);
 };
 
 #endif /* TextField_hpp */

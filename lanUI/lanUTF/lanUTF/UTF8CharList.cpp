@@ -21,8 +21,28 @@ size_t UTF8CharList::c_str_size() const {
     size_t size = 0;
     UTF8Char * ptr = first;
     while (ptr) {
-        size += strlen(ptr->c_char());
+        size += strnlen(ptr->c_char(), 4);
         ptr = ptr->_next;
+    } return size;
+}
+
+size_t UTF8CharList::c_index_at(const size_t index) const {
+    size_t size = 0, subindex = 0;
+    UTF8Char * ptr = first;
+    while (ptr && subindex <= index) {
+        size += strnlen(ptr->c_char(),4);
+        ptr = ptr->_next;
+        subindex++;
+    } return size;
+}
+
+size_t UTF8CharList::c_index_before(const size_t index) const {
+    size_t size = 0, subindex = 0;
+    UTF8Char * ptr = first;
+    while (ptr && subindex < index) {
+        size += strnlen(ptr->c_char(),4);
+        ptr = ptr->_next;
+        subindex++;
     } return size;
 }
 
@@ -80,7 +100,7 @@ void UTF8CharList::remove_last(){
 
 char * UTF8CharList::alloc_c_str() const {
     UTF8Char * ptr = first;
-    char * c_str = new char('\0');
+    char * c_str = new char[c_str_size()];
     while (ptr) {
         strcat(c_str, ptr->c_char());
         ptr = ptr->_next;
@@ -92,13 +112,13 @@ void UTF8CharList::composeCStr(char *str, size_t size) const {
     size_t subIndex = 0;
     while (ptr && subIndex < size) {
         strcat(str, ptr->c_char());
-        subIndex += strlen(ptr->c_char());
+        subIndex += strnlen(ptr->c_char(), 4);
         ptr = ptr->_next;
     }
 }
 
 void UTF8CharList::free_c_str(char * str){
-    free(str);
+    delete [] str;
 }
 
 size_t UTF8CharList::append(const char * src){
@@ -178,13 +198,14 @@ void UTF8CharList::clear(){
         while (ptr) {
             buff = ptr->_next;
             delete ptr;
+            ptr = nullptr;
             ptr = buff;
         }
     } first = nullptr;
 }
 
 UTF8CharList::UTF8CharList(): first(nullptr){
-    
+    clear();
 }
 
 UTF8CharList::~UTF8CharList(){

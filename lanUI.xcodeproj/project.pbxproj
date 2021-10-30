@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17057293272466150001AEBC /* TextSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17057292272466150001AEBC /* TextSurface.cpp */; };
+		170572962724663A0001AEBC /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 170572952724663A0001AEBC /* Cursor.cpp */; };
 		17319F7D2722AE9C008CC5D6 /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
 		1734118626BAB77300444E40 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1734118426BAB77300444E40 /* Image.cpp */; };
 		173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 173504D626B859FF00359EF5 /* CustomFonts.cpp */; };
@@ -72,6 +74,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		17057292272466150001AEBC /* TextSurface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TextSurface.cpp; sourceTree = "<group>"; };
+		170572952724663A0001AEBC /* Cursor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Cursor.cpp; sourceTree = "<group>"; };
 		17241E2126B6EDF8009912C9 /* Container.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Container.hpp; sourceTree = "<group>"; };
 		17319C5B2717867100FD1EEC /* libicuio.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicuio.dylib; path = ../../../../../opt/local/lib/libicuio.dylib; sourceTree = "<group>"; };
 		17319C5E2717868800FD1EEC /* libicuio.67.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicuio.67.1.dylib; path = ../../../../../opt/local/lib/libicuio.67.1.dylib; sourceTree = "<group>"; };
@@ -434,6 +438,8 @@
 		17FC391F2713701000E47CAF /* TextField */ = {
 			isa = PBXGroup;
 			children = (
+				170572952724663A0001AEBC /* Cursor.cpp */,
+				17057292272466150001AEBC /* TextSurface.cpp */,
 				17FC39202713999800E47CAF /* TextField.cpp */,
 				17FC39212713999800E47CAF /* TextField.hpp */,
 			);
@@ -516,6 +522,7 @@
 			files = (
 				17A43EC5271C54320063E2F3 /* UTF8CharList.cpp in Sources */,
 				17FC39222713999800E47CAF /* TextField.cpp in Sources */,
+				170572962724663A0001AEBC /* Cursor.cpp in Sources */,
 				1748FBBC2721AB650087D5EC /* Object.cpp in Sources */,
 				17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */,
 				1748FBC12721AED00087D5EC /* DrawableObject.cpp in Sources */,
@@ -533,6 +540,7 @@
 				1734118626BAB77300444E40 /* Image.cpp in Sources */,
 				17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */,
 				17C7970C26D8F85F00CF551B /* Paragraph.cpp in Sources */,
+				17057293272466150001AEBC /* TextSurface.cpp in Sources */,
 				17A43EC6271C54320063E2F3 /* UTF8Char.cpp in Sources */,
 				17DE7ED02708AF7B007667BA /* SDL2_rotozoom.cpp in Sources */,
 			);

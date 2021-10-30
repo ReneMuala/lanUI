@@ -28,11 +28,22 @@ namespace TextStyles {
 }
 
 class Text: public Object {
+public:
+    
+    enum class TTF_api_style : int {
+        Normal = TTF_STYLE_NORMAL,
+        Light = TTF_STYLE_ITALIC,
+        Bold = TTF_STYLE_BOLD,
+        Underline = TTF_STYLE_UNDERLINE,
+        StrikeThrough = TTF_STYLE_STRIKETHROUGH,
+    };
+    
+private:
     bool withBackground;
-    Semaphore<std::string> source;
-    int dpiK;
+    Semaphore<TTF_api_style> ttf_api_style;
     SDL_Surface * surfc;
 public:
+    Semaphore<std::string> source;
     Semaphore<unsigned int> fontVirtualSize;
     Font * font;
     
@@ -59,12 +70,14 @@ public:
     Text& from_string(const std::string source , Renderer * renderer = nullptr);
     
     void tryCompile();
-    
-    void _resetDPI();
-    
+        
     void _adjustTextDPI();
     
-    bool compile(Renderer*, bool internCall = false, bool fixCall = false);
+    void _set_font_style(Font::Style const, unsigned int const);
+    
+    bool compile_canvas(Renderer*);
+    
+    void _compute_text_size();
     
     void _compile(Renderer*, const float dpiK) override;
     
@@ -76,7 +89,9 @@ public:
     /// use root primary color as this->background_color
     Text& inherit_background_color();
     
-    Text& set_style(TextStyle);
+    Text& set_ttf_api_style(const TTF_api_style);
+    
+    Text& set_style(const TextStyle);
     
     Text& set_font(Font &);
     

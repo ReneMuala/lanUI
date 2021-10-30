@@ -433,3 +433,12 @@ Object& Object::export_composition_as_PNG(SDL_Renderer * renderer, const char * 
     _free_canvas(compositionCanvas);
     return (*this);
 }
+
+void Object::_disable_renderer(SDL_Renderer * renderer){
+    const SDL_Rect zeroRect = {0,0,0,0};
+    SDL_RenderSetViewport(renderer, &zeroRect);
+}
+
+void Object::_enable_renderer(SDL_Renderer * renderer){
+    SDL_RenderSetViewport(renderer, nullptr);
+}

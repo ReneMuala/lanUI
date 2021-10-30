@@ -62,9 +62,6 @@ public:
     Semaphore<bool> hasMouseFocus;
     Semaphore<bool> hasKeyboardFocus;
     
-    // constants
-    Semaphore<double> DPIConstant;
-    
     typedef enum {
         HighDefinition = SDL_WINDOW_ALLOW_HIGHDPI,
         NormalDefinition = 0

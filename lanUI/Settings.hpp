@@ -9,7 +9,7 @@
 #ifndef Debug_h
 #define Debug_h
 
-  #define LANUI_DEBUG_MODE
+//  #define LANUI_DEBUG_MODE
 /*  ^^^^^^^^^^^^^^^^^^^^^^^
  
  USAGE: Uncomment the line above to enable debug mode (BEFORE BUILDING LANUI)

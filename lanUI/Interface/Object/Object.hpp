@@ -128,6 +128,8 @@ public:
     // [From interactive object] to allow no_focus events
     bool no_focus_repeated;
     
+    Semaphore<double> DPIConstant;
+    
 public:
     
     virtual Object& operator=(Object&);
@@ -318,6 +320,10 @@ public:
     Object& compose_canvas(SDL_Renderer*, const float dpiK);
     
     Object& export_composition_as_PNG(SDL_Renderer*, const char * filename);
+    
+    void _disable_renderer(SDL_Renderer*);
+    
+    void _enable_renderer(SDL_Renderer*);
     
     Object();
     

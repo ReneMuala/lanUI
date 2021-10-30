@@ -41,6 +41,8 @@ public:
     
     int size;
     
+    int scalingFactorConstant;
+    
     Style style;
     
     Semaphore<TTF_Font*> ttfFont;
@@ -69,6 +71,8 @@ public:
     DON'T FORGET to load the Regular style, it will be necessary to handle erros.
      */
     Font& fromFile(const char * path, Style style = Style::Regular);
+    
+    Font& set_scaling_factor(const int constant);
 };
 
 /** LanUI defaulf fonts

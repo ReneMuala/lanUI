@@ -13,10 +13,7 @@ namespace Fonts {
 Font DejaVuSans;
 }
 
-Font::Font(){
-    style = Regular;
-    ready = false;
-    ttfFont = nullptr;
+Font::Font(): style(Regular), ready(false), ttfFont(nullptr), scalingFactorConstant(1){
     for(int i = 0 ; i < totalStyles ; i++)
         path_copy[i].clear();
 }
@@ -63,11 +60,10 @@ const void Font::operator=(Font &other){
 Font& Font::set_style(const Style new_style, const int new_size){
     size = new_size;
     if(!path_copy[new_style].empty()) {
-        style = new_style;
-        _load(path_copy[new_style].c_str(), new_size);
+        _load(path_copy[new_style].c_str(), size*scalingFactorConstant);
     } else if(!path_copy[Regular].empty()) {
         Core::log(Core::Warning, "set_style(...) must to be used with a valid font style. Using Regular...");
-        _load(path_copy[Regular].c_str(), new_size);
+        _load(path_copy[Regular].c_str(), size*scalingFactorConstant);
     } else {
         Core::log(Core::Error, "Using set_style(...) without any valid font style loaded.");
     } return (*this);
@@ -88,6 +84,16 @@ Font& Font::fromFile(const char * path, Style style){
         Core::log(Core::Error, message.c_str());
 #endif
         Core::log(Core::Error, "Unable to load font style.");
+    }
+    return (*this);
+}
+
+Font& Font::set_scaling_factor(const int constant){
+    scalingFactorConstant = constant;
+    if(!path_copy[style].empty()) {
+        _load(path_copy[style].c_str(), size*scalingFactorConstant);
+    } else {
+        Core::log(Core::Warning, "Using Font::set_scaling_factor(...) without a valid style.");
     }
     return (*this);
 }

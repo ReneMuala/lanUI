@@ -42,6 +42,14 @@ A **UTF8 character list** is a string of UTF8 encoded characters, as “rené”
 
    Returns the length of a possible C string version of the list.
 
+#### `size_t c_index_at(const size_t index) const`
+
+   Returns the index of this UTF8Char in a possible C string.
+
+#### `size_t c_index_before(const size_t index) const`
+
+   Returns the index of the UTF8Char before this in a possible C string.
+
 #### `bool empty() const`
 
    Returns true if the list is empty.
