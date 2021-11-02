@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		17057293272466150001AEBC /* TextSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17057292272466150001AEBC /* TextSurface.cpp */; };
 		170572962724663A0001AEBC /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 170572952724663A0001AEBC /* Cursor.cpp */; };
-		17319F7D2722AE9C008CC5D6 /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
 		1734118626BAB77300444E40 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1734118426BAB77300444E40 /* Image.cpp */; };
 		173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 173504D626B859FF00359EF5 /* CustomFonts.cpp */; };
 		1746B21926AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */; };
@@ -26,12 +25,13 @@
 		1781821126C41BCB00F986B6 /* List.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1781820F26C41BCB00F986B6 /* List.cpp */; };
 		17A43EC5271C54320063E2F3 /* UTF8CharList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A43EBB271C54310063E2F3 /* UTF8CharList.cpp */; };
 		17A43EC6271C54320063E2F3 /* UTF8Char.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A43EBC271C54310063E2F3 /* UTF8Char.cpp */; };
+		17AC1704272FECE1002BA291 /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997C526B3282A00219F36 /* Font.cpp */; };
+		17AC170F27307D0F002BA291 /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
 		17BE74A426AC0364009A3D8C /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A326AC0364009A3D8C /* Color.cpp */; };
 		17C7970C26D8F85F00CF551B /* Paragraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970A26D8F85F00CF551B /* Paragraph.cpp */; };
 		17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B326B2B6CF00219F36 /* Stack.cpp */; };
 		17D997BD26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */; };
 		17D997BE26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		17D997C726B3282A00219F36 /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997C526B3282A00219F36 /* Font.cpp */; };
 		17DE7ED02708AF7B007667BA /* SDL2_rotozoom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17DE7ECE2708AF7B007667BA /* SDL2_rotozoom.cpp */; };
 		17DE7ED12708AF7B007667BA /* SDL2_gfxPrimitives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17DE7ECF2708AF7B007667BA /* SDL2_gfxPrimitives.cpp */; };
 		17FC391827130EC500E47CAF /* Semaphore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17FC391727130EC500E47CAF /* Semaphore.cpp */; };
@@ -520,6 +520,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17AC1704272FECE1002BA291 /* Font.cpp in Sources */,
 				17A43EC5271C54320063E2F3 /* UTF8CharList.cpp in Sources */,
 				17FC39222713999800E47CAF /* TextField.cpp in Sources */,
 				170572962724663A0001AEBC /* Cursor.cpp in Sources */,
@@ -527,12 +528,11 @@
 				17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */,
 				1748FBC12721AED00087D5EC /* DrawableObject.cpp in Sources */,
 				17BE74A426AC0364009A3D8C /* Color.cpp in Sources */,
-				17D997C726B3282A00219F36 /* Font.cpp in Sources */,
 				177C47F72711C1DF00A0B99D /* Text.cpp in Sources */,
 				174F1F132682533B009B8159 /* Window.cpp in Sources */,
+				17AC170F27307D0F002BA291 /* playground.cpp in Sources */,
 				174F1F1826825427009B8159 /* Core.cpp in Sources */,
 				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,
-				17319F7D2722AE9C008CC5D6 /* playground.cpp in Sources */,
 				17DE7ED12708AF7B007667BA /* SDL2_gfxPrimitives.cpp in Sources */,
 				1781821126C41BCB00F986B6 /* List.cpp in Sources */,
 				17FC391827130EC500E47CAF /* Semaphore.cpp in Sources */,

@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <bitset>
 
-#define lanUTFVersion "lanUTF 0.1.3"
+#define lanUTFVersion "lanUTF 0.1.4"
 
 class UTF8Char {
 public:
@@ -142,6 +142,8 @@ public:
     void clear();
     
     UTF8CharList();
+    
+    UTF8CharList(char *);
     
     ~UTF8CharList();
 };

@@ -112,6 +112,7 @@ public:
     Semaphore<Alignment> aligment;
     Semaphore<bool> usingRootBounds;
     Semaphore<bool> inRootBoundsBuffer;
+    Semaphore<bool> hasFocusBuffer;
     Semaphore<bool> isVericallyAfterRootBeginning, isVericallyBeforeRootEnding;
     Semaphore<bool> reloadingDisabled;
     
@@ -383,13 +384,15 @@ class InterativeObject: public __IOContainer {
      
      */
     
-    bool focus_repeated;
+    bool focus_repeated, is_selected;
     Semaphore<bool> was_resized;
     //     bool no_focus_repeated; [became a Object:: property]
     
     // callbacks
     VoidCallback on_focus_gained_callback;
     VoidCallback on_focus_lost_callback;
+    VoidCallback on_selected_callback;
+    VoidCallback on_unselected_callback;
     VoidCallback on_click_callback;
     VoidCallback on_double_click_callback;
     VoidCallback on_secondary_click_callback;
@@ -399,8 +402,34 @@ class InterativeObject: public __IOContainer {
     VoidCallback on_key_down_callback;
     VoidCallback on_key_up_callback;
     VoidCallback on_scroll_callback;
-    VoidCallback main_activity_callback;
-    
+    VoidCallback on_drop_begin_callback;
+    VoidCallback on_drop_end_callback;
+    VoidCallback on_drop_file_callback;
+    VoidCallback on_drop_text_callback;
+    VoidCallback on_cut_callback;
+    VoidCallback on_copy_callback;
+    VoidCallback on_paste_callback;
+    VoidCallback on_audio_play_callback;
+    VoidCallback on_audio_stop_callback;
+    VoidCallback on_audio_next_callback;
+    VoidCallback on_audio_prev_callback;
+    VoidCallback on_audio_mute_callback;
+    VoidCallback on_audio_rewind_callback;
+    VoidCallback on_audio_fast_forward_callback;
+    VoidCallback on_f1_callback;
+    VoidCallback on_f2_callback;
+    VoidCallback on_f3_callback;
+    VoidCallback on_f4_callback;
+    VoidCallback on_f5_callback;
+    VoidCallback on_f6_callback;
+    VoidCallback on_f7_callback;
+    VoidCallback on_f8_callback;
+    VoidCallback on_f9_callback;
+    VoidCallback on_f10_callback;
+    VoidCallback on_f11_callback;
+    VoidCallback on_f12_callback;
+    VoidCallback custom_event_callback;
+
     // may handle events?
     Semaphore<bool> isActive;
     
@@ -409,6 +438,8 @@ public:
     typedef enum {
         OnFocusGained,
         OnFocusLost,
+        OnSelected,
+        OnUnselected,
         OnClick,
         OnDoubleClick,
         OnSecondaryClick,
@@ -418,16 +449,49 @@ public:
         OnKeyDown,
         OnKeyUp,
         OnScroll,
+        OnDropBegin,
+        OnDropEnd,
+        OnDropFile,
+        OnDropText,
+        OnCut,
+        OnCopy,
+        OnPaste,
+        OnAudioPlay,
+        OnAudioStop,
+        OnAudioNext,
+        OnAudioPrev,
+        OnAudioMute,
+        OnAudioRewind,
+        OnAudioFastForward,
+        OnF1,
+        OnF2,
+        OnF3,
+        OnF4,
+        OnF5,
+        OnF6,
+        OnF7,
+        OnF8,
+        OnF9,
+        OnF10,
+        OnF11,
+        OnF12,
+        CustomEvent,
         totalCallBacks
     } CallBacks;
     
     struct ScrollGain {
         Sint32 vertical, horizontal;
     };
+        
+    struct CallbacksWrapper {
+        bool all[CallBacks::totalCallBacks];
+    };
     
-    Semaphore<bool> callbacks[CallBacks::totalCallBacks];
+    Semaphore<CallbacksWrapper> callbacks;
     
     ScrollGain scrollGain;
+    
+    SDL_Event* this_event;
     
     InterativeObject();
     
@@ -440,6 +504,10 @@ public:
     InterativeObject& on_focus_gained(VoidCallback);
     
     InterativeObject& on_focus_lost(VoidCallback);
+    
+    InterativeObject& on_selected(VoidCallback);
+    
+    InterativeObject& on_unselected(VoidCallback);
     
     InterativeObject& on_resized(VoidCallback);
     
@@ -458,6 +526,60 @@ public:
     InterativeObject& on_key_up(VoidCallback);
     
     InterativeObject& on_scroll(VoidCallback);
+    
+    InterativeObject& on_drop_begin(VoidCallback);
+    
+    InterativeObject& on_drop_end(VoidCallback);
+    
+    InterativeObject& on_drop_file(VoidCallback);
+    
+    InterativeObject& on_drop_text(VoidCallback);
+
+    InterativeObject& on_cut(VoidCallback);
+
+    InterativeObject& on_copy(VoidCallback);
+
+    InterativeObject& on_paste(VoidCallback);
+    
+    InterativeObject& on_audio_play(VoidCallback);
+        
+    InterativeObject& on_audio_stop(VoidCallback);
+    
+    InterativeObject& on_audio_next(VoidCallback);
+    
+    InterativeObject& on_audio_prev(VoidCallback);
+    
+    InterativeObject& on_audio_mute(VoidCallback);
+    
+    InterativeObject& on_audio_rewind(VoidCallback);
+    
+    InterativeObject& on_audio_fast_forward(VoidCallback);
+    
+    InterativeObject& on_f1(VoidCallback);
+    
+    InterativeObject& on_f2(VoidCallback);
+    
+    InterativeObject& on_f3(VoidCallback);
+    
+    InterativeObject& on_f4(VoidCallback);
+    
+    InterativeObject& on_f5(VoidCallback);
+    
+    InterativeObject& on_f6(VoidCallback);
+    
+    InterativeObject& on_f7(VoidCallback);
+    
+    InterativeObject& on_f8(VoidCallback);
+    
+    InterativeObject& on_f9(VoidCallback);
+    
+    InterativeObject& on_f10(VoidCallback);
+    
+    InterativeObject& on_f11(VoidCallback);
+    
+    InterativeObject& on_f12(VoidCallback);
+
+    InterativeObject& custom_event(VoidCallback);
     
 };
 

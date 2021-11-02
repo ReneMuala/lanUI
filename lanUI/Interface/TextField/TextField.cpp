@@ -12,8 +12,26 @@
 #include <string>
 #include <iostream>
 
-void TextField::_init(Semaphore<std::string> &source, const std::string placeholder){
+void TextField::__default_on_selected_callback(){
     activated.set(true);
+    textSurface.cursor.get().active = true;
+    textSurface.cursor.leave();
+    SDL_StartTextInput();
+}
+
+void TextField::__default_on_unselected_callback(){
+    if(activated.get()){
+        SDL_StopTextInput();
+        activated.data = false;
+        activated.leave();
+        textSurface.cursor.get().active = false;
+        textSurface.cursor.leave();
+    } else
+        activated.leave();
+}
+
+void TextField::_init(Semaphore<std::string> &source, const std::string placeholder){
+    activated.set(false);
     set_size(150, 25);
     cursor_change_flag = 0;
     this->source = &source;
@@ -21,23 +39,33 @@ void TextField::_init(Semaphore<std::string> &source, const std::string placehol
     Core::log(Core::Warning, "TextField isn't stable yet.");
     disable_reloading();
 
-    on_click(CallbackExpr({
-        activated.set(true);
-        textSurface.cursor.get().active = true;
-        textSurface.cursor.leave();
-        SDL_StartTextInput();
+    on_copy(CallbackExpr({
+        if(!source.get().empty())
+            SDL_SetClipboardText(source.data.c_str());
+        source.leave();
     }));
     
-    on_focus_lost(CallbackExpr({
-        if(activated.get()){
-            SDL_StopTextInput();
-            activated.data = false;
-            activated.leave();
-            textSurface.cursor.get().active = false;
+    on_cut(CallbackExpr());
+    
+    on_paste(CallbackExpr({
+        char * buffer = SDL_GetClipboardText();
+        const UTF8CharList clipboardText = UTF8CharList(buffer);
+        const size_t clipTextSize = clipboardText.size();
+        printf("PASTE \"%s\" (%ld)\n", buffer, clipTextSize);
+        if(clipTextSize){
+            textSurface.cursor.hold();
+            inputBuffer.get().append(buffer, textSurface.cursor.data.colummn);
+            textSurface.cursor.data.colummn += clipTextSize;
             textSurface.cursor.leave();
-        } else
-            activated.leave();
+            inputBuffer.leave();
+            wasCompiled.set(false);
+            SDL_free(buffer);
+        }
     }));
+    
+    on_selected(CallbackExpr(__default_on_selected_callback();));
+    
+    on_unselected(CallbackExpr(__default_on_unselected_callback();));
     
     set_content(textSurface);
 }
@@ -84,15 +112,34 @@ void TextField::_compute_cursor_position(Renderer * renderer){
             
             inputBuffer.hold();
             
-            const size_t text_len_at_cur = inputBuffer.data.c_index_at(textSurface.cursor.data.colummn);
-            
-            std::cout << "\"" << textSurface.source.data.substr(0, (text_len_at_cur)).c_str() << "\"" << "\t >>> " << text_len_at_cur << "\t" <<  textSurface.cursor.data.colummn << std::endl;
+            const size_t text_len_at_cur = inputBuffer.data.c_index_before(textSurface.cursor.data.colummn);
             
             inputBuffer.leave();
             //(text_len_at_cur-1>0 ? text_len_at_cur-1 : 0)
-            TTF_SizeUTF8(textSurface.font->ttfFont.data, textSurface.source.data.substr(0, textSurface.cursor.data.colummn).c_str(), &w, &h);
+            TTF_SizeUTF8(textSurface.font->ttfFont.data, textSurface.source.data.substr(0, text_len_at_cur).c_str(), &w, &h);
             textSurface.cursor.data.hBuffer = h;
             textSurface.cursor.data.xBuffer = w;
+            
+            size.hold();
+            textSurface.padding.hold();
+            
+            textSurface.scrollingFactor.hold();
+            
+            const float lhs = w + textSurface.scrollingFactor.data.horizontal;
+            const float rlhs = size.data.w - textSurface.padding.data.left - textSurface.padding.data.right;
+            
+            if (lhs < 0) {
+                textSurface.scrollingFactor.data.horizontal += (size.data.w/2);
+                if(textSurface.scrollingFactor.data.horizontal > 0)
+                    textSurface.scrollingFactor.data.horizontal = 0;
+            } else if(lhs > rlhs && lhs > 0){
+                textSurface.scrollingFactor.data.horizontal = -(w - rlhs);
+            }
+            textSurface.scrollingFactor.leave();
+
+            textSurface.padding.leave();
+            size.leave();
+            
             textSurface.cursor.leave();
             textSurface.font->set_scaling_factor(constantBuffer);
         } else
@@ -148,6 +195,9 @@ void TextField::_sync_strings(){
 void TextField::_handle_events(Event & event, const float dpiK, const bool no_focus){
     InterativeObject::_handle_events(event, dpiK, no_focus);
     if(activated.get()){
+        if(!SDL_IsTextInputActive()){
+            SDL_StartTextInput();
+        }
         if(event.type == SDL_TEXTINPUT){
             input_size_change +=
             (textSurface.cursor.get().colummn < input_size) ?
@@ -170,16 +220,20 @@ void TextField::_handle_events(Event & event, const float dpiK, const bool no_fo
                 wasCompiled.set(false);
                 cursor_change_flag = -1;
             } else if(event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_TAB){
-                activated = false;
+                Core::set_selected_object(nullptr);
             } else if (event.key.keysym.sym == SDLK_LEFT){
-                cursor_change_flag = -1;
+                if(((SDL_GetModState() & KMOD_CTRL) || (SDL_GetModState() & KMOD_GUI))){
+                    textSurface.cursor.get().colummn = 0;
+                    textSurface.cursor.leave();
+                } else cursor_change_flag = -1;
                 wasCompiled.set(false);
             } else if (event.key.keysym.sym == SDLK_RIGHT){
-                cursor_change_flag = 1;
+                if(((SDL_GetModState() & KMOD_CTRL) || (SDL_GetModState() & KMOD_GUI))){
+                    textSurface.cursor.get().colummn = input_size;
+                    textSurface.cursor.leave();
+                } else cursor_change_flag = 1;
                 wasCompiled.set(false);
             }
         }
-        activated.leave();
-    } else
-        activated.leave();
+    } activated.leave();
 }

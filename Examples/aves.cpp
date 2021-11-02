@@ -204,7 +204,7 @@ public:
     void createDescription(Window& window){
         std::stringstream stream;
         
-        stream << "\\color:rgb(0,0,0,0) \\size:14 Uma aplicação feita usando o \\color:rgb(0,50,255) framework LANUI \\regular \\color:rgb(0,0,0) em C++. \\newln As informações \\s contidas neste aplicativo foram coletadas no site da \\bo \\color:rgb(100,100,100) Wiki \\ns \\color:rgb(0,0,0) pédia. \\regular";
+        stream << "\\color:rgb(0,0,0) \\size:14 Uma aplicação feita usando o \\color:rgb(0,50,255) framework LANUI \\regular \\color:rgb(0,0,0) em C++. \\newln As informações \\s contidas neste aplicativo foram coletadas no site da \\bo \\color:rgb(100,100,100) Wiki \\ns \\color:rgb(0,0,0) pédia. \\regular";
         
         description.from_stringstream(stream, Paragraph::Wrapper::Char, 60);
         description.set_alignment(Center);

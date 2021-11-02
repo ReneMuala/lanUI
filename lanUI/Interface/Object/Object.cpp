@@ -461,6 +461,7 @@ bool Object::_has_focus(const float dpiK){
      && (cursor.data.x <= (size.data.x + size.data.w)*dpiK)
      && (cursor.data.y <= (size.data.y + size.data.h)*dpiK)
      );
+    hasFocusBuffer.set(focus);
     scrollingFactor.leave();
     size.leave();
     cursor.leave();
@@ -468,10 +469,9 @@ bool Object::_has_focus(const float dpiK){
 }
 
 void Object::_handle_events(Event & event, const float dpiK, const bool no_focus){
-    if(inRootBoundsBuffer.get() && !no_focus){
+    if(inRootBoundsBuffer.get()&& !no_focus && _has_focus(dpiK)){
         inRootBoundsBuffer.leave();
-        if(this->_has_focus(dpiK)){
-            // ignore this object if the nextInZ has focus
+        // ignore this object if the nextInZ has focus
             if(nextInZ.get()){
                 nextInZ.leave();
                 if(drawMode.get() != CompositionMode) {
@@ -482,17 +482,16 @@ void Object::_handle_events(Event & event, const float dpiK, const bool no_focus
                 }
             } else
                 nextInZ.leave();
-        } else {
-            if(nextInZ.get()){
-                nextInZ.leave();
-                _handle_others_routine(event, nextInZ.data, dpiK, false);
-            } else
-                nextInZ.leave();
-            _handle_others(event, dpiK, false);
-        }
-    } else {
-        inRootBoundsBuffer.leave();
-    }
+            no_focus_repeated = false;
+    } else if (!no_focus_repeated)  {
+        if(nextInZ.get()){
+            nextInZ.leave();
+            _handle_others_routine(event, nextInZ.data, dpiK, true);
+        } else
+            nextInZ.leave();
+        no_focus_repeated = true;
+    } inRootBoundsBuffer.leave();
+    _handle_others(event, dpiK, no_focus);
 }
 
 void Object::_run_others_default_animation(){

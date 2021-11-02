@@ -73,7 +73,7 @@ public:
         
     void _adjustTextDPI();
     
-    void _set_font_style(Font::Style const, unsigned int const);
+    void _set_font_style(Font::Style const, unsigned int const = 0);
     
     bool compile_canvas(Renderer*);
     

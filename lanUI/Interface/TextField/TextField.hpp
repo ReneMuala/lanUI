@@ -24,6 +24,19 @@ class TextField : public InterativeObject {
     std::string placeholder;
     size_t input_size_change, input_size;
     int8_t cursor_change_flag;
+    
+    void _default_on_click();
+    void _default_on_focus_lost();
+    void _init(Semaphore<std::string>&source, const std::string plabeholder = "");
+    
+    VoidCallback on_empty_callback;
+    VoidCallback on_not_empty_callback;
+    VoidCallback on_changed_callback;
+    VoidCallback on_submit_callback;
+    VoidCallback on_tab_callback;
+    VoidCallback on_delete_callback;
+    
+public:
     struct TextSurface : public Text {
         float horizontalScrollPading;
     public:
@@ -35,7 +48,6 @@ class TextField : public InterativeObject {
             bool empty;
             bool hidden;
             bool active;
-                        
             Cursor();
             void _render(SDL_Renderer*, float x, float y, const float dpiK);
         };
@@ -50,9 +62,9 @@ class TextField : public InterativeObject {
         
     } textSurface;
     
-    void _init(Semaphore<std::string>&source, const std::string plabeholder = "");
+    void __default_on_selected_callback();
+    void __default_on_unselected_callback();
     
-public:
     void _sync_strings();
     void _handle_events(Event & event, const float dpiK, const bool no_focus = false) override;
     void _refresh_cursor(const float dpiK);

@@ -90,7 +90,8 @@ void Window::_handle_events(){
                     break;
             }
             _handle_callBacks(sdlEvent.data.window.event, sdlEvent.data.type);
-
+            if(sdlEvent.data.type == SDL_MOUSEBUTTONDOWN)
+                Core::set_selected_object(nullptr);
             if(nextInZ.get()) {
                 _handle_others_routine(sdlEvent.data, nextInZ.data, DPIConstant.get(), false);
                 DPIConstant.leave();

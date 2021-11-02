@@ -39,9 +39,9 @@ public:
     
     bool ready;
     
-    int size;
+    int size, scalingFactorConstant;
     
-    int scalingFactorConstant;
+    size_t id_inAllFonts;
     
     Style style;
     

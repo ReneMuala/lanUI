@@ -12,9 +12,8 @@
 #include "../Interface/Font/Font.hpp"
 #include "../Project/CustomFonts/CustomFonts.hpp"
 
-#include <vector>
-#include <list>
 #include <map>
+#include <unordered_map>
 #include <iostream>
 
 #include <SDL2/SDL.h>
@@ -40,10 +39,12 @@ namespace DrawableObjectsData {
 
 namespace InteractiveObjecsData {
     extern Semaphore<SDL_Point> cursor;
+    extern Semaphore<Object*> selectedObject;
 }
 
 namespace Fonts {
     extern Font DejaVuSans;
+    extern Semaphore<std::unordered_map<unsigned long /* FONT_ID */, TTF_Font*>> allFonts;
 }
 
 Core::Core(): terminated(false){
@@ -66,6 +67,7 @@ Core::~Core(){
         //CoreData::eventHandler.join();
         CoreData::renderHandler.join();
         clearCache();
+        free_fonts();
         close_SDL();
         terminated = true;
     }
@@ -192,6 +194,15 @@ void Core::clearCache(){
     DrawableObjectsData::surfacesCache.leave();
 }
 
+void Core::set_selected_object(void * object){
+    std::cout << "sected Object: " << object << std::endl;
+    InteractiveObjecsData::selectedObject.set((Object *)object);
+}
+
+const void * Core::get_selected_object(){
+    return InteractiveObjecsData::selectedObject.data;
+}
+
 void Core::load_fonts(){
     Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSans.ttf", Font::Style::Regular);
     Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSans-Bold.ttf", Font::Style::Bold);
@@ -202,6 +213,17 @@ void Core::load_fonts(){
     Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSansCondensed-BoldOblique.ttf", Font::Style::Condensed_BoldOblique);
     Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSansCondensed.ttf", Font::Style::Condensed);
     CustomFonts::_loadCustomFonts();
+}
+
+void Core::free_fonts(){
+    Fonts::allFonts.hold();
+    for (auto& font  : Fonts::allFonts.data) {
+        if(font.second){
+            TTF_CloseFont(font.second);
+            font.second = nullptr;
+        }
+    }
+    Fonts::allFonts.leave();
 }
 
 void Core::set_sleep_time(std::chrono::milliseconds sleepTime){

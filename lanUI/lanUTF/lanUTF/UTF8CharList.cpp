@@ -208,6 +208,11 @@ UTF8CharList::UTF8CharList(): first(nullptr){
     clear();
 }
 
+UTF8CharList::UTF8CharList(char * str): first(nullptr){
+    clear();
+    append(str);
+}
+
 UTF8CharList::~UTF8CharList(){
     clear();
 }

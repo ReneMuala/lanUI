@@ -93,7 +93,7 @@ void Text::_adjustTextDPI(){
 
 void Text::_set_font_style(const Font::Style style, const unsigned int size){
     if(font){
-        font->set_style(style, (fontVirtualSize.get() = size));
+        font->set_style(style, (size ? (fontVirtualSize.get() = size) : fontVirtualSize.get()));
         fontVirtualSize.leave();
         DPIConstant.leave();
     } else {
@@ -290,8 +290,7 @@ Text& Text::set_font(Font & new_font){
     Font::Style last_font_style = font->style;
     _free_font();
     font = new Font(new_font);
-    _set_font_style(last_font_style, fontVirtualSize.get());
-    fontVirtualSize.leave();
+    _set_font_style(last_font_style);
     tryCompile();
     return (*this);
 }
@@ -303,63 +302,54 @@ Text& Text::set_foreground_color(const Color color){
 }
 
 Text& Text::regular(const unsigned int size){
-    fontVirtualSize = size;
     _set_font_style(Font::Regular, size);
     tryCompile();
     return (*this);
 }
 
 Text& Text::bold(const unsigned int size){
-    fontVirtualSize = size;
     _set_font_style(Font::Bold, size);
     tryCompile();
     return (*this);
 }
 
 Text& Text::boldOblique(const unsigned int size){
-    fontVirtualSize = size;
     _set_font_style(Font::BoldOblique, size);
     tryCompile();
     return (*this);
 }
 
 Text& Text::extraLight(const unsigned int size){
-    fontVirtualSize = size;
     _set_font_style(Font::ExtraLight, size);
     tryCompile();
     return (*this);
 }
 
 Text& Text::oblique(const unsigned int size){
-    fontVirtualSize = size;
     _set_font_style(Font::Oblique, size);
     tryCompile();
     return (*this);
 }
 
 Text& Text::condensed_Bold(const unsigned int size){
-    fontVirtualSize = size;
     _set_font_style(Font::Condensed_Bold, size);
     tryCompile();
     return (*this);
 }
 
 Text& Text::condensed_BoldOblique(const unsigned int size){
-    fontVirtualSize = size;
     _set_font_style(Font::Condensed_BoldOblique, size);
     tryCompile();
     return (*this);
 }
 
 Text& Text::condensed_Oblique(const unsigned int size){
-    fontVirtualSize = size;
     _set_font_style(Font::Condensed_Oblique, size);
     tryCompile();
     return (*this);
 }
 
 Text& Text::condensed(const unsigned int size){
-    fontVirtualSize = size;
     _set_font_style(Font::Condensed, size);
     tryCompile();
     return (*this);
