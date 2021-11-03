@@ -20,6 +20,8 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
+#include <regex>
+
 namespace CoreData
 {
 bool running;
@@ -43,7 +45,7 @@ namespace InteractiveObjecsData {
 }
 
 namespace Fonts {
-    extern Font DejaVuSans;
+    extern Font DejaVuSans, WorkSans, OpenSans;
     extern Semaphore<std::unordered_map<unsigned long /* FONT_ID */, TTF_Font*>> allFonts;
 }
 
@@ -195,7 +197,6 @@ void Core::clearCache(){
 }
 
 void Core::set_selected_object(void * object){
-    std::cout << "sected Object: " << object << std::endl;
     InteractiveObjecsData::selectedObject.set((Object *)object);
 }
 
@@ -203,16 +204,61 @@ const void * Core::get_selected_object(){
     return InteractiveObjecsData::selectedObject.data;
 }
 
+void Core::compute_path(std::string & path){
+    static const std::regex fontsHintReg("(Fonts)\\:", std::regex_constants::icase);
+    
+    
+    if(std::regex_match(path.substr(0, 6), fontsHintReg)){
+        path.replace(0,6, LANUI_DEFAULT_FONTS_PATH);
+    }
+}
+
 void Core::load_fonts(){
-    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSans.ttf", Font::Style::Regular);
-    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSans-Bold.ttf", Font::Style::Bold);
-    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSans-BoldOblique.ttf", Font::Style::BoldOblique);
-    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSans-ExtraLight.ttf", Font::Style::ExtraLight);
-    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSans-Oblique.ttf", Font::Style::Oblique);
-    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSansCondensed-Bold.ttf", Font::Style::Condensed_Bold);
-    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSansCondensed-BoldOblique.ttf", Font::Style::Condensed_BoldOblique);
-    Fonts::DejaVuSans.fromFile("lanUI.Bundle/System/Library/Fonts/DejaVuSansCondensed.ttf", Font::Style::Condensed);
+    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans.ttf", Font::Style::Regular);
+    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans-Bold.ttf", Font::Style::Bold);
+    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans-BoldOblique.ttf", Font::Style::BoldOblique);
+    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans-ExtraLight.ttf", Font::Style::ExtraLight);
+    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans-Oblique.ttf", Font::Style::Oblique);
+    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSansCondensed-Bold.ttf", Font::Style::Condensed_Bold);
+    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSansCondensed-BoldOblique.ttf", Font::Style::Condensed_BoldOblique);
+    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSansCondensed.ttf", Font::Style::Condensed);
+    Fonts::DejaVuSans.set_global_name("DejaVuSans");
+    
+    Fonts::OpenSans.fromFile("Fonts:OpenSans-Bold.ttf", Font::Bold);
+    Fonts::OpenSans.fromFile("Fonts:OpenSans-BoldItalic.ttf", Font::BoldItalic);
+    Fonts::OpenSans.fromFile("Fonts:OpenSans-ExtraBold.ttf", Font::ExtraBold);
+    Fonts::OpenSans.fromFile("Fonts:OpenSans-ExtraBoldItalic.ttf", Font::ExtraBoldItalic);
+    Fonts::OpenSans.fromFile("Fonts:OpenSans-Italic.ttf", Font::Italic);
+    Fonts::OpenSans.fromFile("Fonts:OpenSans-Light.ttf", Font::Light);
+    Fonts::OpenSans.fromFile("Fonts:OpenSans-LightItalic.ttf", Font::LightItalic);
+    Fonts::OpenSans.fromFile("Fonts:OpenSans-Medium.ttf", Font::Medium);
+    Fonts::OpenSans.fromFile("Fonts:OpenSans-MediumItalic.ttf", Font::MediumItalic);
+    Fonts::OpenSans.fromFile("Fonts:OpenSans-Regular.ttf", Font::Regular);
+    Fonts::OpenSans.fromFile("Fonts:OpenSans-SemiBold.ttf", Font::SemiBold);
+    Fonts::OpenSans.fromFile("Fonts:OpenSans-SemiBoldItalic.ttf", Font::SemiBoldItalic);
+    Fonts::OpenSans.set_global_name("OpenSans");
+    
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-Black.ttf", Font::Black);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-BlackItalic.ttf", Font::BlackItalic);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-Bold.ttf", Font::Bold);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-BoldItalic.ttf", Font::BoldItalic);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-ExtraBold.ttf", Font::ExtraBold);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-ExtraBoldItalic.ttf", Font::ExtraBoldItalic);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-ExtraLight.ttf", Font::ExtraLight);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-ExtraLightItalic.ttf", Font::ExtraLightItalic);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-Italic.ttf", Font::Italic);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-Light.ttf", Font::Light);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-LightItalic.ttf", Font::LightItalic);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-Medium.ttf", Font::Medium);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-MediumItalic.ttf", Font::MediumItalic);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-Regular.ttf", Font::Regular);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-SemiBold.ttf", Font::SemiBold);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-SemiBoldItalic.ttf", Font::SemiBoldItalic);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-Thin.ttf", Font::Thin);
+    Fonts::WorkSans.fromFile("Fonts:WorkSans-ThinItalic.ttf", Font::ThinItalic);
+    Fonts::WorkSans.set_global_name("WorkSans");
     CustomFonts::_loadCustomFonts();
+    Fonts::set_default_font();
 }
 
 void Core::free_fonts(){

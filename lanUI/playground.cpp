@@ -53,7 +53,7 @@ int main(){
     
     Window janela("hello", 400,500);
 
-    janela.set_window_clear_color(Colors::Light_gray);
+    janela.set_window_clear_color(Colors::White);
     
     /*
     
@@ -77,27 +77,23 @@ int main(){
     olamundo.terminate();
     return 0;
      */
+        
+    Paragraph parag;
     
-    Semaphore<std::string> fieldData,fieldData2;
-
-    auto field = TextField(fieldData, "Username");
-    auto field2 = TextField(fieldData2, "Username");
+    std::stringstream stream;
+    for (int i = 0 ; i < 1; i++) {
+        stream.clear();
+        
+        stream << "\\FONT:opensans \\size:28 New \\Color:RGBA(10,0,200,255) \\b Open \\R Sans \\n ";
+        
+        stream << "\\Size:15 "  << Lorem;
+        
+        parag.from_stringstream(stream, Paragraph::Wrapper::Char, 30);
+    }
     
-    field.set_foreground_color(Colors::White);
-    field2.set_foreground_color(Colors::Dark_gray);
+    parag.set_alignment(Object::Center);
     
-//    field.set_border_color(Colors::Blue.from_a(100));
-
-    field.set_size(100, 25);
-    field2.set_size(100, 25);
-
-    field.textSurface.regular(13);
-    field2.textSurface.regular(13);
-
-    janela.embedInZ(field);
-
-    field.set_alignment(Object::Center);
-    field.embedInY(field2);
+    janela.embedInZ(parag);
     
     olamundo.events();
     

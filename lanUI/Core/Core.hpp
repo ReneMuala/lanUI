@@ -44,6 +44,7 @@ public:
     static void clearCache();
     static void set_selected_object(void*);
     static const void * get_selected_object();
+    static void compute_path(std::string &);
     void load_fonts();
     void free_fonts();
     void set_sleep_time(std::chrono::milliseconds);

@@ -48,7 +48,8 @@ const std::string TextStyle::toStr() const {
 
 #include <iostream>
 Text::Text(const std::string source, Font& font): withBackground(false), source(source), ttf_api_style(TTF_api_style::Normal), fontVirtualSize(12), font(nullptr), surfc(nullptr){
-    this->font = new Font(font);
+    this->font = new Font();
+    (*this->font) = font;
     foregroundColor.set(Colors::Black);
     backgroundColor.set(Colors::Transparent);
     if(source.size())
@@ -91,14 +92,14 @@ void Text::_adjustTextDPI(){
     fontVirtualSize.leave();
 }
 
-void Text::_set_font_style(const Font::Style style, const unsigned int size){
+Text& Text::set_font_style(const Font::Style style, const unsigned int size){
     if(font){
-        font->set_style(style, (size ? (fontVirtualSize.get() = size) : fontVirtualSize.get()));
+        font->set_style(style, (fontVirtualSize.get() = size));
         fontVirtualSize.leave();
-        DPIConstant.leave();
+        tryCompile();
     } else {
         Core::log(Core::Warning, "Failed to set Text::Font* (nullptr)");
-    }
+    } return (*this);
 }
 
 bool Text::compile_canvas(SDL_Renderer * renderer){
@@ -289,8 +290,9 @@ Text& Text::set_style(const TextStyle preset){
 Text& Text::set_font(Font & new_font){
     Font::Style last_font_style = font->style;
     _free_font();
-    font = new Font(new_font);
-    _set_font_style(last_font_style);
+    font = new Font();
+    (*this->font) = new_font;
+    set_font_style(last_font_style);
     tryCompile();
     return (*this);
 }
@@ -302,55 +304,121 @@ Text& Text::set_foreground_color(const Color color){
 }
 
 Text& Text::regular(const unsigned int size){
-    _set_font_style(Font::Regular, size);
-    tryCompile();
+    set_font_style(Font::Regular, size);
     return (*this);
 }
 
 Text& Text::bold(const unsigned int size){
-    _set_font_style(Font::Bold, size);
-    tryCompile();
+    set_font_style(Font::Bold, size);
     return (*this);
 }
 
 Text& Text::boldOblique(const unsigned int size){
-    _set_font_style(Font::BoldOblique, size);
-    tryCompile();
+    set_font_style(Font::BoldOblique, size);
     return (*this);
 }
 
 Text& Text::extraLight(const unsigned int size){
-    _set_font_style(Font::ExtraLight, size);
-    tryCompile();
+    set_font_style(Font::ExtraLight, size);
     return (*this);
 }
 
 Text& Text::oblique(const unsigned int size){
-    _set_font_style(Font::Oblique, size);
-    tryCompile();
+    set_font_style(Font::Oblique, size);
     return (*this);
 }
 
 Text& Text::condensed_Bold(const unsigned int size){
-    _set_font_style(Font::Condensed_Bold, size);
-    tryCompile();
+    set_font_style(Font::Condensed_Bold, size);
     return (*this);
 }
 
 Text& Text::condensed_BoldOblique(const unsigned int size){
-    _set_font_style(Font::Condensed_BoldOblique, size);
-    tryCompile();
+    set_font_style(Font::Condensed_BoldOblique, size);
     return (*this);
 }
 
 Text& Text::condensed_Oblique(const unsigned int size){
-    _set_font_style(Font::Condensed_Oblique, size);
-    tryCompile();
+    set_font_style(Font::Condensed_Oblique, size);
     return (*this);
 }
 
 Text& Text::condensed(const unsigned int size){
-    _set_font_style(Font::Condensed, size);
-    tryCompile();
+    set_font_style(Font::Condensed, size);
+    return (*this);
+}
+
+Text& Text::black(const unsigned int size){
+    set_font_style(Font::Black, size);
+    return (*this);
+}
+
+Text& Text::blackItalic(const unsigned int size){
+    set_font_style(Font::BlackItalic, size);
+    return (*this);
+}
+
+Text& Text::boldItalic(const unsigned int size){
+    set_font_style(Font::Black, size);
+    return (*this);
+}
+
+Text& Text::extraLightItalic(const unsigned int size){
+    set_font_style(Font::ExtraLightItalic, size);
+    return (*this);
+}
+
+Text& Text::extraBold(const unsigned int size){
+    set_font_style(Font::ExtraBold, size);
+    return (*this);
+}
+
+Text& Text::extraBoldItalic(const unsigned int size){
+    set_font_style(Font::ExtraBoldItalic, size);
+    return (*this);
+}
+
+Text& Text::italic(const unsigned int size){
+    set_font_style(Font::Italic, size);
+    return (*this);
+}
+
+Text& Text::light(const unsigned int size){
+    set_font_style(Font::Light, size);
+    return (*this);
+}
+
+Text& Text::lightItalic(const unsigned int size){
+    set_font_style(Font::LightItalic, size);
+    return (*this);
+}
+
+Text& Text::medium(const unsigned int size){
+    set_font_style(Font::Medium, size);
+    return (*this);
+}
+
+Text& Text::mediumItalic(const unsigned int size){
+    set_font_style(Font::MediumItalic, size);
+    return (*this);
+}
+
+Text& Text::semiBold(const unsigned int size){
+    set_font_style(Font::SemiBold, size);
+    return (*this);
+}
+
+Text& Text::semiBoldItalic(const unsigned int size){
+    set_font_style(Font::SemiBoldItalic, size);
+    return (*this);
+}
+
+Text& Text::thin(const unsigned int size){
+    set_font_style(Font::Thin, size);
+    return (*this);
+}
+
+Text& Text::thinItalic(const unsigned int size){
+    set_font_style(Font::ThinItalic, size);
     return (*this);
 }

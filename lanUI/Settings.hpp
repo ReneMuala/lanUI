@@ -6,8 +6,10 @@
 //  Copyright © 2021 René Descartes Domingos Muala. All rights reserved.
 //
 
-#ifndef Debug_h
-#define Debug_h
+#ifndef LANUI_SETTINGS_HPP
+#define LANUI_SETTINGS_HPP
+
+#define LANUI_DEFAULT_FONTS_PATH "lanUI.Bundle/System/Library/Fonts/"
 
 //  #define LANUI_DEBUG_MODE
 /*  ^^^^^^^^^^^^^^^^^^^^^^^
@@ -98,4 +100,4 @@
 
 #define lanUIVersion "lanUI 0.3"
 
-#endif /* Debug_h */
+#endif /* LANUI_SETTINGS_HPP */

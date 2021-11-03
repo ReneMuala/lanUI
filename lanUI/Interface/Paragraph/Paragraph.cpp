@@ -17,13 +17,16 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper::Mode
 }
 
 Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wraper){
-    static const std::regex hintREG("^\\\\[[:alnum:](,)_:]+$");
+    static const std::regex hintREG("^\\\\[[:alnum:]{}(,)_:]+$");
     std::string line, buffer;
     int wordCount(0);
-    Font::Style hint_style = Font::Regular;
-    unsigned int hint_size = TextStyles::Default.size;
-    bool hint_noSpace = false;
-    bool hint_space = false;
+    hints.font = new Font();
+    *hints.font =  Fonts::DefaultFonts;
+    hints.style = Font::Regular;
+    hints.size = TextStyles::Default.size;
+    hints.color = Colors::Black;
+    hints.noSpace = false;
+    hints.space = false;
     
     while (!stream.eof()) {
         stream >> buffer;
@@ -33,10 +36,10 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
             }
             wordCount++;
             __line_creation_begin:
-            if(!hint_noSpace) line+=" ";
-            _add_word((line.empty() ? buffer : (!hint_noSpace ? " " : "")+buffer).c_str(), hint_style, hint_size);
-            hint_noSpace = false;
-            hint_space = false;
+            if(!hints.noSpace && !words.empty()) line+=" ";
+            _add_word((line.empty() ? buffer : (!hints.noSpace ? " " : "")+buffer).c_str());
+            hints.noSpace = false;
+            hints.space = false;
             if(wraper.fieldsCount || wraper.mode == Wrapper::Infty){
                 line+=buffer;
                 switch (wraper.mode) {
@@ -62,8 +65,8 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
                 line="";
             }
         } else {
-            _parse_hint(buffer, line, hint_style, hint_size, hint_noSpace, hint_space);
-            if(hint_space){
+            _parse_hint(buffer, line);
+            if(hints.space){
                 buffer = " ";
                 goto __line_creation_begin;
             }
@@ -75,40 +78,60 @@ Paragraph& Paragraph::from_stringstream(std::stringstream& stream, Wrapper wrape
     fromList(lines);
     words.clear();
     lines.clear();
+    delete hints.font;
     return (*this);
 }
 
 void Paragraph::free(){
-    VStack::free();
+    Stack::free();
 }
 
-void Paragraph::_parse_hint(const std::string src, std::string & line , Font::Style &style, unsigned int &size, bool &noSpace, bool &space){
-    static const std::regex sizeREG("^\\\\size:\\d+$");
-    static const std::regex rgbREG("^\\\\color:rgb\\(\\d{1,3},\\d{1,3},\\d{1,3}\\)$");
-    static const std::regex rgbaREG("^\\\\color:rgba\\(\\d{1,3},\\d{1,3},\\d{1,3},\\d{1,3}\\)$");
-    static const std::regex newlnREG("^\\\\(newln|n)$");
-    static const std::regex regularREG("^\\\\(regular|r)$");
-    static const std::regex boldREG("^\\\\(bold|b)$");
-    static const std::regex boldObliqueREG("^\\\\(boldOblique|bo)$");
-    static const std::regex extraLightREG("^\\\\(extraLight|el)$");
-    static const std::regex obliqueREG("^\\\\(oblique|o)$");
-    static const std::regex condensed_BoldREG("^\\\\(condensed_Bold|cb)$");
-    static const std::regex condensed_BoldObliqueREG("^\\\\(condensed_BoldOblique|cbo)$");
-    static const std::regex condensed_ObliqueREG("^\\\\(condensed_Oblique|co)$");
-    static const std::regex condensedREG("^\\\\(condensed|c)$");
-    static const std::regex nospaceREG("^\\\\(nospace|noSpace|ns)$");
-    static const std::regex spaceREG("^\\\\(space|s)$");
-
+void Paragraph::_parse_hint(const std::string src, std::string & line){
+    static const std::regex sizeREG("^\\\\(size):\\d+$", std::regex_constants::icase);
+    static const std::regex rgbREG("^\\\\color:rgb\\(\\d{1,3},\\d{1,3},\\d{1,3}\\)$", std::regex_constants::icase);
+    static const std::regex rgbaREG("^\\\\color:rgba\\(\\d{1,3},\\d{1,3},\\d{1,3},\\d{1,3}\\)$", std::regex_constants::icase);
+    static const std::regex newlnREG("^\\\\(newln|n)$", std::regex_constants::icase);
+    
+    static const std::regex regularREG("^\\\\(regular|r)$", std::regex_constants::icase);
+    static const std::regex boldREG("^\\\\(bold|b)$", std::regex_constants::icase);
+    static const std::regex boldObliqueREG("^\\\\(boldOblique|bo)$", std::regex_constants::icase);
+    static const std::regex extraLightREG("^\\\\(extraLight|el)$", std::regex_constants::icase);
+    static const std::regex obliqueREG("^\\\\(oblique|o)$", std::regex_constants::icase);
+    static const std::regex condensed_BoldREG("^\\\\(condensed_Bold|cb)$", std::regex_constants::icase);
+    static const std::regex condensed_BoldObliqueREG("^\\\\(condensed_BoldOblique|cbo)$", std::regex_constants::icase);
+    static const std::regex condensed_ObliqueREG("^\\\\(condensed_Oblique|co)$", std::regex_constants::icase);
+    static const std::regex condensedREG("^\\\\(condensed|c)$", std::regex_constants::icase);
+    
+    static const std::regex blackREG("^\\\\(black|bk|b2)$", std::regex_constants::icase);
+    static const std::regex blackItalicREG("^\\\\(blackItalic|bki|b2i)$", std::regex_constants::icase);
+    static const std::regex boldItalicREG("^\\\\(boldItalic|bi)$", std::regex_constants::icase);
+    static const std::regex extraLightItalicREG("^\\\\(extraLightItalic|eli)$", std::regex_constants::icase);
+    static const std::regex extraBoldREG("^\\\\(extraBold|eb)$", std::regex_constants::icase);
+    static const std::regex extraBoldItalicREG("^\\\\(extraBoldItalic|ebi)$", std::regex_constants::icase);
+    static const std::regex italicREG("^\\\\(italic|i)$", std::regex_constants::icase);
+    static const std::regex lightREG("^\\\\(light|l)$", std::regex_constants::icase);
+    static const std::regex lightItalicREG("^\\\\(lightItalic|li)$", std::regex_constants::icase);
+    static const std::regex mediumREG("^\\\\(medium|m)$", std::regex_constants::icase);
+    static const std::regex mediumItalicREG("^\\\\(mediumItalic|mi)$", std::regex_constants::icase);
+    static const std::regex semiboldREG("^\\\\(semiBold|sb)$", std::regex_constants::icase);
+    static const std::regex semiboldItalicREG("^\\\\(semiBoldItalic|sbi)$", std::regex_constants::icase);
+    static const std::regex thinREG("^\\\\(thin|t)$", std::regex_constants::icase);
+    static const std::regex thinItalicREG("^\\\\(thinItalic|ti)$", std::regex_constants::icase);
+    
+    static const std::regex nospaceREG("^\\\\(nospace|noSpace|ns)$", std::regex_constants::icase);
+    static const std::regex spaceREG("^\\\\(space|s)$", std::regex_constants::icase);
+    static const std::regex fontREG("^\\\\(font)\\:[a-zA-Z]+$", std::regex_constants::icase);
+    
     if(std::regex_match(src, sizeREG)){
-        sscanf(src.c_str(), "\\size:%d", &size);
+        sscanf(src.substr(6, src.size()).c_str(), "%d", &hints.size);
     } else if(std::regex_match(src, rgbREG)){
         short rgb[3];
-        sscanf(src.c_str(), "\\color:rgb(%hd,%hd,%hd)", &rgb[0], &rgb[1],&rgb[2]);
-        textColor = Color(rgb[0], rgb[1], rgb[2]);
+        sscanf(src.substr(10, src.size()).c_str(), "(%hd,%hd,%hd)", &rgb[0], &rgb[1],&rgb[2]);
+        hints.color = Color(rgb[0], rgb[1], rgb[2]);
     } else if(std::regex_match(src, rgbaREG)){
         short rgba[4];
-        sscanf(src.c_str(), "\\color:rgba(%hd,%hd,%hd,%hd)", &rgba[0], &rgba[1],&rgba[2],&rgba[3]);
-        textColor = Color(rgba[0], rgba[1],rgba[2],rgba[3]);
+        sscanf(src.substr(11, src.size()).c_str(), "(%hd,%hd,%hd,%hd)", &rgba[0], &rgba[1],&rgba[2],&rgba[3]);
+        hints.color = Color(rgba[0], rgba[1],rgba[2],rgba[3]);
     } else if(std::regex_match(src, newlnREG)){
         if(!words.empty()) {
             _new_line(words);
@@ -116,40 +139,77 @@ void Paragraph::_parse_hint(const std::string src, std::string & line , Font::St
             words.clear();
         }
     } else if(std::regex_match(src, regularREG)){
-        style = Font::Regular;
+        hints.style = Font::Regular;
     } else if(std::regex_match(src, boldREG)){
-        style = Font::Bold;
+        hints.style = Font::Bold;
     } else if(std::regex_match(src, boldObliqueREG)){
-        style = Font::BoldOblique;
+        hints.style = Font::BoldOblique;
     } else if(std::regex_match(src, extraLightREG)){
-        style = Font::ExtraLight;
+        hints.style = Font::ExtraLight;
     } else if(std::regex_match(src, obliqueREG)){
-        style = Font::Oblique;
+        hints.style = Font::Oblique;
     } else if(std::regex_match(src, condensed_BoldREG)){
-        style = Font::Condensed_Bold;
+        hints.style = Font::Condensed_Bold;
     } else if(std::regex_match(src, condensed_BoldObliqueREG)){
-        style = Font::Condensed_BoldOblique;
+        hints.style = Font::Condensed_BoldOblique;
     } else if(std::regex_match(src, condensed_ObliqueREG)){
-        style = Font::Condensed_Oblique;
+        hints.style = Font::Condensed_Oblique;
     } else if(std::regex_match(src, condensedREG)){
-        style = Font::Condensed;
+        hints.style = Font::Condensed;
+    } else if(std::regex_match(src, blackREG)){
+        hints.style = Font::Black;
+    } else if(std::regex_match(src, blackItalicREG)){
+        hints.style = Font::BlackItalic;
+    } else if(std::regex_match(src, boldItalicREG)){
+        hints.style = Font::BoldItalic;
+    } else if(std::regex_match(src, extraLightItalicREG)){
+        hints.style = Font::ExtraLightItalic;
+    } else if(std::regex_match(src, extraBoldREG)){
+        hints.style = Font::ExtraBold;
+    } else if(std::regex_match(src, extraBoldItalicREG)){
+        hints.style = Font::ExtraBoldItalic;
+    } else if(std::regex_match(src, italicREG)){
+        hints.style = Font::Italic;
+    } else if(std::regex_match(src, lightREG)){
+        hints.style = Font::Light;
+    } else if(std::regex_match(src, lightItalicREG)){
+        hints.style = Font::LightItalic;
+    } else if(std::regex_match(src, mediumREG)){
+        hints.style = Font::Medium;
+    } else if(std::regex_match(src, mediumItalicREG)){
+        hints.style = Font::MediumItalic;
+    } else if(std::regex_match(src, semiboldREG)){
+        hints.style = Font::SemiBold;
+    } else if(std::regex_match(src, semiboldItalicREG)){
+        hints.style = Font::SemiBoldItalic;
+    } else if(std::regex_match(src, thinREG)){
+        hints.style = Font::Thin;
+    } else if(std::regex_match(src, thinItalicREG)){
+        hints.style = Font::ThinItalic;
     } else if(std::regex_match(src, nospaceREG)){
-        noSpace = true;
+        hints.noSpace = true;
     } else if(std::regex_match(src, spaceREG)){
-        noSpace = true;
-        space = true;
+        hints.noSpace = true;
+        hints.space = true;
+    } else if(std::regex_match(src, fontREG)){
+        Font * font_buffer  = nullptr;
+        const std::string global_name = src.substr(6, src.size());
+        if((font_buffer = Font::_get_font_by_global_name(global_name.c_str()))){
+            *hints.font = (*font_buffer);
+        } else {
+            Core::log(Core::Warning, std::string("(Paragraph parser): Unable to find a global font with the name \"" + global_name + "\".").c_str());
+        }
     } else {
         Core::log(Core::Warning, (std::string("Unknow Paragraph hint: \"" + src + "\"")).c_str());
     }
 }
 
-void Paragraph::_add_word(const char * str, Font::Style style, const unsigned int size){
+void Paragraph::_add_word(const char * str){
     Text * word = new Text(str);
-    word->set_foreground_color(textColor);
-    if(word->font)
-        word->font->set_style(style);
-    word->fontVirtualSize.set(size);
-    word->tryCompile();
+    word->set_foreground_color(hints.color);
+    if(word->font) {
+        *word->font = *hints.font;
+    } word->set_font_style(hints.style, hints.size);
     words.push_back(word);
 }
 

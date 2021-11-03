@@ -23,10 +23,10 @@
 		17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17734DA526BDD31E00212851 /* InteractiveObject.cpp */; };
 		177C47F72711C1DF00A0B99D /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B826B3186E00219F36 /* Text.cpp */; };
 		1781821126C41BCB00F986B6 /* List.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1781820F26C41BCB00F986B6 /* List.cpp */; };
+		1790DDFC2732F74F001009AD /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
 		17A43EC5271C54320063E2F3 /* UTF8CharList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A43EBB271C54310063E2F3 /* UTF8CharList.cpp */; };
 		17A43EC6271C54320063E2F3 /* UTF8Char.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A43EBC271C54310063E2F3 /* UTF8Char.cpp */; };
 		17AC1704272FECE1002BA291 /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997C526B3282A00219F36 /* Font.cpp */; };
-		17AC170F27307D0F002BA291 /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
 		17BE74A426AC0364009A3D8C /* Color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17BE74A326AC0364009A3D8C /* Color.cpp */; };
 		17C7970C26D8F85F00CF551B /* Paragraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970A26D8F85F00CF551B /* Paragraph.cpp */; };
 		17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B326B2B6CF00219F36 /* Stack.cpp */; };
@@ -530,7 +530,7 @@
 				17BE74A426AC0364009A3D8C /* Color.cpp in Sources */,
 				177C47F72711C1DF00A0B99D /* Text.cpp in Sources */,
 				174F1F132682533B009B8159 /* Window.cpp in Sources */,
-				17AC170F27307D0F002BA291 /* playground.cpp in Sources */,
+				1790DDFC2732F74F001009AD /* playground.cpp in Sources */,
 				174F1F1826825427009B8159 /* Core.cpp in Sources */,
 				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,
 				17DE7ED12708AF7B007667BA /* SDL2_gfxPrimitives.cpp in Sources */,

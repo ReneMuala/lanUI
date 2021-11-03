@@ -23,6 +23,7 @@ public:
     Text Title;
     List list;
     VStack mainArea;
+    Paragraph newsText;
     
     MyHomeView(Window & win) {
         create(win);
@@ -48,6 +49,7 @@ public:
         changes.push("- List (DEMO)");
         changes.push("- View");
         changes.push("- Font");
+        
         changes.push("- Text");
         changes.push("- Container");
         changes.push("- Spacer (DEMO)");

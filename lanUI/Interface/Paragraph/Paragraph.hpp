@@ -19,7 +19,14 @@
 const static std::string Lorem = ("Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam, magni. Ad culpa dolores id, aspernatur soluta quidem distinctio architecto tempore magni eos odio autem a quibusdam! Delectus cum nam iusto.");
 
 class Paragraph : public VStack {
-    Color textColor;
+    struct Hints {
+        Font * font;
+        Font::Style style;
+        unsigned int size;
+        Color color;
+        bool noSpace;
+        bool space;
+    } hints;
     bool empty;
 public:
     
@@ -34,7 +41,7 @@ public:
         Wrapper(Mode mode, int fields): mode(mode), fieldsCount(fields){}
     };
     
-    Paragraph(): empty(true), textColor(Colors::Black){}
+    Paragraph(): empty(true){}
     ~Paragraph() {
         free();
     }
@@ -47,8 +54,8 @@ public:
     Paragraph& from_stringstream(std::stringstream& , Wrapper wraper = {Wrapper::Mode::Infty,0});
     
     void free() override;
-    void _parse_hint(const std::string src, std::string & line ,Font::Style &style, unsigned int &size, bool &noSpace,bool &space);
-    void _add_word(const char *, Font::Style style, const unsigned int size);
+    void _parse_hint(const std::string src, std::string & line);
+    void _add_word(const char *);
     void _new_line(std::list<Object*> word);
 };
 

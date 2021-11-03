@@ -58,7 +58,7 @@ public:
     
     const CompatibilityRenderMode compatibilityMode = NormalMode;
     
-    Text(const std::string source = "", Font& font = Fonts::DejaVuSans);
+    Text(const std::string source = "", Font& font = Fonts::DefaultFonts);
     
     ~Text();
     
@@ -73,7 +73,7 @@ public:
         
     void _adjustTextDPI();
     
-    void _set_font_style(Font::Style const, unsigned int const = 0);
+    Text& set_font_style(const Font::Style, unsigned int const = 12);
     
     bool compile_canvas(Renderer*);
     
@@ -96,7 +96,7 @@ public:
     Text& set_font(Font &);
     
     Text& set_foreground_color(const Color) override;
-        
+    
     Text& regular(const unsigned int = 12);
     
     Text& bold(const unsigned int = 12);
@@ -113,8 +113,39 @@ public:
     
     Text& condensed_Oblique(const unsigned int = 12);
     
-    Text& condensed(const unsigned int = 0);
+    Text& condensed(const unsigned int = 12);
     
+    Text& black(const unsigned int = 12);
+    
+    Text& blackItalic(const unsigned int = 12);
+
+    Text& boldItalic(const unsigned int = 12);
+    
+    Text& extraLightItalic(const unsigned int = 12);
+    
+    Text& extraBold(const unsigned int = 12);
+    
+    Text& extraBoldItalic(const unsigned int = 12);
+        
+    Text& italic(const unsigned int = 12);
+    
+    Text& light(const unsigned int = 12);
+    
+    Text& lightItalic(const unsigned int = 12);
+    
+    Text& medium(const unsigned int = 12);
+    
+    Text& mediumItalic(const unsigned int = 12);
+    
+    Text& semiBold(const unsigned int = 12);
+    
+    Text& semiBoldItalic(const unsigned int = 12);
+    
+    Text& thin(const unsigned int = 12);
+    
+    Text& thinItalic(const unsigned int = 12);
+    
+
 };
 
 #endif /* Text_hpp */

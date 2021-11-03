@@ -13,6 +13,7 @@
 #include <string>
 #include "../../Core/Core.hpp"
 
+
 /** Text Font.
  Can be loaded from standard font formats (TTF, OTF,...).
  By default lanUI uses Dejavu sans, witch are loaded in the Core/Core.cpp file.
@@ -22,23 +23,37 @@ class Font {
 public:
     typedef enum {
         Regular,
+        Black,
+        BlackItalic,
         Bold,
         BoldOblique,
-        ExtraLight,
-        Oblique,
+        BoldItalic,
         Condensed_Bold,
         Condensed_BoldOblique,
         Condensed_Oblique,
         Condensed,
+        ExtraLight,
+        ExtraLightItalic,
+        ExtraBold,
+        ExtraBoldItalic,
+        Oblique,
+        Italic,
+        Light,
+        LightItalic,
+        Medium,
+        MediumItalic,
+        SemiBold,
+        SemiBoldItalic,
+        Thin,
+        ThinItalic,
         totalStyles,
     } Style;
-
 private:
     std::string path_copy[Style::totalStyles];
 public:
     
-    bool ready;
-    
+    std::string name;
+        
     int size, scalingFactorConstant;
     
     size_t id_inAllFonts;
@@ -47,7 +62,11 @@ public:
     
     Semaphore<TTF_Font*> ttfFont;
     
-    Font();
+    Font(Font& other) = delete;
+    
+    Font(const std::string name = "");
+    
+    void _init(const std::string name = "");
     
     ~Font();
     
@@ -70,15 +89,26 @@ public:
     /**Loads font data from a file.
     DON'T FORGET to load the Regular style, it will be necessary to handle erros.
      */
-    Font& fromFile(const char * path, Style style = Style::Regular);
+    Font& fromFile(std::string path, Style style = Style::Regular);
     
     Font& set_scaling_factor(const int constant);
+    
+    /** Sets the global name for this font, allowing it to be explicitly used in Paragrafs.
+     */
+    Font& set_global_name(const std::string);
+    
+    static Font* _get_font_by_global_name(const std::string);
+    
+    void print_avaliable_styles() const;
+    
+    
 };
 
 /** LanUI defaulf fonts
  */
 namespace Fonts {
-    extern Font DejaVuSans;
+    extern Font DejaVuSans, WorkSans, OpenSans, DefaultFonts;
+    extern void set_default_font();
 }
 
 #endif /* Font_hpp */

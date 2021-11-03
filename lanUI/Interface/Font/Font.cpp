@@ -10,29 +10,43 @@
 #include <unordered_map>
 
 namespace Fonts {
-    Font DejaVuSans;
+    Font DejaVuSans, WorkSans, OpenSans, DefaultFonts;
     Semaphore<std::unordered_map<unsigned long /* FONT_ID */, TTF_Font*>> allFonts;
     unsigned long allFontsCount;
+    
+    void set_default_font() {
+        DefaultFonts = WorkSans;
+    }
+    Semaphore<std::unordered_map<Font*,std::string const>> globalFonts;
 }
 
 #include <iostream>
 
-Font::Font(): style(Regular), ready(false), ttfFont(nullptr), scalingFactorConstant(1){
+Font::Font(const std::string name) {
+    _init(name);
+}
+
+void Font::_init(const std::string name){
+    style = Regular;
+    ttfFont = nullptr;
+    scalingFactorConstant = 1;
     Fonts::allFonts.hold();
     Fonts::allFontsCount++;
     id_inAllFonts = Fonts::allFontsCount-1;
     Fonts::allFonts.leave();
     for(int i = 0 ; i < totalStyles ; i++)
          path_copy[i].clear();
+    if(!name.empty()) set_global_name(name);
 }
 
 Font::~Font(){
+    if(TTF_WasInit())
+        free();
     for(int i = 0 ; i < totalStyles ; i++)
         path_copy[i].clear();
 }
 
 void Font::free(){
-    ready = false;
     if(ttfFont.get()){
         TTF_CloseFont(ttfFont.data);
     }
@@ -54,7 +68,7 @@ bool Font::_test(const char *path){
 bool Font::_load(const char *path, const int size){
     free();
     if(!(ttfFont.get() = TTF_OpenFont(path, size*scalingFactorConstant)))
-        Core::log(Core::Error, ("Unable to open font file: " + std::string(path)).c_str());
+        Core::log(Core::Error, ("Unable to open font file: " + std::string(path) + "(" + TTF_GetError() +")").c_str());
     else {
         Fonts::allFonts.hold();
         Fonts::allFonts.data[id_inAllFonts] = ttfFont.data;
@@ -65,7 +79,6 @@ bool Font::_load(const char *path, const int size){
         Fonts::allFonts.leave();
     }
     ttfFont.leave();
-    ready = true;
     return true;
 }
 
@@ -75,11 +88,10 @@ const void Font::operator=(Font &other){
         if(other.path_copy[i].length()) {
             path_copy[i] = other.path_copy[i];
         } else path_copy[i].clear();
-    }
-    set_style(Regular);
+    } set_style(Regular);
 }
 
-Font& Font::set_style(const Style new_style, const int new_size){
+Font& Font::set_style(const Style new_style, const int new_size) {
     size = new_size;
     if(!path_copy[new_style].empty()) {
         style = new_style;
@@ -92,8 +104,9 @@ Font& Font::set_style(const Style new_style, const int new_size){
     } return (*this);
 }
 
-Font& Font::fromFile(const char * path, Style style){
-    if(_test(path)) {
+Font& Font::fromFile(std::string path, Style style){
+    Core::compute_path(path);
+    if(_test(path.c_str())) {
         path_copy[style] = path;
 #ifdef LANUI_DEBUG_MODE
         std::string message = path;
@@ -119,4 +132,30 @@ Font& Font::set_scaling_factor(const int constant){
         Core::log(Core::Warning, "Using Font::set_scaling_factor(...) without a valid style.");
     }
     return (*this);
+}
+
+Font& Font::set_global_name(const std::string name){
+    this->name = name;
+    Fonts::globalFonts.get().insert(std::pair<Font*,std::string const>(this,name));
+    Fonts::globalFonts.leave();
+    return (*this);
+}
+
+Font* Font::_get_font_by_global_name(const std::string name){
+    Font* target_font = nullptr;
+    Fonts::globalFonts.hold();
+    for(auto font : Fonts::globalFonts.data){
+        if(strcasecmp(font.second.c_str(), name.c_str()) == 0)
+            target_font = font.first;
+    } if(!target_font && strncasecmp(name.c_str(), "default", 7) == 0){
+        target_font = &Fonts::DefaultFonts;
+    }
+    Fonts::globalFonts.leave();
+    return target_font;
+}
+
+void Font::print_avaliable_styles() const {
+    for(auto index = 0; index < totalStyles ; index ++){
+        printf("%2d \t %s\n", index, path_copy[index].c_str());
+    }
 }
