@@ -40,10 +40,15 @@ endif()
 
 if(NOT SDL2_LIBRARY)
     ######## 2. setup SDL2 library directory... (STEP 2)
-    set(SDL2_LIBRARY 
-    "/usr/lib/libSDL2.so"
-    # ^^^^^^^^^^^^^^^^^^^ replace the path above if needed
-    )
+    if(APPLE)
+        set(SDL2_LIBRARY 
+        "/opt/local/lib/libSDL2.dylib")  
+        # ^^^^^^^^^^^^^^^^^^^ replace the path above in MACOS if needed  
+    elseif(NOT APPLE AND NOT MINGW)
+        set(SDL2_LIBRARY 
+        "/usr/lib/libSDL2.so")
+        # ^^^^^^^^^^^^^^^^^^^ replace the path above in LINUX if needed
+    endif()
 endif()
 
 if(NOT SDL2_TTF_INCLUDE_DIR)
@@ -57,26 +62,36 @@ endif()
  
 if(NOT SDL2_TTF_LIBRARY)
     ######## 4. setup SDL2_ttf library directory... (STEP 4)
-    set(SDL2_TTF_LIBRARY 
-        "/usr/lib/libSDL2_ttf.so"
-        # ^^^^^^^^^^^^^^^^^^^ replace the path above if needed
-        )
+    if(APPLE)
+        set(SDL2_TTF_LIBRARY 
+        "/opt/local/lib/libSDL2_ttf.dylib")  
+        # ^^^^^^^^^^^^^^^^^^^ replace the path above in MACOS if needed  
+    elseif(NOT APPLE AND NOT MINGW)
+        set(SDL2_TTF_LIBRARY 
+        "/usr/lib/libSDL2_ttf.so")
+        # ^^^^^^^^^^^^^^^^^^^ replace the path above in LINUX if needed
+    endif()
 endif()
 
 if(NOT SDL2_IMAGE_INCLUDE_DIR)
     ######## 5. setup SDL2_image include directory... (STEP 5)
     set(SDL2_IMAGE_INCLUDE_DIR 
         "/opt/local/include/"
-        # ^^^^^^^^^^^^^^^^^^^ replace the path above if needed
+        # ^^^^^^^^^^^^^^^^^^^ replace the path above if needed 
         )
 endif()
 
 if(NOT SDL2_IMAGE_LIBRARY)
     ######## 6. setup SDL2_image library directory... (STEP 6)
-    set(SDL2_IMAGE_LIBRARY 
-        "/usr/lib/libSDL2_image.so"
-        # ^^^^^^^^^^^^^^^^^^^ replace the path above if needed
-        )
+    if(APPLE)
+        set(SDL2_IMAGE_LIBRARY 
+        "/opt/local/lib/libSDL2_image.dylib")  
+        # ^^^^^^^^^^^^^^^^^^^ replace the path above in MACOS if needed  
+    elseif(NOT APPLE AND NOT MINGW)
+        set(SDL2_IMAGE_LIBRARY 
+        "/usr/lib/libSDL2_image.so")
+        # ^^^^^^^^^^^^^^^^^^^ replace the path above in LINUX if needed
+    endif()
 endif()
 
 if(NOT SECONDARY_MODE)
@@ -132,6 +147,7 @@ else()
     add_link_options(-lSDL2 -lSDL2_image -lSDL2_ttf)
 endif()
 
+set(LANUTF_DIR "./lanUI/lanUTF/lanUTF")
 set(CORE_DIR "./lanUI/Core")
 set(INTERFACE_DIR "./lanUI/Interface")
 set(PROJECT_DIR "./lanUI/Project")
@@ -143,6 +159,24 @@ message("-- Creating Template/lanUI.Bundle")
 
 message("-- Creating Template/lanUI")
 
+file(
+    COPY "./lanUI/Settings.hpp"
+    DESTINATION "./Template/lanUI/")
+
+make_directory("./Template/lanUI/lanUTF/lanUTF/")
+    file(
+    COPY "./lanUI/lanUTF/lanUTF/UTF8CharList.hpp"
+    DESTINATION "./Template/lanUI/lanUTF/lanUTF/")
+
+make_directory("./Template/lanUI/Core/Graphics/")
+    file(
+    COPY "./lanUI/Core/Graphics/SDL2_gfxPrimitives.hpp"
+    DESTINATION "./Template/lanUI/Core/Graphics/")
+
+file(
+    COPY "./lanUI/Core/Graphics/SDL2_rotozoom.hpp"
+    DESTINATION "./Template/lanUI/Core/Graphics/")
+
 make_directory("./Template/lanUI/")
     file(
     COPY "./LICENSE"
@@ -152,9 +186,10 @@ make_directory("./Template/lanUI/")
     COPY "./lanUI/lanUI.hpp"
     DESTINATION "./Template/lanUI/")
 
+make_directory("./Template/lanUI/Semaphore/")
     file(
-    COPY "./lanUI/Semaphore.hpp"
-    DESTINATION "./Template/lanUI/")
+    COPY "./lanUI/Semaphore/Semaphore.hpp"
+    DESTINATION "./Template/lanUI/Semaphore/")
 
 make_directory("./Template/${CORE_DIR}/")
     file(
@@ -183,6 +218,11 @@ make_directory("./Template/${INTERFACE_DIR}/Font/")
     COPY "./${INTERFACE_DIR}/Font/Font.hpp"
     DESTINATION "./Template/${INTERFACE_DIR}/Font/")
 
+make_directory("./Template/${INTERFACE_DIR}/Paragraph/")
+    file(
+    COPY "./${INTERFACE_DIR}/Paragraph/Paragraph.hpp"
+    DESTINATION "./Template/${INTERFACE_DIR}/Paragraph/")
+
 make_directory("./Template/${INTERFACE_DIR}/Image/")
     file(
     COPY "./${INTERFACE_DIR}/Image/Image.hpp"
@@ -207,6 +247,11 @@ make_directory("./Template/${INTERFACE_DIR}/Stack/")
     file(
     COPY "./${INTERFACE_DIR}/Stack/Stack.hpp"
     DESTINATION "./Template/${INTERFACE_DIR}/Stack/")
+
+make_directory("./Template/${INTERFACE_DIR}/TextField/")
+    file(
+    COPY "./${INTERFACE_DIR}/TextField/TextField.hpp"
+    DESTINATION "./Template/${INTERFACE_DIR}/TextField/")
 
 make_directory("./Template/${INTERFACE_DIR}/Text/")
     file(
@@ -242,10 +287,18 @@ add_compile_definitions(USING_LANUI_CMAKE_BUILDER)
 
 add_library(lanUI
     SHARED # change to STATIC if you want a static version of lanUI
-    "${CORE_DIR}/Core.cpp" 
+    "${LANUTF_DIR}/UTF8Char.cpp"
+    "${LANUTF_DIR}/UTF8CharList.cpp"
+    "${CORE_DIR}/Core.cpp"
+    "${CORE_DIR}/Graphics/SDL2_gfxPrimitives.cpp" 
+    "${CORE_DIR}/Graphics/SDL2_rotozoom.cpp"
     "${INTERFACE_DIR}/Button/Button.cpp" 
     "${INTERFACE_DIR}/Color/Color.cpp" 
     "${INTERFACE_DIR}/Font/Font.cpp"
+    "${INTERFACE_DIR}/Paragraph/Paragraph.cpp"
+    "${INTERFACE_DIR}/TextField/TextField.cpp"
+    "${INTERFACE_DIR}/TextField/TextSurface.cpp"
+    "${INTERFACE_DIR}/TextField/Cursor.cpp"
     "${INTERFACE_DIR}/Image/Image.cpp"
     "${INTERFACE_DIR}/List/List.cpp"
     "${INTERFACE_DIR}/Object/Object.cpp" 
