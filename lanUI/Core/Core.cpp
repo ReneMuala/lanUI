@@ -207,7 +207,6 @@ const void * Core::get_selected_object(){
 void Core::compute_path(std::string & path){
     static const std::regex fontsHintReg("(Fonts)\\:", std::regex_constants::icase);
     
-    
     if(std::regex_match(path.substr(0, 6), fontsHintReg)){
         path.replace(0,6, LANUI_DEFAULT_FONTS_PATH);
     }

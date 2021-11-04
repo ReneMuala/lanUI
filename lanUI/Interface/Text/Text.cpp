@@ -186,17 +186,17 @@ bool Text::compile_canvas(SDL_Renderer * renderer){
 
 void Text::_compute_text_size(){
     if(font && !source.get().empty()){
-        if(font->ttfFont.get() && font->scalingFactorConstant > 1){
+        if(font->ttfFont.get() && font->scalingFactorConstant >= 1){
             const int constantBuffer = font->scalingFactorConstant;
             font->ttfFont.leave();
-            font->set_scaling_factor(1);
+            if(font->scalingFactorConstant > 1) font->set_scaling_factor(1);
             int w, h;
             TTF_SizeUTF8(font->ttfFont.data, source.data.c_str(), &w, &h);
             size.hold();
             size.data.w = w;
             size.data.h = h;
             size.leave();
-            font->set_scaling_factor(constantBuffer);
+            if(font->scalingFactorConstant > 1) font->set_scaling_factor(constantBuffer);
         } else
             font->ttfFont.leave();
     } source.leave();

@@ -20,63 +20,93 @@
 
 class MyHomeView : public View {
 public:
-    Text Title;
+    Text title;
+    Container titleContainer;
     List list;
     VStack mainArea;
     Paragraph newsText;
+    Spacer spacer;
     
     MyHomeView(Window & win) {
         create(win);
         // set alignemt for this view
         set_alignment(Alignment::None);
         // set set size for this view
-        set_size(300, 400);
         set_padding({0,0,0,0});
         // view color 
         fromColorScheme(Colors::Transparent);
     }
     
     Object& body(Window& window) override{
-        Title.from_string("LanUI Changes Log ");
-        Title.set_style(TextStyles::Header);
-
-        std::stack<std::string> changes;
-        changes.push("- Colors");
-        changes.push("- Window");
-        changes.push("- Object (LanUi base)");
-        changes.push("- Image");
-        changes.push("- Stack (VStack, HStack and ZStack)");
-        changes.push("- List (DEMO)");
-        changes.push("- View");
-        changes.push("- Font");
+        std::stringstream stream;
         
-        changes.push("- Text");
-        changes.push("- Container");
-        changes.push("- Spacer (DEMO)");
-        changes.push("- Button (DEMO)");
-        changes.push("Added:");
-        changes.push(":: Version 0.1 (Stable)");
-        changes.push("- DrawableObject (new render methods)");
-        changes.push("- List (any.fit_content(w,h))");
-        changes.push("- Window minimum size (by constructor)");
-        changes.push("Improved:");
-        changes.push("- LanUI Changes Program");
-        changes.push("- Debug mode (LANUI_DEBUG_MODE)");
-        changes.push("Added:");
-        changes.push(":: Version 0.2 (Latest)");
-        list.compute<Text, 200>(CallbackExpr(
-                                             if(!changes.empty()){
-                                                std::string src = changes.top();
-                                                bool enableBold = (src.substr(0, 2) == "::");
-                                                changes.pop();
-                                                return enableBold ? &(new Text(src))->set_foreground_color(Colors::Black).bold(15) : &(new Text(src))->set_foreground_color(Colors::Black).regular(13);
-                                            } else
-                                                 return (Text*)nullptr;
-                                             )
-                                );
-        list.fit_content(280, 340);
+        stream << " \\size:28 \\bold Version 0.3 (Alpha) \\n \\size:14 \\medium "
+        " \\color:RGB(200,200,200) \\bk \\n ADDED \\n \\color:rgb(0,0,0) \\r"
+        " - \\font:Opensans OpenSans fonts \\font:default \\n"
+        " - \\font:Worksans WorkSans fonts \\font:default \\n"
+        " - TextField \\n"
+        " - lanUTF (support for UTF8) \\n"
+        " - Paragraphs \\n"
+        " - DrawableObject::set_renderer_callback() \\n"
+        " - Core/Graphics (primitives::) from SDL2_gfx \\n"
+        " - CSS padding definition styles \\n"
+        " - Static renderization (composition) \\n"
+        " - InApp screenshot (via composition) \\n"
+        
+        " \\color:RGB(200,200,200) \\bk \\n IMPROVED \\n \\color:rgb(0,0,0) \\r"
+        " - LanUI Changes Program \\n"
+        " - Memory management \\n"
+        " - Renderer clips \\n"
+        " - padding is now { " << Colors::Dark_violet.toStr();
+        stream << " \\ns 0,0,0,0 \\ns \\color:RGB(0,0,0) } by default \\n"
+        " - debug mode is better \\n"
+        " - improved linear gradient \\n"
+        " - empty text bug fixed \\n"
+        " - content alignment methods \\n"
+        " - Text renderization methods \\n";
+        
+        stream << " \\size:28 \\bold Version 0.2 (stable) \\n \\size:14 \\medium "
+        " \\color:RGB(200,200,200) \\bk \\n ADDED \\n \\color:rgb(0,0,0) \\r"
+        " - Debug mode (LANUI_DEBUG_MODE) \\n"
+        " - LanUI Changes Program \\n"
+        " \\color:RGB(200,200,200) \\bk \\n IMPROVED \\n \\color:rgb(0,0,0) \\r"
+        " - Window minimum size (by constructor) \\n"
+        " - List \\bold \" \\ns any.fit_content(w,h) \\ns \" \\regular \\n"
+        " - Font \\n"
+        " - View \\n"
+        " - List \\color:RGB(200,200,200) (DEMO) \\color:RGB(0,0,0) \\n"
+        " - DrawableObject (new render methods) \\n";
+        
+        stream << " \\size:28 \\bold Version 0.1 (stable) \\n \\size:14 \\medium "
+        " \\color:RGB(200,200,200) \\bk \\n ADDED \\n \\color:rgb(0,0,0) \\r"
+        " - Buttom \\color:RGB(200,200,200) (DEMO) \\color:RGB(0,0,0) \\n"
+        " - Spacer \\color:RGB(200,200,200) (DEMO) \\color:RGB(0,0,0) \\n"
+        " - Container \\n"
+        " - Text \\n"
+        " - Font \\n"
+        " - View \\n"
+        " - List \\color:RGB(200,200,200) (DEMO) \\color:RGB(0,0,0) \\n"
+        " - Stack (VStack, HStack and ZStack) \\n"
+        " - Image \\n"
+        " - Object \\n"
+        " - Window \\n"
+        " - Colors \\n";
+        
+        stream << " \\size:28 \\black ThanKYou \\n \\size:14 \\medium " << Lorem;
+        
+        newsText.from_stringstream(stream, Paragraph::Wrapper::Char, 40);
+        
+        title.from_string("What's new?");
+        title.set_style(TextStyles::Header);
+        title.black(48);
+        title.set_foreground_color(Color(0,160,255));
+        title.set_alignment(Center);
+        titleContainer.set_content(title);
+        titleContainer.set_padding({20,0});
+        list.content.fromList(std::list<Object *>{&newsText});
         //mainArea.set_padding({0,0,0,0});
-        mainArea.fromList(std::list<Object *>{&Title,&list});
+        mainArea.fromList(std::list<Object *>{&titleContainer,&list});
+        mainArea.set_alignment(Top);
         //mainArea.set_border_color(Colors::Green);
         return mainArea;
     }
@@ -85,11 +115,21 @@ public:
 int main(int argc, const char * argv[]) {
     Core lanUI;
     
-    Window myWindow = Window("LanUI Changes", 300, 400);
+    Window myWindow = Window("LanUI Changes", 600, 650, Window::HighDefinition);
     
-    myWindow.set_window_clear_color(Colors::Old_lace);
+    myWindow.set_window_clear_color(Colors::White);
         
     auto home = MyHomeView(myWindow);
+    
+    home.set_alignment(Object::Top);
+    
+    myWindow.on_resized(CallbackExpr({
+        myWindow.size.hold();
+        home.list.fit_content(350, myWindow.size.data.h-100);
+        home.set_size(350, myWindow.size.data.h);
+        home.titleContainer.set_size(350, -1);
+        myWindow.size.leave();
+    }));
     
     myWindow.on_closed(CallbackExpr(
                                     lanUI.terminate();

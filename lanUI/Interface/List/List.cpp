@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-List::List(const Sint32 maxSpeed){
+List::List(const Sint32 maxSpeed): count(0), index(0) {
     this->maxSpeed = maxSpeed;
     set_content(content);
     on_scroll(CallbackExpr({
@@ -55,7 +55,8 @@ List::List(const Sint32 maxSpeed){
 }
 
 List::~List(){
-    content.free();
+    if(count)
+        content.free();
     InterativeObject::~InterativeObject();
 }
 
