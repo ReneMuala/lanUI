@@ -56,7 +56,7 @@ public:
         title.set_alignment(Left);
         title.bold(18);
         title.set_foreground_color(Colors::Orange);
-        title.set_padding({5,5});
+        title.set_padding({5,0});
     }
     
     void createBird(Window& window){
@@ -90,7 +90,7 @@ public:
         description.from_stringstream(stream, Paragraph::Wrapper::Char, 60);
         description.set_alignment(Left);
         descriptionContainer.fromList(std::list<Object *>{&title, &description});
-        descriptionContainer.set_size(512, 160);
+        descriptionContainer.set_size(525, 160);
         descriptionContainer.disable_reloading();
     }
     
@@ -121,7 +121,7 @@ public:
         contentStack.fromList(std::list<Object *>{&descriptionContainer, &backwardBtn, &forwardBtn});
         contentStack.set_alignment(Center);
         contentStackContainer.set_content(contentStack);
-        contentStackContainer.set_size(512, 512);
+        contentStackContainer.set_size(600, 512);
         contentStackContainer.disable_reloading();
     }
     
@@ -145,7 +145,6 @@ public:
             return true;
         }));
     }
-                                
     
     Object& body(Window& window) override {
         createBird(window);

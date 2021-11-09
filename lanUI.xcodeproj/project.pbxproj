@@ -19,11 +19,11 @@
 		174F1F0B268252AE009B8159 /* libSDL2-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 174F1F09268252AE009B8159 /* libSDL2-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		174F1F132682533B009B8159 /* Window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 174F1F112682533B009B8159 /* Window.cpp */; };
 		174F1F1826825427009B8159 /* Core.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 174F1F1626825427009B8159 /* Core.cpp */; };
+		17510E67273A5E0500A9539E /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
 		17550B4E26C0082600A697E6 /* Button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17550B4C26C0082600A697E6 /* Button.cpp */; };
 		17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17734DA526BDD31E00212851 /* InteractiveObject.cpp */; };
 		177C47F72711C1DF00A0B99D /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B826B3186E00219F36 /* Text.cpp */; };
 		1781821126C41BCB00F986B6 /* List.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1781820F26C41BCB00F986B6 /* List.cpp */; };
-		1798962B2733D79C00206525 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1792B90D260328B200836D7A /* main.cpp */; };
 		17A43EC5271C54320063E2F3 /* UTF8CharList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A43EBB271C54310063E2F3 /* UTF8CharList.cpp */; };
 		17A43EC6271C54320063E2F3 /* UTF8Char.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A43EBC271C54310063E2F3 /* UTF8Char.cpp */; };
 		17AC1704272FECE1002BA291 /* Font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997C526B3282A00219F36 /* Font.cpp */; };
@@ -525,10 +525,10 @@
 				1748FBBC2721AB650087D5EC /* Object.cpp in Sources */,
 				17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */,
 				1748FBC12721AED00087D5EC /* DrawableObject.cpp in Sources */,
-				1798962B2733D79C00206525 /* main.cpp in Sources */,
 				17BE74A426AC0364009A3D8C /* Color.cpp in Sources */,
 				177C47F72711C1DF00A0B99D /* Text.cpp in Sources */,
 				174F1F132682533B009B8159 /* Window.cpp in Sources */,
+				17510E67273A5E0500A9539E /* playground.cpp in Sources */,
 				174F1F1826825427009B8159 /* Core.cpp in Sources */,
 				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,
 				17DE7ED12708AF7B007667BA /* SDL2_gfxPrimitives.cpp in Sources */,

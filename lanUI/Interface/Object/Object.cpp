@@ -220,6 +220,7 @@ Object& Object::updateRoot(Object * newRoot){
 }
 
 Object& Object::embedInX(Object & other){
+    other.set_alignment(None);
     nextInX.hold();
     nextInX.data = &other;
     nextInX.data->updateRoot(root.get());
@@ -229,6 +230,7 @@ Object& Object::embedInX(Object & other){
 }
 
 Object& Object::embedInY(Object & other){
+    other.set_alignment(None);
     nextInY.hold();
     nextInY.data = &other;
     nextInY.data->updateRoot(root.get());
