@@ -41,7 +41,7 @@ Send me an email: [mualarene@gmail.com](mailto:mualarene@gmail.com)
 
 [PT] Abra o terminal e digite o comando a baixo para descarregar lanUI 0.3 | [Eng] Open terminal and type the command above to download lanUI 0.3:
 
-`git clone` [`https://github.com/renemuala/lanUI`](https://github.com/renemuala/lanUI) --branch v0.3
+`git clone` [`https://github.com/renemuala/lanUI`](https://github.com/renemuala/lanUI) `--branch v0.3`
 
 [PT] Após a descarga digite o comando abaixo para preparar e construir lanUI | [Eng] After the download type the command above to  prepare and build lanUI
 
