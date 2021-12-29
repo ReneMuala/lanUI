@@ -7,50 +7,66 @@
 //
 
 #include "Text.hpp"
+#include "../Theme/Theme.hpp"
+
+namespace TextStyles {
+    TextStyle Display     = ThemeTextStyles::THSDisplay;
+    TextStyle Headline1   = ThemeTextStyles::THSHeadline1;
+    TextStyle Headline2   = ThemeTextStyles::THSHeadline2;
+    TextStyle Headline3   = ThemeTextStyles::THSHeadline3;
+    TextStyle Headline4   = ThemeTextStyles::THSHeadline4;
+    TextStyle Headline5   = ThemeTextStyles::THSHeadline5;
+    TextStyle CaptionCaps = ThemeTextStyles::THSCaptionCaps;
+    TextStyle Caption     = ThemeTextStyles::THSCaption;
+    TextStyle BodyLarge   = ThemeTextStyles::THSBodyLarge;
+    TextStyle BodyMedium  = ThemeTextStyles::THSBodyMedium;
+    TextStyle BodySmall   = ThemeTextStyles::THSBodySmall;
+    TextStyle BodyArticle = ThemeTextStyles::THSBodyArticle;
+    TextStyle Default     = BodyMedium;
+}
 
 const std::string TextStyle::toStr() const {
     std::string str = " ";
 
     switch (font_style) {
         case Font::Regular:
-            str+="\\regular";
+            str+="%regular";
             break;
         case Font::Bold:
-            str+="\\bold";
+            str+="%bold";
             break;
         case Font::ExtraLight:
-            str+="\\extraLight";
+            str+="%extraLight";
             break;
         case Font::BoldOblique:
-            str+="\\boldOblique";
+            str+="%boldOblique";
             break;
         case Font::Oblique:
-            str+="\\oblique";
+            str+="%oblique";
             break;
         case Font::Condensed_Bold:
-            str+="\\condensed_Bold";
+            str+="%condensed_Bold";
             break;
         case Font::Condensed_BoldOblique:
-            str+="\\condensed_BoldOblique";
+            str+="%condensed_BoldOblique";
             break;
         case Font::Condensed_Oblique:
-            str+="\\condensed_Oblique";
+            str+="%condensed_Oblique";
             break;
         case Font::Condensed:
-            str+="\\condensed";
+            str+="%condensed";
             break;
         default:break;
     }
     
-    str += " \\size:" + std::to_string(size) + " ";
+    str += " %size:" + std::to_string(size) + " ";
     return str;
 }
 
-#include <iostream>
 Text::Text(const std::string source, Font& font): withBackground(false), source(source), ttf_api_style(TTF_api_style::Normal), fontVirtualSize(12), font(nullptr), surfc(nullptr){
     this->font = new Font();
     (*this->font) = font;
-    foregroundColor.set(Colors::Black);
+    foregroundColor.set(Themes::_default.colors.get_text_color<Primary>());
     backgroundColor.set(Colors::Transparent);
     if(source.size())
         from_string(source);
@@ -75,7 +91,7 @@ void Text::_free_font(){
 Text& Text::from_string(const std::string source, Renderer * renderer){
     this->renderer.set(renderer);
     this->source.set(source);
-    wasCompiled = false;
+    tryCompile();
     if(renderer) compile_canvas(renderer);
     return (*this);
 }
@@ -102,83 +118,109 @@ Text& Text::set_font_style(const Font::Style style, const unsigned int size){
     } return (*this);
 }
 
-bool Text::compile_canvas(SDL_Renderer * renderer){
-    if(renderer && !source.get().empty()){
-        
-        _free_canvas();
-
-        if(!font->ttfFont.get()){
-            font->ttfFont.leave();
-            source.leave();
-            Core::log(Core::Warning, "Text compilation failed  (Invalid font style).");
-            return false;
-        } else {
-            if(((TTF_api_style)TTF_GetFontStyle(font->ttfFont.data)) != ttf_api_style.get()){
-                TTF_SetFontStyle(font->ttfFont.data, (int)ttf_api_style.data);
-            } ttf_api_style.leave();
-            font->ttfFont.leave();
-        }
-        
-        if(surfc) SDL_FreeSurface(surfc);
-        surfc = nullptr;
-        if(!compatibilityMode) {
-            if(!(surfc=TTF_RenderUTF8_Blended(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.get()))) {
-#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-                Core::log(Core::Warning, "Text: Render failed (invalid surfc).");
-#endif
-                foregroundColor.leave();
-                source.leave();
-                font->ttfFont.leave();
-                return false;
-            }
-        } else {
-            switch (compatibilityMode) {
-                case RenderShadedMode:
-                    if(!(surfc=TTF_RenderUTF8_Shaded(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.get(), (SDL_Color)backgroundColor.get()))){
-#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-                        Core::log(Core::Warning, "Text (CompatibilityMode[RenderShadedMode]): Render failed.");
-#endif
-                        foregroundColor.leave();
-                        backgroundColor.leave();
-                        source.leave();
-                        font->ttfFont.leave();
-                        return false;
-                    } else
-                        backgroundColor.leave();
-                    break;
-                case RenderSolidMode:
-                    if(!(surfc=TTF_RenderUTF8_Solid(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.get()))){
-#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-                        Core::log(Core::Warning, "Text (CompatibilityMode[RenderSolidMode]): Render failed.");
-#endif
-                        foregroundColor.leave();
-                        source.leave();
-                        font->ttfFont.leave();
-                        return false;
-                    }
-                    break;
-                default:break;
-            }
-        }
-        
+bool Text::_compile_canvas_prepare_font(){
+    if(!font->ttfFont.get()){
         font->ttfFont.leave();
         source.leave();
-        foregroundColor.leave();
-        this->canvas.set(SDL_CreateTextureFromSurface(renderer, surfc));
+        Core::log(Core::Warning, "Text compilation failed  (Invalid font style).");
+        return false;
+    } else {
+        if(((TTF_api_style)TTF_GetFontStyle(font->ttfFont.data)) != ttf_api_style.get()){
+            TTF_SetFontStyle(font->ttfFont.data, (int)ttf_api_style.data);
+        } ttf_api_style.leave();
+        font->ttfFont.leave();
+    } return true;
+}
+
+bool Text::_compile_canvas_render_text(Renderer * renderer){
+    font->ttfFont.hold();
+    source.hold();
+    foregroundColor.hold();
+    backgroundColor.hold();
+    if(!compatibilityMode) {
+        if(!(surfc=TTF_RenderUTF8_Blended(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.data))) {
+#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
+            Core::log(Core::Warning, "Text: Render failed (invalid surfc).");
+#endif
+            foregroundColor.leave();
+            backgroundColor.leave();
+            source.leave();
+            font->ttfFont.leave();
+            return false;
+        }
+    } else {
+        switch (compatibilityMode) {
+            case RenderShadedMode:
+                if(!(surfc=TTF_RenderUTF8_Shaded(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.data, (SDL_Color)backgroundColor.data))){
+#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
+                    Core::log(Core::Warning, "Text (CompatibilityMode[RenderShadedMode]): Render failed.");
+#endif
+                    foregroundColor.leave();
+                    backgroundColor.leave();
+                    source.leave();
+                    font->ttfFont.leave();
+                    return false;
+                } else
+                    backgroundColor.leave();
+                break;
+            case RenderSolidMode:
+                if(!(surfc=TTF_RenderUTF8_Solid(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.data))){
+#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
+                    Core::log(Core::Warning, "Text (CompatibilityMode[RenderSolidMode]): Render failed.");
+#endif
+                    foregroundColor.leave();
+                    backgroundColor.leave();
+                    source.leave();
+                    font->ttfFont.leave();
+                    return false;
+                }
+                break;
+            default:
+                return false;
+                break;
+        }
+    }
+    foregroundColor.leave();
+    backgroundColor.leave();
+    source.leave();
+    font->ttfFont.leave();
+    return true;
+}
+
+void Text::_compile_canvas_free_surfc(){
+    if(surfc) {
         SDL_FreeSurface(surfc);
         surfc = nullptr;
-        drawMode.set(DrawMode::ImageMode);
+    }
+}
+
+bool Text::compile_canvas(SDL_Renderer * renderer){
+    if(renderer && !source.get().empty()){
+        source.leave();
+        
+        _free_canvas();
+        if(!_compile_canvas_prepare_font()) return false;
+        
+        _compile_canvas_free_surfc();
+        
+        if(!_compile_canvas_render_text(renderer)) return false;
+        
+        this->canvas.set(SDL_CreateTextureFromSurface(renderer, surfc));
+        
+        _compile_canvas_free_surfc();
+
+        renderMode.set(RenderMode::ImageMode);
         return true;
     } else if (source.data.empty()) {
+        source.leave();
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
         Core::log(Core::Warning, "Text compilation ignored (invalid string).");
 #endif
-        source.leave();
         return true;
-    } drawMode.set(DrawMode::DefaultMode);
+    } renderMode.set(RenderMode::DefaultMode);
     source.leave();
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-    Core::log(Core::Warning, "Text compilation failed (invalid renderer or string).");
+    Core::log(Core::Warning, "Text compilation failed (invalid renderer).");
 #endif
     _free_canvas();
     return false;
@@ -192,10 +234,7 @@ void Text::_compute_text_size(){
             if(font->scalingFactorConstant > 1) font->set_scaling_factor(1);
             int w, h;
             TTF_SizeUTF8(font->ttfFont.data, source.data.c_str(), &w, &h);
-            size.hold();
-            size.data.w = w;
-            size.data.h = h;
-            size.leave();
+            set_size(w, h);
             if(font->scalingFactorConstant > 1) font->set_scaling_factor(constantBuffer);
         } else
             font->ttfFont.leave();
@@ -222,11 +261,7 @@ void Text::_compile(Renderer * renderer, const float dpiK){
         
         _compute_text_size();
         
-        if(root.get()){
-            root.data->reload();
-        } root.leave();
     } wasCompiled.leave();
-    
     _compile_embedded(renderer, dpiK);
 }
 

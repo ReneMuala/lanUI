@@ -1,4 +1,5 @@
 # LANUTF
+###### `0.1.5 stable`
 
 #### A library to deal with UTF8 encoded characters in C++.
 

@@ -12,6 +12,7 @@
 // library to create consistent user interfaces in C++
 
 #include "Core/Core.hpp"
+#include "Interface/Theme/Theme.hpp"
 #include "Interface/Object/Object.hpp"
 #include "Interface/Color/Color.hpp"
 #include "Interface/Window/Window.hpp"
@@ -24,7 +25,6 @@
 #include "Interface/Spacer/Spacer.hpp"
 #include "Interface/Image/Image.hpp"
 #include "Interface/Button/Button.hpp"
-
 #include "Project/Project.hpp"
 
 #endif /* lanUI_h */

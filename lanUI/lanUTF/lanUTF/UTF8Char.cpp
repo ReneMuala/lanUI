@@ -152,6 +152,14 @@ UTF8Char::UTF8Char(char * c_char){
     composeUTF8Char(c_char);
 }
 
+UTF8Char::UTF8Char(const char * cc_char){
+    char _c_char[5];
+    bzero(_c_char, 5);
+    strcpy(_c_char, cc_char);
+    UTF8Char();
+    composeUTF8Char(_c_char);
+}
+
 UTF8Char::~UTF8Char(){
     clear();
 }

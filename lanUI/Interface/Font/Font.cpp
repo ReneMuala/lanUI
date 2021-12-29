@@ -14,13 +14,8 @@ namespace Fonts {
     Semaphore<std::unordered_map<unsigned long /* FONT_ID */, TTF_Font*>> allFonts;
     unsigned long allFontsCount;
     
-    void set_default_font() {
-        DefaultFonts = WorkSans;
-    }
     Semaphore<std::unordered_map<Font*,std::string const>> globalFonts;
 }
-
-#include <iostream>
 
 Font::Font(const std::string name) {
     _init(name);
@@ -82,7 +77,7 @@ bool Font::_load(const char *path, const int size){
     return true;
 }
 
-const void Font::operator=(Font &other){
+const void Font::operator=(const Font &other){
     free();
     for(int i = 0 ; i < Style::totalStyles ; i++){
         if(other.path_copy[i].length()) {

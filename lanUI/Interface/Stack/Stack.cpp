@@ -9,12 +9,12 @@
 #include "Stack.hpp"
 #include "../../Core/Core.hpp"
 
-Stack::Stack(){
+BSStack::BSStack(){
     first = last = nullptr;
     fromColorScheme(Colors::Transparent, Colors::Transparent);
 }
 
-void Stack::free(){
+void BSStack::free(){
     nextInZ.hold();
     Object* row = nextInZ.data;
     if(row) row->_delete_tree();
@@ -22,15 +22,15 @@ void Stack::free(){
     nextInZ.leave();
 }
 
-Stack& VStack::reload(){
+BSStack& BSVStack::reload(){
     float width(0), height(0);
     if (!reloadingDisabled.get()) {
         nextInZ.hold();
         for(Object* row = nextInZ.data; row ; row=row->nextInY.data)
         {
-            width = (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ? row->size.data.w + row->padding.data.left + row->padding.data.right : width;
+            width = (width < row->size.get().w + row->padding.get().left + row->padding.data.right) ?
+            row->size.data.w + row->padding.data.left + row->padding.data.right : width;
             height+= row->size.data.h + row->padding.data.top + row->padding.data.bottom;
-            
             row->size.leave();
             row->padding.leave();
         }
@@ -41,7 +41,7 @@ Stack& VStack::reload(){
     return (*this);
 }
 
-Object * VStack::requestObject(size_t index){
+Object * BSVStack::requestObject(size_t index){
     Object * ptr = nextInZ.get();
     Object * last_ptr = nullptr;
     size_t subIndex = 0;
@@ -57,7 +57,7 @@ Object * VStack::requestObject(size_t index){
         return nullptr;
 }
 
-Stack VStack::fromList(std::list<Object*> objects){
+BSStack BSVStack::fromList(std::list<Object*> objects){
     float width(0), height(0);
     unsigned long index(0);
     last = nullptr;
@@ -86,7 +86,7 @@ Stack VStack::fromList(std::list<Object*> objects){
     return (*this);
 }
 
-Stack& HStack::reload(){
+BSStack& BSHStack::reload(){
     float width(0), height(0);
     if (!reloadingDisabled.get()) {
         nextInZ.hold();
@@ -103,7 +103,7 @@ Stack& HStack::reload(){
     return (*this);
 }
 
-Object * HStack::requestObject(size_t index){
+Object * BSHStack::requestObject(size_t index){
     Object * ptr = nextInZ.get();
     Object * last_ptr = nullptr;
     size_t subIndex = 0;
@@ -120,7 +120,7 @@ Object * HStack::requestObject(size_t index){
         return nullptr;
 }
 
-Stack HStack::fromList(std::list<Object*> objects){
+BSStack BSHStack::fromList(std::list<Object*> objects){
     float width(0), height(0);
     unsigned long index(0);
     last = nullptr;
@@ -146,7 +146,7 @@ Stack HStack::fromList(std::list<Object*> objects){
     return (*this);
 }
 
-Stack& ZStack::reload(){
+BSStack& BSZStack::reload(){
     float width(0), height(0);
     if (!reloadingDisabled.get()) {
         nextInZ.hold();
@@ -163,7 +163,7 @@ Stack& ZStack::reload(){
     return (*this);
 }
 
-Object * ZStack::requestObject(size_t index){
+Object * BSZStack::requestObject(size_t index){
     Object * ptr = nextInZ.get();
     Object * last_ptr = nullptr;
     size_t subIndex = 0;
@@ -179,7 +179,7 @@ Object * ZStack::requestObject(size_t index){
         return nullptr;
 }
 
-Stack ZStack::fromList(std::list<Object*> objects){
+BSStack BSZStack::fromList(std::list<Object*> objects){
     float width(0), height(0);
     unsigned long index(0);
     last = nullptr;

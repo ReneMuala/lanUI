@@ -98,6 +98,6 @@
 /// Lambda body to be passed as a function argument
 #define CallbackExpr(x) [&]{x}
 
-#define lanUIVersion "lanUI 0.3"
+#define lanUIVersion "lanUI 0.4"
 
 #endif /* LANUI_SETTINGS_HPP */

@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "TextField.hpp"
 
-TextField::TextSurface::TextSurface(){
+BSTextField::TextSurface::TextSurface(){
     
     set_alignment(Left);
     set_padding({0,5});
@@ -23,7 +23,7 @@ TextField::TextSurface::TextSurface(){
     
 }
 
-void TextField::TextSurface::_renderEmbedded(SDL_Renderer * renderer, const float x, const float y, float dpiK, _RenderEmbeddedMode _renderEmbeddedMode){
+void BSTextField::TextSurface::_renderEmbedded(SDL_Renderer * renderer, const float x, const float y, float dpiK, _RenderEmbeddedMode _renderEmbeddedMode){
     
     const Padding padding_buffer = padding.get();
     const Rect size_buffer = size.get();
@@ -71,6 +71,6 @@ void TextField::TextSurface::_renderEmbedded(SDL_Renderer * renderer, const floa
     }
 }
 
-void TextField::TextSurface::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, bool isComposition){
+void BSTextField::TextSurface::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, bool isComposition){
     Text::_render(renderer, x, y, dpiK, isComposition);
 }

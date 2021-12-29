@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <bitset>
 
-#define lanUTFVersion "lanUTF 0.1.4"
+#define lanUTFVersion "lanUTF 0.1.5"
 
 class UTF8Char {
 public:
@@ -42,7 +42,7 @@ public:
     
 private:
     
-    char data[4];
+    char data[5];
     
     UTF8_OctetType octetType;
                 
@@ -80,8 +80,8 @@ public:
     
     /// clears the character
     void clear(){
-        for(int i = 0 ; i < 4 ; i++)
-        data[i] = '\0';
+        for(int i = 0 ; i < 5 ; i++)
+            data[i] = '\0';
     }
     
     UTF8Char * _at(size_t index) const;
@@ -91,6 +91,8 @@ public:
     UTF8Char();
     
     UTF8Char(char *);
+    
+    UTF8Char(const char *);
     
     ~UTF8Char();
     

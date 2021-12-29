@@ -12,10 +12,10 @@
 #include "../Object/Object.hpp"
 #include "../Window/Window.hpp"
 
-/** View / ViewPort is main child of a window.
- Contains the elements that are goind to presented on that window.
+/** View / ViewPort is the main child of a window.
+ it contains the elements that are goind to presented on that window.
  */
-class View: public Object {
+class BSView: public Object {
     Object some_content;
 public:
     

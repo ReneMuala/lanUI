@@ -14,11 +14,13 @@
 #include <list>
 #include <regex>
 #include <sstream>
+#include <string>
+#include <unordered_map>
 
 /// Lorem ipsum dolor...
 const static std::string Lorem = ("Lorem ipsum dolor sit amet consectetur adipisicing elit. Ullam, magni. Ad culpa dolores id, aspernatur soluta quidem distinctio architecto tempore magni eos odio autem a quibusdam! Delectus cum nam iusto.");
 
-class Paragraph : public VStack {
+class BSParagraph : public BSVStack {
     struct Hints {
         Font * font;
         Font::Style style;
@@ -26,7 +28,10 @@ class Paragraph : public VStack {
         Color color;
         bool noSpace;
         bool space;
+        /// Current element id
+        std::string id;
     } hints;
+    std::unordered_map<std::string, Text*> identifiableWords;
     bool empty;
 public:
     
@@ -41,17 +46,19 @@ public:
         Wrapper(Mode mode, int fields): mode(mode), fieldsCount(fields){}
     };
     
-    Paragraph(): empty(true){}
-    ~Paragraph() {
+    BSParagraph(): empty(true){}
+    ~BSParagraph() {
         free();
     }
+    
+    Text * operator[] (std::string id);
     
     std::list<Object*> words;
     std::list<Object*> lines;
     
-    Paragraph& from_stringstream(std::stringstream& , Wrapper::Mode, int fileldsCount);
+    BSParagraph& from_stringstream(std::stringstream& , Wrapper::Mode, int fileldsCount);
     
-    Paragraph& from_stringstream(std::stringstream& , Wrapper wraper = {Wrapper::Mode::Infty,0});
+    BSParagraph& from_stringstream(std::stringstream& , Wrapper wraper = {Wrapper::Mode::Infty,0});
     
     void free() override;
     void _parse_hint(const std::string src, std::string & line);

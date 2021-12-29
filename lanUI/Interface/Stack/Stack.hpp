@@ -13,44 +13,44 @@
 #include "../Object/Object.hpp"
 
 /// Base class for VStack , HStack and ZStack.
-class Stack : public Object {
+class BSStack : public Object {
 public:
     Object * first, * last;
     virtual void free();
     virtual Object * requestObject(size_t index){return nullptr;};
-    virtual Stack fromList(std::list<Object*>){return *this;};
-    Stack();
+    virtual BSStack fromList(std::list<Object*>){return *this;};
+    BSStack();
 };
 
 /** Vertical Stack.
  Embeds objects in a vertical plan
  */
-class VStack : public Stack {
+class BSVStack : public BSStack {
 public:
-    Stack& reload() override;
+    BSStack& reload() override;
     Object * requestObject(size_t index) override;
-    Stack fromList(std::list<Object*>) override;
+    BSStack fromList(std::list<Object*>) override;
 };
 
 /** Vertical Stack.
  Embeds objects in a horizontal plan
  */
-class HStack : public Stack {
+class BSHStack : public BSStack {
 public:
-    Stack& reload() override;
+    BSStack& reload() override;
     Object * requestObject(size_t index) override;
-    Stack fromList(std::list<Object*>) override;
+    BSStack fromList(std::list<Object*>) override;
 };
 
 /** Vertical Stack.
  Embeds objects in a "Z" plan
  */
 // (CAN'T EMBED MORE THAN ONE TEXT, OR STACK-BASED OBJECT)
-class ZStack : public Stack {
+class BSZStack : public BSStack {
 public:
-    Stack& reload() override;
+    BSStack& reload() override;
     Object * requestObject(size_t index) override;
-    Stack fromList(std::list<Object*>) override;
+    BSStack fromList(std::list<Object*>) override;
 };
 
 #endif /* Stack_hpp */

@@ -13,9 +13,9 @@
 
 /** A Button
  */
-class Button : public InterativeObject {
+class BSButton : public InterativeObject {
 public:
-    Button(Object* content = nullptr){
+    BSButton(Object* content = nullptr){
         InterativeObject();
         if(content) set_content(*content);
     }

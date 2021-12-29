@@ -51,7 +51,7 @@ void Window::_create(const char *title, Definition definition, float width, floa
             Core::log(Core::Error, "Unable to create window renderer");
     SDL_SetRenderDrawBlendMode(sdlRenderer.data, SDL_BLENDMODE_BLEND);
     sdlWindowId.data = SDL_GetWindowID(sdlWindow.data);
-    SDL_SetWindowMinimumSize(sdlWindow.data, width, height);
+    SDL_SetWindowMinimumSize(sdlWindow.data, 10, 10);
 }
 
 void Window::_handle_events(){
@@ -146,45 +146,49 @@ void Window::_handle_requests(){
 }
 
 void Window::_handle_callBacks(const uint8_t window_event, const uint32_t input_event){
-    if(callbacks[OnStart].get()){
-        on_start_callback();
-        // disable after first use
-        callbacks[OnStart].data = false;
-    } if(callbacks[OnClosed].get() && shouldClose.data){
-        on_closed_callback();
-        shouldClose.set(false);
-    } if(callbacks[OnFocusGained].get() && window_event == SDL_WINDOWEVENT_FOCUS_GAINED){
-        on_focus_gained_callback();
-    } if(callbacks[OnFocusLost].get() && window_event == SDL_WINDOWEVENT_FOCUS_LOST){
-        on_focus_lost_callback();
-    } if(callbacks[OnMouseGained].get() && window_event == SDL_WINDOWEVENT_ENTER){
-        on_mouse_gained_callback();
-    } if(callbacks[OnMouseLost].get() && window_event == SDL_WINDOWEVENT_LEAVE){
-        on_mouse_lost_callback();
-    } if(callbacks[OnHidden].get() && window_event == SDL_WINDOWEVENT_HIDDEN){
-        on_hidden_callback();
-    } if(callbacks[OnShown].get() && window_event == SDL_WINDOWEVENT_SHOWN){
-        on_shown_callback();
-    } if(callbacks[OnMinimized].get() && window_event == SDL_WINDOWEVENT_MINIMIZED){
-        on_minimized_callback();
-    } if(callbacks[OnMaximized].get() && window_event == SDL_WINDOWEVENT_MAXIMIZED){
-        on_maximized_callback();
-    } if(callbacks[OnResized].get() && (window_event == SDL_WINDOWEVENT_RESIZED || window_event == SDL_WINDOWEVENT_SIZE_CHANGED)){
-        on_resized_callback();
-    } if(callbacks[OnMouseButtonDown].get() && input_event == SDL_MOUSEBUTTONDOWN){
-        on_mouse_button_down_callback();
-    } if(callbacks[OnMouseButtonUp].get() && input_event == SDL_MOUSEBUTTONUP){
-        on_mouse_button_up_callback();
-    }  if(callbacks[OnKeyDown].get() && input_event == SDL_KEYDOWN){
-        on_key_down_callback();
-    } if(callbacks[OnKeyUp].get() && input_event == SDL_KEYUP){
-        on_key_up_callback();
-    }
+    if(callbacksFlag.get()){
+        callbacksFlag.leave();
+        if(callbacks[OnStart].get()){
+            on_start_callback();
+            // disable after first use
+            callbacks[OnStart].data = false;
+        } if(callbacks[OnClosed].get() && shouldClose.data){
+            on_closed_callback();
+            shouldClose.set(false);
+        } if(callbacks[OnFocusGained].get() && window_event == SDL_WINDOWEVENT_FOCUS_GAINED){
+            on_focus_gained_callback();
+        } if(callbacks[OnFocusLost].get() && window_event == SDL_WINDOWEVENT_FOCUS_LOST){
+            on_focus_lost_callback();
+        } if(callbacks[OnMouseGained].get() && window_event == SDL_WINDOWEVENT_ENTER){
+            on_mouse_gained_callback();
+        } if(callbacks[OnMouseLost].get() && window_event == SDL_WINDOWEVENT_LEAVE){
+            on_mouse_lost_callback();
+        } if(callbacks[OnHidden].get() && window_event == SDL_WINDOWEVENT_HIDDEN){
+            on_hidden_callback();
+        } if(callbacks[OnShown].get() && window_event == SDL_WINDOWEVENT_SHOWN){
+            on_shown_callback();
+        } if(callbacks[OnMinimized].get() && window_event == SDL_WINDOWEVENT_MINIMIZED){
+            on_minimized_callback();
+        } if(callbacks[OnMaximized].get() && window_event == SDL_WINDOWEVENT_MAXIMIZED){
+            on_maximized_callback();
+        } if(callbacks[OnResized].get() && (window_event == SDL_WINDOWEVENT_RESIZED || window_event == SDL_WINDOWEVENT_SIZE_CHANGED)){
+            on_resized_callback();
+        } if(callbacks[OnMouseButtonDown].get() && input_event == SDL_MOUSEBUTTONDOWN){
+            on_mouse_button_down_callback();
+        } if(callbacks[OnMouseButtonUp].get() && input_event == SDL_MOUSEBUTTONUP){
+            on_mouse_button_up_callback();
+        }  if(callbacks[OnKeyDown].get() && input_event == SDL_KEYDOWN){
+            on_key_down_callback();
+        } if(callbacks[OnKeyUp].get() && input_event == SDL_KEYUP){
+            on_key_up_callback();
+        }
         
-    // we are not reseting the busy state in ths if's
-    for(int i = 0 ; i < (CallBacks::totalCallBacks) ; i++){
-        callbacks[i].leave();
-    }
+        // we are not reseting the busy state in ths if's
+        for(int i = 0 ; i < (CallBacks::totalCallBacks) ; i++){
+            callbacks[i].leave();
+        }
+    } else
+        callbacksFlag.leave();
 }
 
 void Window::_run_default_animation(){
@@ -269,6 +273,20 @@ Window& Window::set_size(const float w, const float h){
     return (*this);
 }
 
+Window& Window::set_minumum_size(const float w, const float h){
+    sdlWindow.hold();
+    SDL_SetWindowMinimumSize(sdlWindow.data, w, h);
+    sdlWindow.leave();
+    return (*this);
+}
+
+Window& Window::set_maximum_size(const float w, const float h){
+    sdlWindow.hold();
+    SDL_SetWindowMaximumSize(sdlWindow.data, w, h);
+    sdlWindow.leave();
+    return (*this);
+}
+
 Window& Window::set_opacity(float opacity){
     winRequests[WinRequests::Opacity].set(true);
     this->opacity.set(opacity);
@@ -316,90 +334,105 @@ Window& Window::minimize(){
 }
 
 Window& Window::on_start(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnStart].set(true);
     this->on_start_callback = callback;
     return (*this);
 }
 
 Window& Window::on_closed(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnClosed].set(true);
     this->on_closed_callback = callback;
     return (*this);
 }
 
 Window& Window::on_focus_gained(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnFocusGained].set(true);
     this->on_focus_gained_callback = callback;
     return (*this);
 }
 
 Window& Window::on_focus_lost(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnFocusLost].set(true);
     this->on_focus_lost_callback = callback;
     return (*this);
 }
 
 Window& Window::on_mouse_gained(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnMouseGained].set(true);
     this->on_mouse_gained_callback = callback;
     return (*this);
 }
 
 Window& Window::on_mouse_lost(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnMouseLost].set(true);
     this->on_mouse_lost_callback = callback;
     return (*this);
 }
 
 Window& Window::on_hidden(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnHidden].set(true);
     this->on_hidden_callback = callback;
     return (*this);
 }
 
 Window& Window::on_shown(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnShown].set(true);
     this->on_shown_callback = callback;
     return (*this);
 }
 
 Window& Window::on_minimized(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnMinimized].set(true);
     this->on_minimized_callback = callback;
     return (*this);
 }
 
 Window& Window::on_maximized(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnMaximized].set(true);
     this->on_maximized_callback = callback;
     return (*this);
 }
 
 Window& Window::on_resized(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnResized].set(true);
     this->on_resized_callback = callback;
     return (*this);
 }
 
 Window& Window::on_mouse_button_down(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnMouseButtonDown].set(true);
     this->on_mouse_button_down_callback = callback;
     return (*this);
 }
 
 Window& Window::on_mouse_button_up(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnMouseButtonUp].set(true);
     this->on_mouse_button_up_callback = callback;
     return (*this);
 }
 
 Window& Window::on_key_down(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnKeyDown].set(true);
     this->on_key_down_callback = callback;
     return (*this);
 }
 
 Window& Window::on_key_up(VoidCallback callback){
+    callbacksFlag.set(true);
     callbacks[CallBacks::OnKeyUp].set(true);
     this->on_key_up_callback = callback;
     return (*this);

@@ -101,7 +101,10 @@ public:
     } CallBacks;
     
     Semaphore<bool> winRequests[WinRequests::totalRequests] = {0};
+    Semaphore<bool> winRequestsFlag = false;
     Semaphore<bool> callbacks[CallBacks::totalCallBacks] = {0};
+    Semaphore<bool> callbacksFlag = false;
+
     
     void _subscribe();
     
@@ -138,6 +141,10 @@ public:
     Semaphore<Object*> view();
     
     Window& set_size(const float w, const float h) override;
+    
+    Window& set_minumum_size(const float w, const float h);
+    
+    Window& set_maximum_size(const float w, const float h);
     
     Window& disable_resizing(const bool);
     

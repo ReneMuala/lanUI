@@ -12,19 +12,23 @@
 #include <string>
 #include "../Object/Object.hpp"
 #include "../Font/Font.hpp"
-
-typedef struct {
-    Font::Style font_style;
-    int size;
-    const std::string toStr() const;
-} TextStyle;
+#include "../Text/Text.hpp"
+#include "../Theme/ThemeTextStyles.hpp"
 
 namespace TextStyles {
-    const TextStyle BigTitle = {Font::Style::Bold, 36};
-    const TextStyle Header = {Font::Style::Bold, 18};
-    const TextStyle Default = {Font::Style::Regular, 12};
-    const TextStyle Caption = {Font::Style::Oblique, 11};
-    const TextStyle Footer = {Font::Style::Condensed, 10};
+    extern TextStyle Display;
+    extern TextStyle Headline1;
+    extern TextStyle Headline2;
+    extern TextStyle Headline3;
+    extern TextStyle Headline4;
+    extern TextStyle Headline5;
+    extern TextStyle CaptionCaps;
+    extern TextStyle Caption;
+    extern TextStyle BodyLarge;
+    extern TextStyle BodyMedium;
+    extern TextStyle BodySmall;
+    extern TextStyle BodyArticle;
+    extern TextStyle Default;
 }
 
 class Text: public Object {
@@ -74,6 +78,12 @@ public:
     void _adjustTextDPI();
     
     Text& set_font_style(const Font::Style, unsigned int const = 12);
+    
+    bool _compile_canvas_prepare_font();
+    
+    bool _compile_canvas_render_text(Renderer*);
+
+    void _compile_canvas_free_surfc();
     
     bool compile_canvas(Renderer*);
     
@@ -145,7 +155,6 @@ public:
     
     Text& thinItalic(const unsigned int = 12);
     
-
 };
 
 #endif /* Text_hpp */

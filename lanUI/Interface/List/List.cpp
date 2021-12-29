@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-List::List(const Sint32 maxSpeed): count(0), index(0) {
+BSList::BSList(const Sint32 maxSpeed): count(0), index(0) {
     this->maxSpeed = maxSpeed;
     set_content(content);
     on_scroll(CallbackExpr({
@@ -54,13 +54,13 @@ List::List(const Sint32 maxSpeed): count(0), index(0) {
     }));
 }
 
-List::~List(){
+BSList::~BSList(){
     if(count)
         content.free();
     InterativeObject::~InterativeObject();
 }
 
-List& List::fit_content(const float width, const float height){
+BSList& BSList::fit_content(const float width, const float height){
     content.set_size(width, height);
     content.disable_reloading();
     return (*this);

@@ -230,7 +230,7 @@ public:
         CallbackMode,
         CompositionMode,
         CanvasCompositionMode,
-    } DrawMode;
+    } RenderMode;
     
     struct Animation {
         bool _using;
@@ -249,7 +249,7 @@ private:
     
 public:
     
-    Semaphore<DrawMode> drawMode;
+    Semaphore<RenderMode> renderMode;
     Semaphore<bool> wasCompiled;
     Semaphore<Texture*> canvas;
     Semaphore<Texture*> compositionCanvas;
@@ -264,7 +264,7 @@ public:
     
 public:
     
-    Object& set_draw_mode(DrawMode mode);
+    Object& set_render_mode(RenderMode mode);
     
     void _free_canvas(Semaphore<Texture*>&);
     void _free_canvas();
@@ -336,10 +336,10 @@ public:
 };
 
 /// __InteractiveObject_Container
-class __IOContainer : public Object {
+class BSIOContainer : public Object {
 public:
     
-    __IOContainer& reload() override{
+    BSIOContainer& reload() override{
         static float width(0), height(0);
         if(!reloadingDisabled.get() && nextInZ.data){
             width = (nextInZ.data->size.get().w + nextInZ.data->padding.get().left + nextInZ.data->padding.data.right);
@@ -347,7 +347,7 @@ public:
             nextInZ.data->size.leave();
             nextInZ.data->padding.leave();
             set_size(width, height);
-        } //size.set({0,0,width, height});
+        }
         reloadingDisabled.leave();
         return (*this);
     }
@@ -366,9 +366,15 @@ public:
         embedInZ(object);
         object._useRootBounds();
     };
+    
+    BSIOContainer(){};
+    
+    BSIOContainer(Object& any){
+        set_content(any);
+    };
 };
 
-class InterativeObject: public __IOContainer {
+class InterativeObject: public BSIOContainer {
     
     /*
      

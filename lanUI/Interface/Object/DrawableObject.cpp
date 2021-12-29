@@ -101,8 +101,8 @@ void Object::_render_default(SDL_Renderer * renderer, float x, float y, const fl
     sizeBuffer.leave();
 }
 
-Object& Object::set_draw_mode(DrawMode mode){
-    drawMode.set(mode);
+Object& Object::set_render_mode(RenderMode mode){
+    renderMode.set(mode);
     return (*this);
 }
 
@@ -149,7 +149,7 @@ Object& Object::fromSurface(Surface * surfc, Renderer * renderer, const bool res
         this->canvas.set(SDL_CreateTextureFromSurface(renderer, surfc));
         this->renderer.set(renderer);
         size.set({0,0,(float)surfc->w, (float)surfc->h});
-        drawMode.set(DrawMode::ImageMode);
+        renderMode.set(RenderMode::ImageMode);
         // ocultes the border / secondary color
         if(reset_backgroundColor)
             backgroundColor.set(Colors::Transparent);
@@ -163,7 +163,7 @@ Object& Object::fromColorScheme(const Color color, const Color color2){
     foregroundColor.set(color);
     backgroundColor.set(color2);
     withBackground = true;
-    drawMode.set(DrawMode::ColorSchemeMode);
+    renderMode.set(RenderMode::ColorSchemeMode);
     return (*this);
 }
 
@@ -211,8 +211,8 @@ void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK
         _align(x, y);
         _set_position(x, y);
         _render_routine(dpiK);
-            switch (drawMode.get()) {
-                case DrawMode::ImageMode:
+            switch (renderMode.get()) {
+                case RenderMode::ImageMode:
                     if(renderer == this->renderer.get()){
                         this->renderer.leave();
                         _render_image(renderer, x, y, dpiK);
@@ -220,13 +220,15 @@ void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK
                         this->renderer.leave();
                         _render_default(renderer, x, y, dpiK);
                     } break;
-                case DrawMode::CallbackMode:
+                    
+                case RenderMode::CallbackMode:
                     if(using_renderer_callback){
                         _render_using_callback(renderer, x, y, dpiK);
                     } else {
                         _render_default(renderer, x, y, dpiK);
                     } break;
-                case DrawMode::CompositionMode:
+                    
+                case RenderMode::CompositionMode:
                     if(renderer == this->renderer.get()){
                         this->renderer.leave();
                         _render_composition(renderer, x, y, dpiK);
@@ -234,7 +236,8 @@ void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK
                         this->renderer.leave();
                         _render_default(renderer, x, y, dpiK);
                     } break;
-                case DrawMode::CanvasCompositionMode:
+                    
+                case RenderMode::CanvasCompositionMode:
                     if(renderer == this->renderer.get()){
                         this->renderer.leave();
                         _render_composition(renderer, x, y, dpiK);
@@ -242,17 +245,19 @@ void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK
                         this->renderer.leave();
                         _render_default(renderer, x, y, dpiK);
                     } break;
-                case DrawMode::ColorSchemeMode:
+                    
+                case RenderMode::ColorSchemeMode:
                     _render_color_scheme(renderer, x, y, dpiK);
                     break;
+                    
                 default:
                     _render_default(renderer, x, y, dpiK);
                     break;
             }
-        if(drawMode.data != CompositionMode && !inComposition)
+        if(renderMode.data != CompositionMode && !inComposition)
             _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
 
-        drawMode.leave();
+        renderMode.leave();
 #ifdef LANUI_DEBUG_MODE
         if(!inComposition){
             //SDL_SetRenderDrawColor(renderer, 255, 200, 200, 10);
@@ -267,22 +272,25 @@ void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK
 
 Object& Object::set_renderer_callback(VoidCallback callback){
     using_renderer_callback = true;
-    drawMode.set(DrawMode::CallbackMode);
+    renderMode.set(RenderMode::CallbackMode);
     renderer_callback.set(callback);
     return (*this);
 }
-
+ 
 void Object::_run_default_animation(){
-    default_animation.hold();
-    if(default_animation.data._using){
-        if(delay >= default_animation.data.delay){
-            delay = 0;
-            default_animation.data._using =
-            default_animation.data.callback();
-        }
-        delay++;
-    } default_animation.leave();
-    _run_others_default_animation();
+    if(renderMode.get() != CompositionMode){
+        renderMode.leave();
+        default_animation.hold();
+        if(default_animation.data._using){
+            if(delay >= default_animation.data.delay){
+                delay = 0;
+                default_animation.data._using =
+                default_animation.data.callback();
+            } delay++;
+        } default_animation.leave();
+        _run_others_default_animation();
+    } else
+        renderMode.leave();
 }
 
 Object& Object::set_default_animation(const FrameCount delay, BoolCallback callback){
@@ -346,8 +354,8 @@ Object& Object::compose(SDL_Renderer * renderer, const float dpiK){
 #endif
     
     this->renderer = renderer;
-    _start_composition_mode(renderer, dpiK);
     _compile(renderer, dpiK);
+    _start_composition_mode(renderer, dpiK);
     _lock_renderer_in_bounds(renderer, dpiK);
     _render(renderer, 0, 0, dpiK, true);
     _unlock_renderer_from_bounds(renderer);

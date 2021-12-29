@@ -11,8 +11,8 @@
 
 #include "../Object/Object.hpp"
 
-/** Embdeds a single element in Z plan
+/** Embbeds a single element in Z plan
  */
-typedef __IOContainer Container;
+typedef BSIOContainer BSContainer;
 
 #endif /* Container_hpp */

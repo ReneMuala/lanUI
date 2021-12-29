@@ -79,7 +79,7 @@ public:
     
     bool _load(const char * path, const int size);
         
-    const void operator=(Font&other);
+    const void operator=(const Font&other);
     
     /**Sets font style and size.
      Invalid font styles may generate warnings.
@@ -101,14 +101,13 @@ public:
     
     void print_avaliable_styles() const;
     
-    
 };
 
 /** LanUI defaulf fonts
  */
 namespace Fonts {
     extern Font DejaVuSans, WorkSans, OpenSans, DefaultFonts;
-    extern void set_default_font();
+    /*   extern void set_default_font(); moved to theme */
 }
 
 #endif /* Font_hpp */

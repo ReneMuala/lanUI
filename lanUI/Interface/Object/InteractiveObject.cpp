@@ -23,115 +23,141 @@ InterativeObject::InterativeObject(): scrollGain({0,0}), focus_repeated(false), 
     }
     callbacks.leave();
 }
-#include <iostream>
+
 void InterativeObject::_handle_events(Event & event, const float dpiK, const bool no_focus){
-    if(inRootBoundsBuffer.get() && isActive.get() && !no_focus && _has_focus(dpiK)){
+    if(inRootBoundsBuffer.get() && isActive.get() && !no_focus){
         inRootBoundsBuffer.leave();
         isActive.leave();
         this_event = &event;
-        callbacks.hold();
-        if(event.type == SDL_MOUSEBUTTONDOWN)
-            Core::set_selected_object(this);
-        if(callbacks.data.all[OnFocusGained] && !focus_repeated)
-            on_focus_gained_callback();
-        if(callbacks.data.all[OnClick]
-           && event.type == SDL_MOUSEBUTTONDOWN
-           && event.button.button == SDL_BUTTON_LEFT
-           && event.button.clicks == 1)
-            on_click_callback();
-        if(!is_selected && callbacks.data.all[OnSelected] && Core::get_selected_object() == this){
-            on_selected_callback();
-            is_selected = true;
-        }
-        if(callbacks.data.all[OnDoubleClick]
-           && event.type == SDL_MOUSEBUTTONDOWN
-           && event.button.button == SDL_BUTTON_LEFT
-           && event.button.clicks == 2)
-            on_double_click_callback();
-        if(callbacks.data.all[OnSecondaryClick]
-           && event.type == SDL_MOUSEBUTTONDOWN
-           && event.button.button == SDL_BUTTON_RIGHT)
-            on_secondary_click_callback();
-        if(callbacks.data.all[OnMouseButtonDown]
-           && event.type == SDL_MOUSEBUTTONDOWN)
-            on_mouse_button_down_callback();
-        if(callbacks.data.all[OnMouseButtonUp]
-           && event.type == SDL_MOUSEBUTTONUP)
-            on_mouse_button_up_callback();
-        if(callbacks.data.all[OnKeyDown]
-           && event.type == SDL_KEYDOWN)
-            on_key_down_callback();
-        if(callbacks.data.all[OnKeyUp]
-           && event.type == SDL_KEYUP)
-            on_key_up_callback();
-        if(callbacks.data.all[OnScroll]
-           && event.type == SDL_MOUSEWHEEL) {
-            scrollGain.vertical = event.wheel.y;
-            scrollGain.horizontal = event.wheel.x;
-            on_scroll_callback();
-        } if(callbacks.data.all[OnResized]){
-            if(was_resized.get()){
-                on_resized_callback();
+        if(_has_focus(dpiK)){
+            callbacks.hold();
+            if(!focus_repeated && callbacks.data.all[OnFocusGained])
+                on_focus_gained_callback();
+            if(!is_selected && callbacks.data.all[OnSelected] && Core::get_selected_object() == this){
+                on_selected_callback();
+                is_selected = true;
             }
-            was_resized.data = false;
-            was_resized.leave();
-        } if(callbacks.data.all[OnDropBegin] && event.type == SDL_DROPBEGIN){
-            on_drop_begin_callback();
-        } if(callbacks.data.all[OnDropEnd] && event.type == SDL_DROPCOMPLETE){
-            on_drop_end_callback();
-        } if(callbacks.data.all[OnDropFile] && event.type == SDL_DROPFILE){
-            on_drop_file_callback();
-        } if(callbacks.data.all[OnDropText] && event.type == SDL_DROPTEXT){
-            on_drop_text_callback();
-        } if(callbacks.data.all[OnAudioPlay] && event.key.keysym.sym == SDLK_AUDIOPLAY){
-            on_audio_play_callback();
-        } if(callbacks.data.all[OnAudioStop] && event.key.keysym.sym == SDLK_AUDIOSTOP){
-            on_audio_stop_callback();
-        } if(callbacks.data.all[OnAudioNext] && event.key.keysym.sym == SDLK_AUDIONEXT){
-            on_audio_next_callback();
-        } if(callbacks.data.all[OnAudioPrev] && event.key.keysym.sym == SDLK_AUDIOPREV){
-            on_audio_prev_callback();
-        } if(callbacks.data.all[OnAudioMute] && event.key.keysym.sym == SDLK_AUDIOMUTE){
-            on_audio_mute_callback();
-        } if(callbacks.data.all[OnAudioRewind] && event.key.keysym.sym == SDLK_AUDIOREWIND){
-            on_audio_rewind_callback();
-        } if(callbacks.data.all[OnAudioFastForward] && event.key.keysym.sym == SDLK_AUDIOFASTFORWARD){
-            on_audio_rewind_callback();
-        } if(callbacks.data.all[OnF1] && event.key.keysym.sym == SDLK_F1){
-            on_f1_callback();
-        } if(callbacks.data.all[OnF2] && event.key.keysym.sym == SDLK_F2){
-            on_f2_callback();
-        } if(callbacks.data.all[OnF3] && event.key.keysym.sym == SDLK_F3){
-            on_f3_callback();
-        } if(callbacks.data.all[OnF4] && event.key.keysym.sym == SDLK_F4){
-            on_f4_callback();
-        } if(callbacks.data.all[OnF5] && event.key.keysym.sym == SDLK_F5){
-            on_f5_callback();
-        } if(callbacks.data.all[OnF6] && event.key.keysym.sym == SDLK_F6){
-            on_f6_callback();
-        } if(callbacks.data.all[OnF7] && event.key.keysym.sym == SDLK_F7){
-            on_f7_callback();
-        } if(callbacks.data.all[OnF8] && event.key.keysym.sym == SDLK_F8){
-            on_f8_callback();
-        } if(callbacks.data.all[OnF9] && event.key.keysym.sym == SDLK_F9){
-            on_f9_callback();
-        } if(callbacks.data.all[OnF10] && event.key.keysym.sym == SDLK_F10){
-            on_f10_callback();
-        } if(callbacks.data.all[OnF11] && event.key.keysym.sym == SDLK_F11){
-            on_f11_callback();
-        } if(callbacks.data.all[OnF12] && event.key.keysym.sym == SDLK_F12){
-            on_f12_callback();
-        } if(callbacks.data.all[CustomEvent]){
-            custom_event_callback();
+            
+            if(event.type == SDL_MOUSEBUTTONDOWN){
+                Core::set_selected_object(this);
+                if(callbacks.data.all[OnClick]
+                   && event.button.button == SDL_BUTTON_LEFT
+                   && event.button.clicks == 1)
+                    on_click_callback();
+            } else if(event.type == SDL_MOUSEBUTTONDOWN
+               && callbacks.data.all[OnDoubleClick]
+               && event.button.button == SDL_BUTTON_LEFT
+               && event.button.clicks == 2)
+                on_double_click_callback();
+            else if(event.type == SDL_MOUSEBUTTONDOWN
+               && callbacks.data.all[OnSecondaryClick]
+               && event.button.button == SDL_BUTTON_RIGHT)
+                on_secondary_click_callback();
+            else if(event.type == SDL_MOUSEBUTTONDOWN
+               && callbacks.data.all[OnMouseButtonDown])
+                on_mouse_button_down_callback();
+            else if(event.type == SDL_MOUSEBUTTONUP
+               && callbacks.data.all[OnMouseButtonUp])
+                on_mouse_button_up_callback();
+            else if(event.type == SDL_KEYDOWN
+               && callbacks.data.all[OnKeyDown])
+                on_key_down_callback();
+            else if(event.type == SDL_KEYUP
+               && callbacks.data.all[OnKeyUp])
+                on_key_up_callback();
+            else if(event.type == SDL_MOUSEWHEEL
+               && callbacks.data.all[OnScroll]) {
+                scrollGain.vertical = event.wheel.y;
+                scrollGain.horizontal = event.wheel.x;
+                on_scroll_callback();
+            } else if(event.type == SDL_DROPBEGIN
+                 && callbacks.data.all[OnDropBegin]){
+                on_drop_begin_callback();
+            } else if(event.type == SDL_DROPCOMPLETE
+                 && callbacks.data.all[OnDropEnd]){
+                on_drop_end_callback();
+            } else if(event.type == SDL_DROPFILE
+                 && callbacks.data.all[OnDropFile]){
+                on_drop_file_callback();
+            } else if(event.type == SDL_DROPTEXT
+                 && callbacks.data.all[OnDropText]){
+                on_drop_text_callback();
+            }
+            
+            if(event.key.keysym.sym == SDLK_AUDIOPLAY && callbacks.data.all[OnAudioPlay]){
+                on_audio_play_callback();
+            } else if(event.key.keysym.sym == SDLK_AUDIOSTOP && callbacks.data.all[OnAudioStop]){
+                on_audio_stop_callback();
+            } else if(event.key.keysym.sym == SDLK_AUDIONEXT && callbacks.data.all[OnAudioNext]){
+                on_audio_next_callback();
+            } else if(event.key.keysym.sym == SDLK_AUDIOPREV && callbacks.data.all[OnAudioPrev]){
+                on_audio_prev_callback();
+            } else if(event.key.keysym.sym == SDLK_AUDIOMUTE && callbacks.data.all[OnAudioMute]){
+                on_audio_mute_callback();
+            } else if(event.key.keysym.sym == SDLK_AUDIOREWIND && callbacks.data.all[OnAudioRewind]){
+                on_audio_rewind_callback();
+            } else if(event.key.keysym.sym == SDLK_AUDIOFASTFORWARD && callbacks.data.all[OnAudioFastForward]){
+                on_audio_rewind_callback();
+            } else if(event.key.keysym.sym == SDLK_F1 && callbacks.data.all[OnF1]){
+                on_f1_callback();
+            } else if(event.key.keysym.sym == SDLK_F2 && callbacks.data.all[OnF2]){
+                on_f2_callback();
+            } else if(event.key.keysym.sym == SDLK_F3 && callbacks.data.all[OnF3]){
+                on_f3_callback();
+            } else if(event.key.keysym.sym == SDLK_F4 && callbacks.data.all[OnF4]){
+                on_f4_callback();
+            } else if(event.key.keysym.sym == SDLK_F5 && callbacks.data.all[OnF5]){
+                on_f5_callback();
+            } else if(event.key.keysym.sym == SDLK_F6 && callbacks.data.all[OnF6]){
+                on_f6_callback();
+            } else if(event.key.keysym.sym == SDLK_F7 && callbacks.data.all[OnF7]){
+                on_f7_callback();
+            } else if(event.key.keysym.sym == SDLK_F8 && callbacks.data.all[OnF8]){
+                on_f8_callback();
+            } else if(event.key.keysym.sym == SDLK_F9 && callbacks.data.all[OnF9]){
+                on_f9_callback();
+            } else if(event.key.keysym.sym == SDLK_F10 && callbacks.data.all[OnF10]){
+                on_f10_callback();
+            } else if(event.key.keysym.sym == SDLK_F11 && callbacks.data.all[OnF11]){
+                on_f11_callback();
+            } else if(event.key.keysym.sym == SDLK_F12 && callbacks.data.all[OnF12]){
+                on_f12_callback();
+            }
+            if(callbacks.data.all[CustomEvent]){
+                custom_event_callback();
+            } if(callbacks.data.all[OnResized]){
+                if(was_resized.get()){
+                    on_resized_callback();
+                }
+                was_resized.data = false;
+                was_resized.leave();
+            }
+            callbacks.leave();
+        } if(is_selected) {
+            callbacks.hold();
+            if(event.key.state == SDL_PRESSED){
+                if(event.key.keysym.sym == SDLK_x && callbacks.data.all[OnCut] && ((SDL_GetModState() & KMOD_CTRL) || (SDL_GetModState() & KMOD_GUI))){
+                    on_cut_callback();
+                } else if(event.key.keysym.sym == SDLK_c && callbacks.data.all[OnCopy] && ((SDL_GetModState() & KMOD_CTRL) || (SDL_GetModState() & KMOD_GUI))){
+                    on_copy_callback();
+                } else if(event.key.keysym.sym == SDLK_v && callbacks.data.all[OnPaste] && ((SDL_GetModState() & KMOD_CTRL) || (SDL_GetModState() & KMOD_GUI))){
+                    on_paste_callback();
+                }
+            }
+            if(callbacks.data.all[OnUnselected] && Core::get_selected_object() != this){
+                on_unselected_callback();
+                is_selected = false;
+            }
+            callbacks.leave();
         }
-        callbacks.leave();
+        
         if(nextInZ.get()){
             nextInZ.leave();
-            if(drawMode.get() != CompositionMode) {
-                drawMode.leave();
+            if(renderMode.get() != CompositionMode) {
+                renderMode.leave();
                 _handle_others_routine(event, nextInZ.data, dpiK, false);
             } else {
-                drawMode.leave();
+                renderMode.leave();
             }
         } else
             nextInZ.leave();
@@ -154,21 +180,6 @@ void InterativeObject::_handle_events(Event & event, const float dpiK, const boo
     }
     isActive.leave();
     inRootBoundsBuffer.leave();
-    callbacks.hold();
-    if(is_selected){
-        if(callbacks.data.all[OnCut] && event.key.keysym.sym == SDLK_x  && event.key.state == SDL_PRESSED && ((SDL_GetModState() & KMOD_CTRL) || (SDL_GetModState() & KMOD_GUI))){
-            on_cut_callback();
-        } if(callbacks.data.all[OnCopy] && event.key.keysym.sym == SDLK_c && event.key.state == SDL_PRESSED && ((SDL_GetModState() & KMOD_CTRL) || (SDL_GetModState() & KMOD_GUI))){
-            on_copy_callback();
-        } if(callbacks.data.all[OnPaste] && event.key.keysym.sym == SDLK_v && event.key.state == SDL_PRESSED && ((SDL_GetModState() & KMOD_CTRL) || (SDL_GetModState() & KMOD_GUI))){
-            on_paste_callback();
-            std::cout << "\t>> " << (int)event.key.repeat << std::endl;
-        } if(callbacks.data.all[OnUnselected] && Core::get_selected_object() != this){
-            on_unselected_callback();
-            is_selected = false;
-        }
-    }
-    callbacks.leave();
     _handle_others(event, dpiK, no_focus);
 }
 

@@ -11,11 +11,10 @@
 
 #include "../Object/Object.hpp"
 #include "../Stack/Stack.hpp"
-#include <optional>
 
 /** A Scrollable VStack
  */
-class List : public InterativeObject {
+class BSList : public InterativeObject {
     std::list<Object*> baseList;
     Sint32 maxSpeed;
 public:
@@ -26,14 +25,14 @@ public:
 public:
     unsigned index;
     unsigned count;
-    List(const Sint32 maxSpeed = 10);
-    ~List();
+    BSList(const Sint32 maxSpeed = 10);
+    ~BSList();
     
     Semaphore<ScrollSate> state;
-    VStack content;
-    List& fit_content(const float width, const float height);
+    BSVStack content;
+    BSList& fit_content(const float width, const float height);
     template<typename anyObj, unsigned repeat>
-    List& compute(ObjPtrCallback callback){
+    BSList& compute(ObjPtrCallback callback){
         count = repeat;
         baseList.clear();
         Object * obj;

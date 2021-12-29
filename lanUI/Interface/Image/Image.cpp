@@ -11,7 +11,7 @@
 #include <thread>
 #include <math.h>
 
-const Color Image::_getGradientFrameColor(GradientElement first, GradientElement second, double y, double height){
+const Color BSImage::_getGradientFrameColor(GradientElement first, GradientElement second, double y, double height){
     // Special thanks to: Bill_Kendrick (https://discourse.libsdl.org/u/Bill_Kendrick)
     Uint8 r = (second.second * (second.first.r * y / height)) + (first.second * (first.first.r * (height - y) / height));
     Uint8 g = (second.second * (second.first.g * y / height)) + (first.second * (first.first.g * (height - y) / height));
@@ -20,7 +20,7 @@ const Color Image::_getGradientFrameColor(GradientElement first, GradientElement
     return {r,g,b,a};
 }
 
-Image& Image::fromLinearGradient(LGOrietantion orientation, GradientElement first, GradientElement second, Renderer * renderer, SDL_Window* window, uint32_t weight, uint32_t gap){
+BSImage& BSImage::fromLinearGradient(LGOrietantion orientation, GradientElement first, GradientElement second, Renderer * renderer, SDL_Window* window, uint32_t weight, uint32_t gap){
     _free_canvas();
     canvas.set(SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size.get().w, size.data.h));
     size.leave();
@@ -43,7 +43,7 @@ Image& Image::fromLinearGradient(LGOrietantion orientation, GradientElement firs
             linearFill.x = i;
         SDL_RenderFillRectF(renderer, &linearFill);
     }
-    drawMode.set(DrawMode::ImageMode);
+    renderMode.set(RenderMode::ImageMode);
     
     backgroundColor.set(Colors::Transparent);
     this->renderer.set(renderer);
@@ -53,14 +53,14 @@ Image& Image::fromLinearGradient(LGOrietantion orientation, GradientElement firs
     return (*this);
 }
 
-const double Image::_getDistance(Point point1, Point point2){
+const double BSImage::_getDistance(Point point1, Point point2){
     return  pow(
                 pow((point1.x - point2.x), 2) +
                 pow((point1.y - point2.y), 2)
                 , 0.5);
 }
 
-Image& Image::fromRadialGradient(Point center, double radius, GradientElement first, GradientElement second, Renderer * renderer, SDL_Window* window){
+BSImage& BSImage::fromRadialGradient(Point center, double radius, GradientElement first, GradientElement second, Renderer * renderer, SDL_Window* window){
     _free_canvas();
     canvas.set(SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, size.get().w, size.data.h));
     size.leave();
@@ -83,7 +83,7 @@ Image& Image::fromRadialGradient(Point center, double radius, GradientElement fi
             SDL_SetRenderDrawColor(renderer, temp.r, temp.g, temp.b, temp.a);
             SDL_RenderDrawPointF(renderer, x, y);
         }
-    } drawMode.set(DrawMode::ImageMode);
+    } renderMode.set(RenderMode::ImageMode);
     
     backgroundColor.set(Colors::Transparent);
     this->renderer.set(renderer);
@@ -92,7 +92,28 @@ Image& Image::fromRadialGradient(Point center, double radius, GradientElement fi
     return (*this);
 }
 
-Image& Image::set_angle(const Angle angle){
+BSImage& BSImage::set_angle(const Angle angle){
     this->angle.set(angle);
     return (*this);
+}
+
+void BSImage::_text_surface_operation(){
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    Uint32 rmask = 0xff000000;
+    Uint32 gmask = 0x00ff0000;
+    Uint32 bmask = 0x0000ff00;
+    Uint32 amask = 0x000000ff;
+#else
+    Uint32 rmask = 0x000000ff;
+    Uint32 gmask = 0x0000ff00;
+    Uint32 bmask = 0x00ff0000;
+    Uint32 amask = 0xff000000;
+#endif
+    
+    size.hold();
+    SDL_Surface *sshot = SDL_CreateRGBSurface(0, size.data.w, size.data.h, 32, rmask , gmask, bmask, amask);
+    SDL_RenderReadPixels(renderer.get(), NULL, SDL_PIXELFORMAT_ARGB8888, sshot->pixels, sshot->pitch);
+    renderer.leave();
+    SDL_SaveBMP(sshot, "screenshot.bmp");
+    SDL_FreeSurface(sshot);
 }

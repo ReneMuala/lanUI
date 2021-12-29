@@ -408,16 +408,13 @@ void Object::_unlock_renderer_from_bounds(SDL_Renderer * renderer){
     rendererClips.pop();
     if(!rendererClips.empty()){
 #ifdef LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
-
         printf("renderer unlock: [%d %d %d %d]\n", rendererClips.top().x, rendererClips.top().y, rendererClips.top().w, rendererClips.top().h);
 #endif
-
         SDL_RenderSetClipRect(renderer, &rendererClips.top());
     } else {
 #ifdef LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
         printf("renderer unlock: [full screen]\n");
 #endif
-
         SDL_RenderSetClipRect(renderer, nullptr);
     }
 }
@@ -471,16 +468,15 @@ bool Object::_has_focus(const float dpiK){
 }
 
 void Object::_handle_events(Event & event, const float dpiK, const bool no_focus){
-    if(inRootBoundsBuffer.get()&& !no_focus && _has_focus(dpiK)){
+    if(inRootBoundsBuffer.get()&& !no_focus){
         inRootBoundsBuffer.leave();
-        // ignore this object if the nextInZ has focus
-            if(nextInZ.get()){
+            if(_has_focus(dpiK) && nextInZ.get()){
                 nextInZ.leave();
-                if(drawMode.get() != CompositionMode) {
-                    drawMode.leave();
+                if(renderMode.get() != CompositionMode) {
+                    renderMode.leave();
                     _handle_others_routine(event, nextInZ.data, dpiK, false);
                 } else {
-                    drawMode.leave();
+                    renderMode.leave();
                 }
             } else
                 nextInZ.leave();
@@ -539,7 +535,7 @@ void Object::_set_position(const float x, const float y){
     size.hold(); padding.hold(); scrollingFactor.hold(); size.data.x = x + padding.data.left + scrollingFactor.data.horizontal; size.data.y = y + padding.data.top + scrollingFactor.data.vertical; size.leave(); padding.leave(); scrollingFactor.leave();
 }
 
-Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr), nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false), reloadingDisabled(false) /*rootType(OtherRoot)*/, canvas(nullptr), compositionCanvas(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Transparent), backgroundColor(Colors::Transparent), borderColor(Colors::Transparent), angle(0), drawMode(DrawMode::DefaultMode), delay(0), wasCompiled(false), index(0), no_focus_repeated(false) {
+Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr), nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false), reloadingDisabled(false) /*rootType(OtherRoot)*/, canvas(nullptr), compositionCanvas(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Transparent), backgroundColor(Colors::Transparent), borderColor(Colors::Transparent), angle(0), renderMode(RenderMode::DefaultMode), delay(0), wasCompiled(false), index(0), no_focus_repeated(false) {
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
         requests[i].set(false);

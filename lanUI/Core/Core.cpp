@@ -10,6 +10,8 @@
 
 #include "../Interface/Window/Window.hpp"
 #include "../Interface/Font/Font.hpp"
+#include "../Interface/Theme/Theme.hpp"
+
 #include "../Project/CustomFonts/CustomFonts.hpp"
 
 #include <map>
@@ -111,14 +113,14 @@ void Core::init_SDL(){
 }
 
 void Core::events(){
-    Core::log(Message, "Starting events thread.");
+    Core::log(Message, "Starting events   thread.");
     while(CoreData::running){
         static short size (0);
         size = CoreData::programWindowsCount.get();
         CoreData::programWindowsCount.leave();
         for(short i = 0 ; i < size;){
             if(CoreData::programWindows[i].data){
-                if(CoreData::programWindows[i].isBusy)continue;
+                if(CoreData::programWindows[i].isBusy) continue;
                 CoreData::programWindows[i].data->_handle_requests();
                 CoreData::programWindows[i].data->_handle_events();
                 i++;
@@ -128,7 +130,7 @@ void Core::events(){
 }
 
 void Core::render(){
-    Core::log(Message, "Starting render thread.");
+    Core::log(Message, "Starting renderer thread.");
     while (CoreData::running) {
         static short size (0);
         size = CoreData::programWindowsCount.get();
@@ -139,8 +141,7 @@ void Core::render(){
                     if(!CoreData::programWindows[i].data->hasKeyboardFocus.get()) {
                         std::this_thread::sleep_for(CoreData::sleepTime.get());
                         CoreData::sleepTime.leave();
-                    }
-                    CoreData::programWindows[i].data->hasKeyboardFocus.leave();
+                    } CoreData::programWindows[i].data->hasKeyboardFocus.leave();
                     CoreData::programWindows[i].data->_run_default_animation();
                     CoreData::programWindows[i].data->_compile();
                     CoreData::programWindows[i].data->_clear();
@@ -257,7 +258,7 @@ void Core::load_fonts(){
     Fonts::WorkSans.fromFile("Fonts:WorkSans-ThinItalic.ttf", Font::ThinItalic);
     Fonts::WorkSans.set_global_name("WorkSans");
     CustomFonts::_loadCustomFonts();
-    Fonts::set_default_font();
+    Themes::_default._set_default_font();
 }
 
 void Core::free_fonts(){

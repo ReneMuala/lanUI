@@ -12,14 +12,14 @@
 #include <string>
 #include <iostream>
 
-void TextField::__default_on_selected_callback(){
+void BSTextField::__default_on_selected_callback(){
     activated.set(true);
     textSurface.cursor.get().active = true;
     textSurface.cursor.leave();
     SDL_StartTextInput();
 }
 
-void TextField::__default_on_unselected_callback(){
+void BSTextField::__default_on_unselected_callback(){
     if(activated.get()){
         SDL_StopTextInput();
         activated.data = false;
@@ -30,19 +30,19 @@ void TextField::__default_on_unselected_callback(){
         activated.leave();
 }
 
-void TextField::_init(Semaphore<std::string> &source, const std::string placeholder){
+void BSTextField::_init(const std::string placeholder){
     activated.set(false);
+    hidden.set(false);
     set_size(150, 25);
     cursor_change_flag = 0;
-    this->source = &source;
-    this->placeholder = placeholder;
+    this->_placeholder = placeholder;
     Core::log(Core::Warning, "TextField isn't stable yet.");
     disable_reloading();
 
     on_copy(CallbackExpr({
-        if(!source.get().empty())
-            SDL_SetClipboardText(source.data.c_str());
-        source.leave();
+        if(!_source.get().empty())
+            SDL_SetClipboardText(_source.data.c_str());
+        _source.leave();
     }));
     
     on_cut(CallbackExpr());
@@ -51,7 +51,6 @@ void TextField::_init(Semaphore<std::string> &source, const std::string placehol
         char * buffer = SDL_GetClipboardText();
         const UTF8CharList clipboardText = UTF8CharList(buffer);
         const size_t clipTextSize = clipboardText.size();
-        printf("PASTE \"%s\" (%ld)\n", buffer, clipTextSize);
         if(clipTextSize){
             textSurface.cursor.hold();
             inputBuffer.get().append(buffer, textSurface.cursor.data.colummn);
@@ -70,22 +69,19 @@ void TextField::_init(Semaphore<std::string> &source, const std::string placehol
     set_content(textSurface);
 }
 
-void TextField::_refresh_cursor(const float dpiK){
+void BSTextField::_refresh_cursor(const float dpiK){
     if(cursor_change_flag){
-        if(cursor_change_flag > 0){
-            if(input_size_change) textSurface.cursor.get().colummn+=input_size_change;
-            else textSurface.cursor.get().colummn++;
-        } else {
-            textSurface.cursor.hold();
-            if(textSurface.cursor.data.colummn - 1 < 0){
-                textSurface.cursor.data.colummn = 0;
-            } else {
-                textSurface.cursor.data.colummn--;
-            }
+        textSurface.cursor.hold();
+        
+        if(cursor_change_flag != 0){
+            if(input_size_change) textSurface.cursor.data.colummn+=input_size_change;
+            else textSurface.cursor.data.colummn+=cursor_change_flag;
         }
         
         if(textSurface.cursor.data.colummn > input_size){
             textSurface.cursor.data.colummn = input_size;
+        } else if (textSurface.cursor.data.colummn < 0) {
+            textSurface.cursor.data.colummn = 0;
         }
         
         textSurface.cursor.data.hidden = false;
@@ -99,26 +95,29 @@ void TextField::_refresh_cursor(const float dpiK){
         }
 }
 
-void TextField::_compute_cursor_position(Renderer * renderer){
+void BSTextField::_compute_cursor_position(Renderer * renderer){
     if(textSurface.font && !textSurface.source.get().empty()){
-        if(textSurface.font->ttfFont.get() && textSurface.font->scalingFactorConstant > 1){
+        if(textSurface.font->ttfFont.get() && textSurface.font->scalingFactorConstant >= 1){
             const int constantBuffer = textSurface.font->scalingFactorConstant;
             textSurface.font->ttfFont.leave();
             textSurface.font->set_scaling_factor(1);
             int w, h;
             
-            
             textSurface.cursor.hold();
             
             inputBuffer.hold();
             
-            const size_t text_len_at_cur = inputBuffer.data.c_index_before(textSurface.cursor.data.colummn);
+            size_t text_len_at_cur = (hidden.get()) ? hiddenInputBuffer.c_index_before(textSurface.cursor.data.colummn) : inputBuffer.data.c_index_before(textSurface.cursor.data.colummn);
             
+            hidden.leave();
             inputBuffer.leave();
             //(text_len_at_cur-1>0 ? text_len_at_cur-1 : 0)
+            
             TTF_SizeUTF8(textSurface.font->ttfFont.data, textSurface.source.data.substr(0, text_len_at_cur).c_str(), &w, &h);
             textSurface.cursor.data.hBuffer = h;
             textSurface.cursor.data.xBuffer = w;
+            
+//            std::cout << textSurface.cursor.data.xBuffer << " " << textSurface.cursor.data.hBuffer << std::endl;
             
             size.hold();
             textSurface.padding.hold();
@@ -148,14 +147,19 @@ void TextField::_compute_cursor_position(Renderer * renderer){
     textSurface.source.leave();
 }
 
-void TextField::_compile(Renderer * renderer, const float dpiK){
+void BSTextField::_compile(Renderer * renderer, const float dpiK){
     if(!wasCompiled.get()){
         _sync_strings();
-        if(source->get().empty()){
-            textSurface.from_string(placeholder);
+        if(_source.get().empty()){
+            textSurface.from_string(_placeholder);
         } else {
-            textSurface.from_string(source->data.c_str());
-        } source->leave();
+            if(hidden.get()){
+                textSurface.from_string(_hidden_source.c_str());
+            } else {
+                textSurface.from_string(_source.data.c_str());
+            } hidden.leave();
+        }
+        _source.leave();
         _refresh_cursor(dpiK);
         wasCompiled.data = true;
     } wasCompiled.leave();
@@ -163,36 +167,47 @@ void TextField::_compile(Renderer * renderer, const float dpiK){
     _compile_embedded(renderer, dpiK);
 }
 
-TextField::TextField(Semaphore<std::string>&source, const std::string placeholder){
-    _init(source, placeholder);
+void BSTextField::hide(const bool _hide, const UTF8Char mask){
+    hidden.set(_hide);
+    char c_char[5];
+    bzero(c_char, 5);
+    strcpy(c_char, mask.c_char());
+    _hidden_source_mask.composeUTF8Char(c_char);
 }
 
-TextField::TextField(TextField const & other){
-    void * ptr = (void*)&other.source;
-    _init((Semaphore<std::string>&)ptr, other.placeholder);
+BSTextField::BSTextField(const std::string placeholder){
+    _init(placeholder);
+}
+
+BSTextField::BSTextField(BSTextField const & other){
+    _init(other._placeholder);
 }
 
 
-void TextField::_sync_strings(){
+void BSTextField::_sync_strings(){
     
-    size_t c_string_len = inputBuffer.get().c_str_size();
+    char * c_string = inputBuffer.get().alloc_c_str();
     
-    char c_string [c_string_len];
-    
-    bzero(c_string, c_string_len);
-    
-    c_string[0] = '\0';
-        
-    inputBuffer.data.composeCStr(c_string, c_string_len);
-    
-    source->set(c_string);
-        
-    input_size = inputBuffer.data.size();
-            
+    _source.hold();
+
+    if((input_size = inputBuffer.data.size())){
+        if(hidden.get()){
+            _hidden_source.clear();
+            for(int i = 0;i < input_size ; i++, _hidden_source+=_hidden_source_mask.c_char());
+            hiddenInputBuffer.clear();
+            hiddenInputBuffer.append(_hidden_source.c_str());
+        } hidden.leave();
+        _source.data = c_string;
+    } else {
+        _source.data.clear();
+    }
+    _source.leave();
+
+    inputBuffer.data.free_c_str(c_string);
     inputBuffer.leave();
 }
 
-void TextField::_handle_events(Event & event, const float dpiK, const bool no_focus){
+void BSTextField::_handle_events(Event & event, const float dpiK, const bool no_focus){
     InterativeObject::_handle_events(event, dpiK, no_focus);
     if(activated.get()){
         if(!SDL_IsTextInputActive()){
@@ -225,13 +240,17 @@ void TextField::_handle_events(Event & event, const float dpiK, const bool no_fo
                 if(((SDL_GetModState() & KMOD_CTRL) || (SDL_GetModState() & KMOD_GUI))){
                     textSurface.cursor.get().colummn = 0;
                     textSurface.cursor.leave();
+                } else if (SDL_GetModState() & KMOD_SHIFT){
+                    cursor_change_flag = -4;
                 } else cursor_change_flag = -1;
                 wasCompiled.set(false);
             } else if (event.key.keysym.sym == SDLK_RIGHT){
                 if(((SDL_GetModState() & KMOD_CTRL) || (SDL_GetModState() & KMOD_GUI))){
                     textSurface.cursor.get().colummn = input_size;
                     textSurface.cursor.leave();
-                } else cursor_change_flag = 1;
+                } else if (SDL_GetModState() & KMOD_SHIFT){
+                    cursor_change_flag = +4;
+                } else cursor_change_flag = +1;
                 wasCompiled.set(false);
             }
         }

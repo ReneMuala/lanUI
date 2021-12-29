@@ -25,18 +25,18 @@ class BirdView : public View {
 public:
     
     VStack contentStack;
-    Container contentStackContainer;
+    Container contentStackContainer = Container(contentStack);
     HStack mainStack;
     Text title;
     Image bird;
-    Container birdContainer;
+    Container birdContainer = Container(bird);
     Paragraph description;
     VStack descriptionContainer;
     
     Text forwardTxt;
     Text backwardTxt;
-    Button forwardBtn;
-    Button backwardBtn;
+    Button forwardBtn = Button(forwardTxt);
+    Button backwardBtn = Button(backwardTxt);
     
     std::string birdName;
     std::string birdDescription;
@@ -75,7 +75,6 @@ public:
             bird.set_size(size, size);
             return true;
         }));
-        birdContainer.set_content(bird);
         birdContainer.set_size(512, 512);
         birdContainer.disable_reloading();
     }
@@ -85,7 +84,7 @@ public:
         
         createTitle(window);
         
-        stream << "\\size:14 " << birdDescription;
+        stream << "%size:14 " << birdDescription;
         
         description.from_stringstream(stream, Paragraph::Wrapper::Char, 60);
         description.set_alignment(Left);
@@ -102,7 +101,6 @@ public:
             forwardTxt.set_foreground_color(Colors::Orange.from_a(50));
         forwardTxt.bold(14);
         forwardTxt.set_alignment(Center);
-        forwardBtn.set_content(forwardTxt);
         forwardBtn.Object::set_size(512, 20);
         forwardBtn.disable_reloading();
         forwardBtn.set_padding({5,5});
@@ -111,7 +109,6 @@ public:
         backwardTxt.set_foreground_color(Colors::Orange);
         backwardTxt.bold(14);
         backwardTxt.set_alignment(Center);
-        backwardBtn.set_content(backwardTxt);
         backwardBtn.Object::set_size(512, 20);
         backwardBtn.disable_reloading();
         backwardBtn.set_padding({5,5});
@@ -120,7 +117,6 @@ public:
     void createContentStack(Window& window){
         contentStack.fromList(std::list<Object *>{&descriptionContainer, &backwardBtn, &forwardBtn});
         contentStack.set_alignment(Center);
-        contentStackContainer.set_content(contentStack);
         contentStackContainer.set_size(600, 512);
         contentStackContainer.disable_reloading();
     }
@@ -163,15 +159,15 @@ public:
     
     VStack mainStack;
     Text title;
-    Container titleContainer;
+    Container titleContainer = Container(title);
     Image bird;
-    Container birdContainer;
+    Container birdContainer = Container(bird);
     Paragraph description;
-    Container descriptionContainer;
+    Container descriptionContainer = Container(description);
     Text continueTxt;
     Text exitTxt;
-    Button continueBtn;
-    Button exitBtn;
+    Button continueBtn = Button(continueTxt);
+    Button exitBtn = Button(exitTxt);
     
     MyHomeView(Window & win){
         create(win);
@@ -185,7 +181,6 @@ public:
         title.set_alignment(Center);
         title.bold(36);
         title.set_foreground_color(Colors::Orange);
-        titleContainer.set_content(title);
         titleContainer.set_size(600, 40);
         titleContainer.disable_reloading();
     }
@@ -195,7 +190,6 @@ public:
         window.sdlRenderer.leave();
         bird.set_size(256, 256);
         bird.set_alignment(Center);
-        birdContainer.set_content(bird);
         birdContainer.set_size(600, 256);
         birdContainer.disable_reloading();
     }
@@ -203,11 +197,10 @@ public:
     void createDescription(Window& window){
         std::stringstream stream;
         
-        stream << "\\color:rgb(0,0,0) \\size:14 Uma aplicação feita usando o \\color:rgb(0,50,255) framework LANUI \\regular \\color:rgb(0,0,0) em C++. \\newln As informações contidas neste aplicativo foram coletadas no site da \\bo \\color:rgb(100,100,100) Wiki \\ns \\color:rgb(0,0,0) pédia. \\regular";
+        stream << "%color:rgb(0,0,0) %size:14 Uma aplicação feita usando o %color:rgb(0,50,255) framework LANUI %regular %color:rgb(0,0,0) em C++. %newln As informações contidas neste aplicativo foram coletadas no site da %bo %color:rgb(100,100,100) Wiki %ns %color:rgb(0,0,0) pédia. %regular";
         
         description.from_stringstream(stream, Paragraph::Wrapper::Char, 60);
         description.set_alignment(Center);
-        descriptionContainer.set_content(description);
         descriptionContainer.set_size(600, 80);
         descriptionContainer.disable_reloading();
     }
@@ -217,7 +210,6 @@ public:
         continueTxt.set_foreground_color(Colors::Orange);
         continueTxt.bold(14);
         continueTxt.set_alignment(Center);
-        continueBtn.set_content(continueTxt);
         continueBtn.Object::set_size(600, 20);
         continueBtn.disable_reloading();
         continueBtn.set_padding({5,5});
@@ -226,7 +218,6 @@ public:
         exitTxt.set_foreground_color(Colors::Orange);
         exitTxt.bold(14);
         exitTxt.set_alignment(Center);
-        exitBtn.set_content(exitTxt);
         exitBtn.Object::set_size(600, 20);
         exitBtn.disable_reloading();
         exitBtn.set_padding({5,5});
@@ -259,17 +250,17 @@ int main(int argc, const char * argv[]) {
     
     auto Home = MyHomeView(window);
     
-    auto Pinguim = BirdView(window, "Pinguim", "O pinguim é uma ave da família \\bold Spheniscidae, \\regular altamente modificada para a vida aquática, sendo suas asas adaptadas para promover impulso através da água. Estas aves estão amplamente distribuídas pelas águas mais frias do hemisfério sul, especialmente na Antártida e ilhas dos mares austrais, chegado à Terra do Fogo, Ilhas Malvinas e África do Sul.", "lanUI.Bundle/System/Resources/Penguin.png", nullptr, nullptr);
+    auto Pinguim = BirdView(window, "Pinguim", "O pinguim é uma ave da família %bold Spheniscidae, %regular altamente modificada para a vida aquática, sendo suas asas adaptadas para promover impulso através da água. Estas aves estão amplamente distribuídas pelas águas mais frias do hemisfério sul, especialmente na Antártida e ilhas dos mares austrais, chegado à Terra do Fogo, Ilhas Malvinas e África do Sul.", "lanUI.Bundle/System/Resources/Penguin.png", nullptr, nullptr);
     
-    auto Pombo = BirdView(window, "Pombo", "\\bold Columbidae \\regular é uma família de pássaros que consiste em pombos e pombas. É a única família na ordem Columbiformes. Estas são aves de corpo robusto com pescoços curtos e bicos curtos e delgados que em algumas espécies apresentam ceras carnudas. Eles se alimentam principalmente de sementes, frutas e plantas. A família ocorre em todo o mundo, mas a maior variedade está nos reinos Indomalayan e Australasian.", "lanUI.Bundle/System/Resources/Pigeon.png", nullptr, nullptr);
+    auto Pombo = BirdView(window, "Pombo", "%bold Columbidae %regular é uma família de pássaros que consiste em pombos e pombas. É a única família na ordem Columbiformes. Estas são aves de corpo robusto com pescoços curtos e bicos curtos e delgados que em algumas espécies apresentam ceras carnudas. Eles se alimentam principalmente de sementes, frutas e plantas. A família ocorre em todo o mundo, mas a maior variedade está nos reinos Indomalayan e Australasian.", "lanUI.Bundle/System/Resources/Pigeon.png", nullptr, nullptr);
     
-    auto Galo = BirdView(window, "Galo", "Galo \\bold (Gallus gallus) \\regular é o macho da galinha, comumente tratado como um animal heráldico. Estes animais, ao longo da história, também foram utilizados num esporte, atualmente ilegal em diversos países, denominado rinha. Um galo juvenil é chamado de frango, galeto ou galispo.", "lanUI.Bundle/System/Resources/Rooster.png", nullptr, nullptr);
+    auto Galo = BirdView(window, "Galo", "Galo %bold (Gallus gallus) %regular é o macho da galinha, comumente tratado como um animal heráldico. Estes animais, ao longo da história, também foram utilizados num esporte, atualmente ilegal em diversos países, denominado rinha. Um galo juvenil é chamado de frango, galeto ou galispo.", "lanUI.Bundle/System/Resources/Rooster.png", nullptr, nullptr);
     
-    auto Corvo = BirdView(window, "Corvo", "\\bold Corvus \\regular é um gênero amplamente distribuído de aves de médio a grande porte da família Corvidae. O gênero inclui espécies comumente conhecidas como corvos. Possuem ampla distribuição geográfica nas zonas temperadas de todos os continentes, vivendo em bandos com estrutura hierárquica bem definida e formam, geralmente, casais monogâmicos.", "lanUI.Bundle/System/Resources/Corvus.png", nullptr, nullptr);
+    auto Corvo = BirdView(window, "Corvo", "%bold Corvus %regular é um gênero amplamente distribuído de aves de médio a grande porte da família Corvidae. O gênero inclui espécies comumente conhecidas como corvos. Possuem ampla distribuição geográfica nas zonas temperadas de todos os continentes, vivendo em bandos com estrutura hierárquica bem definida e formam, geralmente, casais monogâmicos.", "lanUI.Bundle/System/Resources/Corvus.png", nullptr, nullptr);
     
-    auto Papagaio = BirdView(window, "Papagaio", "\\bold Amazona aestiva \\regular (L.), conhecido vulgarmente como papagaio-verdadeiro, ajuruetê, papagaio-grego, ajurujurá, curau, papagaio-comum, papagaio-curau, papagaio-de-fronte-azul, papagaio-boiadeiro, trombeteiro e louro, é uma ave da família Psittacidae. É nativa do Brasil oriental.", "lanUI.Bundle/System/Resources/Macaw.png", nullptr, nullptr);
+    auto Papagaio = BirdView(window, "Papagaio", "%bold Amazona aestiva %regular (L.), conhecido vulgarmente como papagaio-verdadeiro, ajuruetê, papagaio-grego, ajurujurá, curau, papagaio-comum, papagaio-curau, papagaio-de-fronte-azul, papagaio-boiadeiro, trombeteiro e louro, é uma ave da família Psittacidae. É nativa do Brasil oriental.", "lanUI.Bundle/System/Resources/Macaw.png", nullptr, nullptr);
     
-    auto Coruja = BirdView(window, "Coruja", "\\bold Estrigiformes \\regular são aves da ordem Strigiformes, que inclui aves de rapina, tais como corujas, mochos e murucututu. São caçadoras eficientes, usando sobretudo seus olhos extremamente aguçados e movimentos rápidos. Além disso, são extremamente atentas ao ambiente, têm grande capacidade de girar o pescoço e voar silenciosamente devido a penas especiais muito macias e numerosas que compõem suas asas.", "lanUI.Bundle/System/Resources/Owl.png", nullptr, nullptr);
+    auto Coruja = BirdView(window, "Coruja", "%bold Estrigiformes %regular são aves da ordem Strigiformes, que inclui aves de rapina, tais como corujas, mochos e murucututu. São caçadoras eficientes, usando sobretudo seus olhos extremamente aguçados e movimentos rápidos. Além disso, são extremamente atentas ao ambiente, têm grande capacidade de girar o pescoço e voar silenciosamente devido a penas especiais muito macias e numerosas que compõem suas asas.", "lanUI.Bundle/System/Resources/Owl.png", nullptr, nullptr);
     
     Coruja.next = &Papagaio;
     Coruja.last = &Home;
