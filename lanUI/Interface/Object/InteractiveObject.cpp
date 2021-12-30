@@ -149,9 +149,7 @@ void InterativeObject::_handle_events(Event & event, const float dpiK, const boo
                 is_selected = false;
             }
             callbacks.leave();
-        }
-        
-        if(nextInZ.get()){
+        } if(nextInZ.get()){
             nextInZ.leave();
             if(renderMode.get() != CompositionMode) {
                 renderMode.leave();
@@ -164,16 +162,15 @@ void InterativeObject::_handle_events(Event & event, const float dpiK, const boo
         focus_repeated = true;
         no_focus_repeated = false;
     } else if(!no_focus_repeated) {
-        
         if(callbacks.data.all[OnFocusLost] && !no_focus_repeated)
             on_focus_lost_callback();
+        
         callbacks.leave();
         
         if(nextInZ.get()){
             nextInZ.leave();
             _handle_others_routine(event, nextInZ.data, dpiK, true);
-        } else
-            nextInZ.leave();
+        } else nextInZ.leave();
         
         focus_repeated = false;
         no_focus_repeated = true;
@@ -367,6 +364,8 @@ InterativeObject& InterativeObject::on_paste(VoidCallback callback){
     callbacks.data.all[OnPaste] = true;
     callbacks.leave();
     isActive.set(true);
+    
+    
     return (*this);
 }
 

@@ -435,9 +435,6 @@ class InterativeObject: public BSIOContainer {
     VoidCallback on_f11_callback;
     VoidCallback on_f12_callback;
     VoidCallback custom_event_callback;
-
-    // may handle events?
-    Semaphore<bool> isActive;
     
 public:
     
@@ -482,7 +479,7 @@ public:
         OnF11,
         OnF12,
         CustomEvent,
-        totalCallBacks
+        totalCallBacks,
     } CallBacks;
     
     struct ScrollGain {
@@ -492,6 +489,9 @@ public:
     struct CallbacksWrapper {
         bool all[CallBacks::totalCallBacks];
     };
+    
+    /// may handle events?
+    Semaphore<bool> isActive;
     
     Semaphore<CallbacksWrapper> callbacks;
     
@@ -504,9 +504,7 @@ public:
     void _handle_events(Event&, const float dpiK, const bool no_focus) override;
     
     InterativeObject& set_size(const float w, const float h) override;
-    
-    InterativeObject& main_actiivity(VoidCallback);
-    
+        
     InterativeObject& on_focus_gained(VoidCallback);
     
     InterativeObject& on_focus_lost(VoidCallback);

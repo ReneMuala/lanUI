@@ -30,37 +30,59 @@ void BSTextField::__default_on_unselected_callback(){
         activated.leave();
 }
 
+void BSTextField::__default_on_copy_callback(){
+    if(!data.get().empty())
+        SDL_SetClipboardText(data.data.c_str());
+    data.leave();
+}
+
+void BSTextField::__default_on_cut_callback(){
+    if(!data.get().empty())
+        SDL_SetClipboardText(data.data.c_str());
+    data.leave();
+    inputBuffer.get().clear();
+    inputBuffer.leave();
+    wasCompiled.set(false);
+    input_size = 0;
+    
+    if(BSTextFieldCallbacks.data.all[OnChange]){
+        on_change_callback();
+    }
+}
+
+void BSTextField::__default_on_paste_callback(){
+    char * buffer = SDL_GetClipboardText();
+    const UTF8CharList clipboardText = UTF8CharList(buffer);
+    const size_t clipTextSize = clipboardText.size();
+    if(clipTextSize){
+        textSurface.cursor.hold();
+        inputBuffer.get().append(buffer, textSurface.cursor.data.colummn);
+        textSurface.cursor.data.colummn += clipTextSize;
+        textSurface.cursor.leave();
+        inputBuffer.leave();
+        wasCompiled.set(false);
+        SDL_free(buffer);
+        
+        if(BSTextFieldCallbacks.data.all[OnChange]){
+            on_change_callback();
+        }
+    }
+}
+
 void BSTextField::_init(const std::string placeholder){
     activated.set(false);
-    hidden.set(false);
+    isSecret.set(false);
     set_size(150, 25);
     cursor_change_flag = 0;
-    this->_placeholder = placeholder;
+    this->placeholder = placeholder;
     Core::log(Core::Warning, "TextField isn't stable yet.");
     disable_reloading();
 
-    on_copy(CallbackExpr({
-        if(!_source.get().empty())
-            SDL_SetClipboardText(_source.data.c_str());
-        _source.leave();
-    }));
+    on_copy(CallbackExpr(__default_on_copy_callback();));
     
-    on_cut(CallbackExpr());
+    on_cut(CallbackExpr(__default_on_cut_callback();));
     
-    on_paste(CallbackExpr({
-        char * buffer = SDL_GetClipboardText();
-        const UTF8CharList clipboardText = UTF8CharList(buffer);
-        const size_t clipTextSize = clipboardText.size();
-        if(clipTextSize){
-            textSurface.cursor.hold();
-            inputBuffer.get().append(buffer, textSurface.cursor.data.colummn);
-            textSurface.cursor.data.colummn += clipTextSize;
-            textSurface.cursor.leave();
-            inputBuffer.leave();
-            wasCompiled.set(false);
-            SDL_free(buffer);
-        }
-    }));
+    on_paste(CallbackExpr(__default_on_paste_callback();));
     
     on_selected(CallbackExpr(__default_on_selected_callback();));
     
@@ -107,9 +129,9 @@ void BSTextField::_compute_cursor_position(Renderer * renderer){
             
             inputBuffer.hold();
             
-            size_t text_len_at_cur = (hidden.get()) ? hiddenInputBuffer.c_index_before(textSurface.cursor.data.colummn) : inputBuffer.data.c_index_before(textSurface.cursor.data.colummn);
+            size_t text_len_at_cur = (isSecret.get()) ? secretStrBuffer.c_index_before(textSurface.cursor.data.colummn) : inputBuffer.data.c_index_before(textSurface.cursor.data.colummn);
             
-            hidden.leave();
+            isSecret.leave();
             inputBuffer.leave();
             //(text_len_at_cur-1>0 ? text_len_at_cur-1 : 0)
             
@@ -150,16 +172,16 @@ void BSTextField::_compute_cursor_position(Renderer * renderer){
 void BSTextField::_compile(Renderer * renderer, const float dpiK){
     if(!wasCompiled.get()){
         _sync_strings();
-        if(_source.get().empty()){
-            textSurface.from_string(_placeholder);
+        if(data.get().empty()){
+            textSurface.from_string(placeholder);
         } else {
-            if(hidden.get()){
-                textSurface.from_string(_hidden_source.c_str());
+            if(isSecret.get()){
+                textSurface.from_string(secretStr.c_str());
             } else {
-                textSurface.from_string(_source.data.c_str());
-            } hidden.leave();
+                textSurface.from_string(data.data.c_str());
+            } isSecret.leave();
         }
-        _source.leave();
+        data.leave();
         _refresh_cursor(dpiK);
         wasCompiled.data = true;
     } wasCompiled.leave();
@@ -167,12 +189,65 @@ void BSTextField::_compile(Renderer * renderer, const float dpiK){
     _compile_embedded(renderer, dpiK);
 }
 
-void BSTextField::hide(const bool _hide, const UTF8Char mask){
-    hidden.set(_hide);
+std::string BSTextField::get_data() {
+    _sync_strings();
+    std::string str = data.get();
+    data.leave();
+    return str;
+}
+
+BSTextField& BSTextField::secret(const bool isSecret, const UTF8Char mask){
+    this->isSecret.set(isSecret);
     char c_char[5];
     bzero(c_char, 5);
     strcpy(c_char, mask.c_char());
-    _hidden_source_mask.composeUTF8Char(c_char);
+    secretStrMask.composeUTF8Char(c_char);
+    return (*this);
+}
+
+BSTextField& BSTextField::on_empty(VoidCallback callback){
+    on_empty_callback = callback;
+    BSTextFieldCallbacks.hold();
+    BSTextFieldCallbacks.data.all[OnEmpty] = true;
+    BSTextFieldCallbacks.leave();
+    isActive.set(true);
+    return (*this);
+}
+
+BSTextField& BSTextField::on_not_empty(VoidCallback callback){
+    on_not_empty_callback = callback;
+    BSTextFieldCallbacks.hold();
+    BSTextFieldCallbacks.data.all[OnNotEmpty] = true;
+    BSTextFieldCallbacks.leave();
+    isActive.set(true);
+    return (*this);
+}
+
+BSTextField& BSTextField::on_change(VoidCallback callback){
+    on_change_callback = callback;
+    BSTextFieldCallbacks.hold();
+    BSTextFieldCallbacks.data.all[OnChange] = true;
+    BSTextFieldCallbacks.leave();
+    isActive.set(true);
+    return (*this);
+}
+
+BSTextField& BSTextField::on_submit(VoidCallback callback){
+    on_submit_callback = callback;
+    BSTextFieldCallbacks.hold();
+    BSTextFieldCallbacks.data.all[OnSubmit] = true;
+    BSTextFieldCallbacks.leave();
+    isActive.set(true);
+    return (*this);
+}
+
+BSTextField& BSTextField::on_delete(VoidCallback callback){
+    on_delete_callback = callback;
+    BSTextFieldCallbacks.hold();
+    BSTextFieldCallbacks.data.all[OnDelete] = true;
+    BSTextFieldCallbacks.leave();
+    isActive.set(true);
+    return (*this);
 }
 
 BSTextField::BSTextField(const std::string placeholder){
@@ -180,29 +255,29 @@ BSTextField::BSTextField(const std::string placeholder){
 }
 
 BSTextField::BSTextField(BSTextField const & other){
-    _init(other._placeholder);
+    _init(other.placeholder);
 }
 
 
-void BSTextField::_sync_strings(){
+void BSTextField::_sync_strings() {
     
     char * c_string = inputBuffer.get().alloc_c_str();
     
-    _source.hold();
+    data.hold();
 
     if((input_size = inputBuffer.data.size())){
-        if(hidden.get()){
-            _hidden_source.clear();
-            for(int i = 0;i < input_size ; i++, _hidden_source+=_hidden_source_mask.c_char());
-            hiddenInputBuffer.clear();
-            hiddenInputBuffer.append(_hidden_source.c_str());
-        } hidden.leave();
-        _source.data = c_string;
+        if(isSecret.get()){
+            secretStr.clear();
+            for(int i = 0;i < input_size ; i++, secretStr+=secretStrMask.c_char());
+            secretStrBuffer.clear();
+            secretStrBuffer.append(secretStr.c_str());
+        } isSecret.leave();
+        data.data = c_string;
     } else {
-        _source.data.clear();
+        data.data.clear();
     }
-    _source.leave();
-
+    data.leave();
+    
     inputBuffer.data.free_c_str(c_string);
     inputBuffer.leave();
 }
@@ -213,29 +288,49 @@ void BSTextField::_handle_events(Event & event, const float dpiK, const bool no_
         if(!SDL_IsTextInputActive()){
             SDL_StartTextInput();
         }
+        
+        inputBuffer.hold();
+        BSTextFieldCallbacks.hold();
+        
+        
         if(event.type == SDL_TEXTINPUT){
             input_size_change +=
             (textSurface.cursor.get().colummn < input_size) ?
-            inputBuffer.get().append(event.text.text, textSurface.cursor.data.colummn) :
-            inputBuffer.get().append(event.text.text);
+            inputBuffer.data.append(event.text.text, textSurface.cursor.data.colummn) :
+            inputBuffer.data.append(event.text.text);
             textSurface.cursor.leave();
-            inputBuffer.leave();
             wasCompiled.set(false);
             cursor_change_flag = 1;
+            inputBuffer.leave();
+
+            if(BSTextFieldCallbacks.data.all[OnChange]){
+                on_change_callback();
+            }
+            
         } else if (event.key.type == SDL_KEYDOWN){
             if(event.key.keysym.sym == SDLK_BACKSPACE){
                 if (textSurface.cursor.get().colummn < input_size){
                     if(textSurface.cursor.data.colummn-1 >= 0){
-                        inputBuffer.get().remove(textSurface.cursor.data.colummn-1);
+                        inputBuffer.data.remove(textSurface.cursor.data.colummn-1);
                     } textSurface.cursor.leave();
                 } else {
-                    inputBuffer.get().remove_last();
+                    inputBuffer.data.remove_last();
                     textSurface.cursor.leave();
-                } inputBuffer.leave();
+                }
                 wasCompiled.set(false);
                 cursor_change_flag = -1;
+                inputBuffer.leave();
+
+                if(BSTextFieldCallbacks.data.all[OnChange]){
+                    on_change_callback();
+                } if(BSTextFieldCallbacks.data.all[OnDelete]){
+                    on_delete_callback();
+                }
             } else if(event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_TAB){
                 Core::set_selected_object(nullptr);
+                if(BSTextFieldCallbacks.data.all[OnSubmit]){
+                    on_submit_callback();
+                }
             } else if (event.key.keysym.sym == SDLK_LEFT){
                 if(((SDL_GetModState() & KMOD_CTRL) || (SDL_GetModState() & KMOD_GUI))){
                     textSurface.cursor.get().colummn = 0;
@@ -254,5 +349,24 @@ void BSTextField::_handle_events(Event & event, const float dpiK, const bool no_
                 wasCompiled.set(false);
             }
         }
+        
+        inputBuffer.force_hold();
+        
+        if(BSTextFieldCallbacks.data.all[OnEmpty] && !BSTextFieldCallbacks.data.onEmptyTriggered && !inputBuffer.data.size()){
+            inputBuffer.leave();
+            on_empty_callback();
+            BSTextFieldCallbacks.data.onEmptyTriggered = true;
+        } else if (inputBuffer.data.size()) BSTextFieldCallbacks.data.onEmptyTriggered = false;
+        
+        inputBuffer.force_hold();
+        
+        if(BSTextFieldCallbacks.data.all[OnNotEmpty] && !BSTextFieldCallbacks.data.onNotEmptyTriggered && inputBuffer.data.size()){
+            inputBuffer.leave();
+            on_not_empty_callback();
+            BSTextFieldCallbacks.data.onNotEmptyTriggered = true;
+        } else if (!inputBuffer.data.size()) BSTextFieldCallbacks.data.onNotEmptyTriggered = false;
+        inputBuffer.leave();
+        BSTextFieldCallbacks.leave();
+        
     } activated.leave();
 }

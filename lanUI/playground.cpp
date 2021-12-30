@@ -141,9 +141,9 @@ int main() {
     
     field.textSurface.set_font(Fonts::OpenSans);
     
-    field.textSurface.bold(10);
+    field.textSurface.bold(16);
     
-    field.hide(true);
+    field.secret(true);
     
     field.textSurface.set_foreground_color(Colors::Black);
         
@@ -152,6 +152,10 @@ int main() {
     field.fromColorScheme(Colors::White);
     
     field.set_border_color(Colors::Blue);
+    
+    field.on_change(CallbackExpr({
+        printf("The text is: %s\n", field.get_data().c_str());
+    }));
     
     program.events();
 }

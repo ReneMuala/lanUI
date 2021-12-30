@@ -37,6 +37,11 @@ struct Semaphore {
         return data;
     }
     
+    void force_hold(){
+        if(!isBusy)
+            hold();
+    }
+    
     void hold(){
 #ifdef LANUI_DEBUG_MODE
         SemaphoreDebuggingExtension::_hold_debug_callback(this, isBusy, errorless);

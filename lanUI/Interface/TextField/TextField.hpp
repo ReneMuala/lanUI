@@ -18,28 +18,45 @@
 #include "../../lanUTF/lanUTF/UTF8CharList.hpp"
 
 class BSTextField : public InterativeObject {
-    Semaphore<bool> activated, hidden;
+    Semaphore<bool> activated, isSecret;
     Semaphore<UTF8CharList> inputBuffer;
-    UTF8CharList hiddenInputBuffer;
+    UTF8CharList secretStrBuffer;
     ssize_t input_size_change, input_size;
     int8_t cursor_change_flag;
     
     void _default_on_click();
+    
     void _default_on_focus_lost();
     
-    Semaphore<VoidCallback> on_empty_callback;
-    Semaphore<VoidCallback> on_not_empty_callback;
-    Semaphore<VoidCallback> on_changed_callback;
-    Semaphore<VoidCallback> on_submit_callback;
-    Semaphore<VoidCallback> on_tab_callback;
-    Semaphore<VoidCallback> on_delete_callback;
+    VoidCallback on_empty_callback;
+    VoidCallback on_not_empty_callback;
+    VoidCallback on_change_callback;
+    VoidCallback on_submit_callback;
+    VoidCallback on_delete_callback;
     
-    std::string _hidden_source;
-    UTF8Char _hidden_source_mask;
+    typedef enum {
+        OnEmpty,
+        OnNotEmpty,
+        OnChange,
+        OnSubmit,
+        OnDelete,
+        BSTextFieldCallbackTotal
+    } BSTextFieldCallback;
+    
+    struct BSTextFieldCallbackWrapper {
+        bool all[BSTextFieldCallbackTotal];
+        bool onEmptyTriggered{false}, onNotEmptyTriggered{false};
+    };
+    
+    Semaphore<BSTextFieldCallbackWrapper> BSTextFieldCallbacks;
+    
+    std::string secretStr;
+    UTF8Char secretStrMask;
+    Semaphore<std::string> data;
+    std::string placeholder;
     
 public:
-    Semaphore<std::string> _source;
-    std::string _placeholder;
+    
     struct TextSurface : public Text {
         float horizontalScrollPading;
     public:
@@ -68,15 +85,41 @@ public:
     void _init(const std::string plabeholder = "");
     
     void __default_on_selected_callback();
+    
     void __default_on_unselected_callback();
     
+    void __default_on_copy_callback();
+
+    void __default_on_cut_callback();
+    
+    void __default_on_paste_callback();
+    
     void _sync_strings();
+    
     void _handle_events(Event & event, const float dpiK, const bool no_focus = false) override;
+    
     void _refresh_cursor(const float dpiK);
+    
     void _compute_cursor_position(Renderer* );
+    
     void _compile(Renderer*, const float dpiK) override;
-    void hide(bool const _hide, const UTF8Char mask = "•");
+    
+    std::string get_data();
+    
+    BSTextField& secret(bool const isSecret, const UTF8Char mask = "•");
+    
+    BSTextField& on_empty(VoidCallback);
+    
+    BSTextField& on_not_empty(VoidCallback);
+    
+    BSTextField& on_change(VoidCallback);
+    
+    BSTextField& on_submit(VoidCallback);
+        
+    BSTextField& on_delete(VoidCallback);
+    
     BSTextField(const std::string placeholder);
+    
     BSTextField(BSTextField const & other);
 };
 
