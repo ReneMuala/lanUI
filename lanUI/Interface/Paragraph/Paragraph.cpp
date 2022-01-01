@@ -21,6 +21,14 @@ Text * BSParagraph::operator[](std::string id){
     } return nullptr;
 }
 
+BSParagraph& BSParagraph::from_string(const std::string streamstr, Wrapper::Mode mode, int fileldsCount){
+    std::stringstream stream;
+    stream << streamstr;
+    Wrapper wrapper(Wrapper(mode, fileldsCount));
+    from_stringstream(stream, wrapper);
+    return(*this);
+}
+
 BSParagraph& BSParagraph::from_stringstream(std::stringstream& stream, Wrapper::Mode mode, int fileldsCount){
     Wrapper wrapper(Wrapper(mode, fileldsCount));
     from_stringstream(stream, wrapper);

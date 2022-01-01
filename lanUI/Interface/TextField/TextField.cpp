@@ -77,6 +77,9 @@ void BSTextField::_init(const std::string placeholder){
     this->placeholder = placeholder;
     Core::log(Core::Warning, "TextField isn't stable yet.");
     disable_reloading();
+    
+    for(int i = 0 ; i < BSTextFieldCallbackTotal ; i++)
+    BSTextFieldCallbacks.data.all[i] = false;
 
     on_copy(CallbackExpr(__default_on_copy_callback();));
     
@@ -350,23 +353,27 @@ void BSTextField::_handle_events(Event & event, const float dpiK, const bool no_
             }
         }
         
-        inputBuffer.force_hold();
-        
-        if(BSTextFieldCallbacks.data.all[OnEmpty] && !BSTextFieldCallbacks.data.onEmptyTriggered && !inputBuffer.data.size()){
-            inputBuffer.leave();
-            on_empty_callback();
-            BSTextFieldCallbacks.data.onEmptyTriggered = true;
-        } else if (inputBuffer.data.size()) BSTextFieldCallbacks.data.onEmptyTriggered = false;
-        
-        inputBuffer.force_hold();
-        
-        if(BSTextFieldCallbacks.data.all[OnNotEmpty] && !BSTextFieldCallbacks.data.onNotEmptyTriggered && inputBuffer.data.size()){
-            inputBuffer.leave();
-            on_not_empty_callback();
-            BSTextFieldCallbacks.data.onNotEmptyTriggered = true;
-        } else if (!inputBuffer.data.size()) BSTextFieldCallbacks.data.onNotEmptyTriggered = false;
-        inputBuffer.leave();
         BSTextFieldCallbacks.leave();
         
     } activated.leave();
+    
+    BSTextFieldCallbacks.hold();
+    
+    inputBuffer.force_hold();
+    
+    if(BSTextFieldCallbacks.data.all[OnEmpty] && !BSTextFieldCallbacks.data.onEmptyTriggered && !inputBuffer.data.size()){
+        inputBuffer.leave();
+        on_empty_callback();
+        BSTextFieldCallbacks.data.onEmptyTriggered = true;
+    } else if (inputBuffer.data.size()) BSTextFieldCallbacks.data.onEmptyTriggered = false;
+    
+    inputBuffer.force_hold();
+    
+    if(BSTextFieldCallbacks.data.all[OnNotEmpty] && !BSTextFieldCallbacks.data.onNotEmptyTriggered && inputBuffer.data.size()){
+        inputBuffer.leave();
+        on_not_empty_callback();
+        BSTextFieldCallbacks.data.onNotEmptyTriggered = true;
+    } else if (!inputBuffer.data.size()) BSTextFieldCallbacks.data.onNotEmptyTriggered = false;
+    inputBuffer.leave();
+    BSTextFieldCallbacks.leave();
 }

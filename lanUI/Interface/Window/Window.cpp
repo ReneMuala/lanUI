@@ -55,6 +55,10 @@ void Window::_create(const char *title, Definition definition, float width, floa
 }
 
 void Window::_handle_events(){
+    if(CoreData::firstRun){
+        _handle_others_routine(sdlEvent.data, nextInZ.data, DPIConstant.get(), true);
+        DPIConstant.leave();
+    }
     while (SDL_WaitEventTimeout(&sdlEvent.data, 5) != 0) {
         if(sdlEvent.data.type == SDL_DISPLAYEVENT)
             _compute_DPIConstant();

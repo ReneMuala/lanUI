@@ -27,6 +27,7 @@
 namespace CoreData
 {
 bool running;
+bool firstRun = true;
 bool WAS_INIT;
 /*! number of supported windows, you may increase this in faster computers */
 const short maxProgramWindows = 16 ;
@@ -124,7 +125,7 @@ void Core::events(){
                 CoreData::programWindows[i].data->_handle_requests();
                 CoreData::programWindows[i].data->_handle_events();
                 i++;
-            }
+            } if(CoreData::firstRun) CoreData::firstRun = false;
         }
     }
 }

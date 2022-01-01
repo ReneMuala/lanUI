@@ -52,7 +52,7 @@ public:
 };
 
 namespace CoreData {
-    extern bool WAS_INIT;
+    extern bool WAS_INIT, firstRun;
     extern Semaphore<short> programWindowsCount;
 }
 

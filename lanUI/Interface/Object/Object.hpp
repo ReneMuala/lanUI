@@ -352,6 +352,15 @@ public:
         return (*this);
     }
     
+    Object* get_content(){
+        Object* content = nullptr;
+        
+        if(nextInZ.get()){
+            content = nextInZ.data;
+        } nextInZ.leave();
+        return content;
+    }
+    
     void set_content(Object& object){
         if(!reloadingDisabled.get()){
             reloadingDisabled.leave();
