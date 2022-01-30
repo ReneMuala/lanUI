@@ -63,7 +63,7 @@ struct PathResolver {
                 str = std::regex_replace(str.c_str(), macro.first, macro.second);
             }
         }
-#if (defined(__WIN32) || defined(__WINRT__))
+#if (defined(__WIN32__) || defined(__WINRT__))
         return DOS(str);
 #else
         return UNIX(str);
