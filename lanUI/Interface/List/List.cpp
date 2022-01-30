@@ -60,8 +60,3 @@ BSList::~BSList(){
     InterativeObject::~InterativeObject();
 }
 
-BSList& BSList::fit_content(const float width, const float height){
-    content.set_size(width, height);
-    content.disable_reloading();
-    return (*this);
-}

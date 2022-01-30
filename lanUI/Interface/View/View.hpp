@@ -30,17 +30,19 @@ public:
     
     /** Creates the view without setting it as the main view of the window.
      */
-    void create_silently(Window & win){
+    Object& create_silently(Window & win){
         Object();
         window = &win;
         embedInZ(body(win));
+        return (*this);
     }
     
     /** Creates the view and sets it as the main view of the window.
      */
-    void create(Window & win){
+    Object& create(Window & win){
         create_silently(win);
         win.set_view(*this);
+        return (*this);
     }
 };
 

@@ -93,5 +93,5 @@ void Theme::_set_theme_colors(){
 }
 
 void Theme::_set_default_font() const {
-    Fonts::DefaultFonts = Fonts::WorkSans;
+    FontsSharedData::DefaultFonts = FontsSharedData::WorkSans;
 }

@@ -271,6 +271,8 @@ public:
     void _generate_canvas(Renderer *, Semaphore<Texture*>&, const float dpiK = 1);
     void _clear_canvas(Renderer *, Semaphore<Texture*>&);
     
+    static void clear_surfaces_cache();
+    
     Object& fromFile(const char *, Renderer *);
     
     Object& fromSurface(Surface*, Renderer *, const bool reset_secondaryColor = true);

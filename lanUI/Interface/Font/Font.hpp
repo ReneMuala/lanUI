@@ -78,7 +78,10 @@ public:
     bool _test(const char * path);
     
     bool _load(const char * path, const int size);
-        
+    
+    /// Font is valid and can be used.
+    const bool isValid() const;
+    
     const void operator=(const Font&other);
     
     /**Sets font style and size.
@@ -105,9 +108,9 @@ public:
 
 /** LanUI defaulf fonts
  */
-namespace Fonts {
+namespace FontsSharedData {
     extern Font DejaVuSans, WorkSans, OpenSans, DefaultFonts;
-    /*   extern void set_default_font(); moved to theme */
+    /*   extern void set_default_font(); moved to Theme */
 }
 
 #endif /* Font_hpp */

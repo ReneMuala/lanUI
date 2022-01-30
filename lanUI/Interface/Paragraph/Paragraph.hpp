@@ -56,7 +56,7 @@ public:
     std::list<Object*> words;
     std::list<Object*> lines;
 
-    BSParagraph& from_string(const std::string , Wrapper::Mode, int fileldsCount);
+    BSParagraph& from_string(const std::string , Wrapper::Mode = Wrapper::Infty, int fileldsCount = 0);
     
     BSParagraph& from_stringstream(std::stringstream& , Wrapper::Mode, int fileldsCount);
     

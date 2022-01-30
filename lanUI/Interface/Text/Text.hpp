@@ -62,7 +62,7 @@ public:
     
     const CompatibilityRenderMode compatibilityMode = NormalMode;
     
-    Text(const std::string source = "", Font& font = Fonts::DefaultFonts);
+    Text(const std::string source = "", Font& font = FontsSharedData::DefaultFonts);
     
     ~Text();
     

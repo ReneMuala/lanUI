@@ -26,9 +26,7 @@
 
 namespace CoreData
 {
-bool running;
-bool firstRun = true;
-bool WAS_INIT;
+bool running = false, firstRun = true, WAS_INIT = false, FRendCompleted = false;
 /*! number of supported windows, you may increase this in faster computers */
 const short maxProgramWindows = 16 ;
 Semaphore<short> programWindowsCount = 0;
@@ -47,7 +45,7 @@ namespace InteractiveObjecsData {
     extern Semaphore<Object*> selectedObject;
 }
 
-namespace Fonts {
+namespace FontsSharedData {
     extern Font DejaVuSans, WorkSans, OpenSans;
     extern Semaphore<std::unordered_map<unsigned long /* FONT_ID */, TTF_Font*>> allFonts;
 }
@@ -69,6 +67,7 @@ Core::~Core(){
         CoreData::programWindowsCount.set(0);
         CoreData::WAS_INIT = false;
         CoreData::running = false;
+        while (!CoreData::FRendCompleted);
         //CoreData::eventHandler.join();
         CoreData::renderHandler.join();
         clearCache();
@@ -81,13 +80,13 @@ Core::~Core(){
 void Core::log(Core::LogLevel level, const char * message){
     switch (level) {
         case Core::LogLevel::Error:
-            throw std::runtime_error("[" + std::string(lanUIVersion) + " Error]: " + message);
+            throw std::runtime_error("[" + std::string(LUIVersion) + " Error]: " + message);
             break;
         case Core::LogLevel::Warning:
-            fprintf(stdout, "[%s Warning]: %s\n", lanUIVersion, message);
+            fprintf(stdout, "[%s Warning]: %s\n", LUIVersion, message);
             break;
         case Core::LogLevel::Message:
-            fprintf(stdout, "[%s Message]: %s\n", lanUIVersion, message);
+            fprintf(stdout, "[%s Message]: %s\n", LUIVersion, message);
             break;
         default:
             break;
@@ -136,6 +135,7 @@ void Core::render(){
         static short size (0);
         size = CoreData::programWindowsCount.get();
         CoreData::programWindowsCount.leave();
+        if(CoreData::FRendCompleted) CoreData::FRendCompleted = false;
         for(short i = 0 ; i < size;){
             if(CoreData::programWindows[i].data){
                 if(!CoreData::programWindows[i].isBusy) {
@@ -151,6 +151,7 @@ void Core::render(){
                 i++;
             }
         }
+        CoreData::FRendCompleted = true;
     }
 }
 
@@ -215,62 +216,62 @@ void Core::compute_path(std::string & path){
 }
 
 void Core::load_fonts(){
-    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans.ttf", Font::Style::Regular);
-    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans-Bold.ttf", Font::Style::Bold);
-    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans-BoldOblique.ttf", Font::Style::BoldOblique);
-    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans-ExtraLight.ttf", Font::Style::ExtraLight);
-    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans-Oblique.ttf", Font::Style::Oblique);
-    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSansCondensed-Bold.ttf", Font::Style::Condensed_Bold);
-    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSansCondensed-BoldOblique.ttf", Font::Style::Condensed_BoldOblique);
-    Fonts::DejaVuSans.fromFile("Fonts:DejaVuSansCondensed.ttf", Font::Style::Condensed);
-    Fonts::DejaVuSans.set_global_name("DejaVuSans");
+    FontsSharedData::DejaVuSans.fromFile("Fonts:DejaVuSans.ttf", Font::Style::Regular);
+    FontsSharedData::DejaVuSans.fromFile("Fonts:DejaVuSans-Bold.ttf", Font::Style::Bold);
+    FontsSharedData::DejaVuSans.fromFile("Fonts:DejaVuSans-BoldOblique.ttf", Font::Style::BoldOblique);
+    FontsSharedData::DejaVuSans.fromFile("Fonts:DejaVuSans-ExtraLight.ttf", Font::Style::ExtraLight);
+    FontsSharedData::DejaVuSans.fromFile("Fonts:DejaVuSans-Oblique.ttf", Font::Style::Oblique);
+    FontsSharedData::DejaVuSans.fromFile("Fonts:DejaVuSansCondensed-Bold.ttf", Font::Style::Condensed_Bold);
+    FontsSharedData::DejaVuSans.fromFile("Fonts:DejaVuSansCondensed-BoldOblique.ttf", Font::Style::Condensed_BoldOblique);
+    FontsSharedData::DejaVuSans.fromFile("Fonts:DejaVuSansCondensed.ttf", Font::Style::Condensed);
+    FontsSharedData::DejaVuSans.set_global_name("DejaVuSans");
     
-    Fonts::OpenSans.fromFile("Fonts:OpenSans-Bold.ttf", Font::Bold);
-    Fonts::OpenSans.fromFile("Fonts:OpenSans-BoldItalic.ttf", Font::BoldItalic);
-    Fonts::OpenSans.fromFile("Fonts:OpenSans-ExtraBold.ttf", Font::ExtraBold);
-    Fonts::OpenSans.fromFile("Fonts:OpenSans-ExtraBoldItalic.ttf", Font::ExtraBoldItalic);
-    Fonts::OpenSans.fromFile("Fonts:OpenSans-Italic.ttf", Font::Italic);
-    Fonts::OpenSans.fromFile("Fonts:OpenSans-Light.ttf", Font::Light);
-    Fonts::OpenSans.fromFile("Fonts:OpenSans-LightItalic.ttf", Font::LightItalic);
-    Fonts::OpenSans.fromFile("Fonts:OpenSans-Medium.ttf", Font::Medium);
-    Fonts::OpenSans.fromFile("Fonts:OpenSans-MediumItalic.ttf", Font::MediumItalic);
-    Fonts::OpenSans.fromFile("Fonts:OpenSans-Regular.ttf", Font::Regular);
-    Fonts::OpenSans.fromFile("Fonts:OpenSans-SemiBold.ttf", Font::SemiBold);
-    Fonts::OpenSans.fromFile("Fonts:OpenSans-SemiBoldItalic.ttf", Font::SemiBoldItalic);
-    Fonts::OpenSans.set_global_name("OpenSans");
+    FontsSharedData::OpenSans.fromFile("Fonts:OpenSans-Bold.ttf", Font::Bold);
+    FontsSharedData::OpenSans.fromFile("Fonts:OpenSans-BoldItalic.ttf", Font::BoldItalic);
+    FontsSharedData::OpenSans.fromFile("Fonts:OpenSans-ExtraBold.ttf", Font::ExtraBold);
+    FontsSharedData::OpenSans.fromFile("Fonts:OpenSans-ExtraBoldItalic.ttf", Font::ExtraBoldItalic);
+    FontsSharedData::OpenSans.fromFile("Fonts:OpenSans-Italic.ttf", Font::Italic);
+    FontsSharedData::OpenSans.fromFile("Fonts:OpenSans-Light.ttf", Font::Light);
+    FontsSharedData::OpenSans.fromFile("Fonts:OpenSans-LightItalic.ttf", Font::LightItalic);
+    FontsSharedData::OpenSans.fromFile("Fonts:OpenSans-Medium.ttf", Font::Medium);
+    FontsSharedData::OpenSans.fromFile("Fonts:OpenSans-MediumItalic.ttf", Font::MediumItalic);
+    FontsSharedData::OpenSans.fromFile("Fonts:OpenSans-Regular.ttf", Font::Regular);
+    FontsSharedData::OpenSans.fromFile("Fonts:OpenSans-SemiBold.ttf", Font::SemiBold);
+    FontsSharedData::OpenSans.fromFile("Fonts:OpenSans-SemiBoldItalic.ttf", Font::SemiBoldItalic);
+    FontsSharedData::OpenSans.set_global_name("OpenSans");
     
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-Black.ttf", Font::Black);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-BlackItalic.ttf", Font::BlackItalic);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-Bold.ttf", Font::Bold);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-BoldItalic.ttf", Font::BoldItalic);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-ExtraBold.ttf", Font::ExtraBold);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-ExtraBoldItalic.ttf", Font::ExtraBoldItalic);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-ExtraLight.ttf", Font::ExtraLight);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-ExtraLightItalic.ttf", Font::ExtraLightItalic);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-Italic.ttf", Font::Italic);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-Light.ttf", Font::Light);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-LightItalic.ttf", Font::LightItalic);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-Medium.ttf", Font::Medium);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-MediumItalic.ttf", Font::MediumItalic);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-Regular.ttf", Font::Regular);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-SemiBold.ttf", Font::SemiBold);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-SemiBoldItalic.ttf", Font::SemiBoldItalic);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-Thin.ttf", Font::Thin);
-    Fonts::WorkSans.fromFile("Fonts:WorkSans-ThinItalic.ttf", Font::ThinItalic);
-    Fonts::WorkSans.set_global_name("WorkSans");
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-Black.ttf", Font::Black);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-BlackItalic.ttf", Font::BlackItalic);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-Bold.ttf", Font::Bold);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-BoldItalic.ttf", Font::BoldItalic);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-ExtraBold.ttf", Font::ExtraBold);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-ExtraBoldItalic.ttf", Font::ExtraBoldItalic);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-ExtraLight.ttf", Font::ExtraLight);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-ExtraLightItalic.ttf", Font::ExtraLightItalic);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-Italic.ttf", Font::Italic);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-Light.ttf", Font::Light);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-LightItalic.ttf", Font::LightItalic);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-Medium.ttf", Font::Medium);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-MediumItalic.ttf", Font::MediumItalic);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-Regular.ttf", Font::Regular);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-SemiBold.ttf", Font::SemiBold);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-SemiBoldItalic.ttf", Font::SemiBoldItalic);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-Thin.ttf", Font::Thin);
+    FontsSharedData::WorkSans.fromFile("Fonts:WorkSans-ThinItalic.ttf", Font::ThinItalic);
+    FontsSharedData::WorkSans.set_global_name("WorkSans");
     CustomFonts::_loadCustomFonts();
     Themes::_default._set_default_font();
 }
 
 void Core::free_fonts(){
-    Fonts::allFonts.hold();
-    for (auto& font  : Fonts::allFonts.data) {
+    FontsSharedData::allFonts.hold();
+    for (auto& font  : FontsSharedData::allFonts.data) {
         if(font.second){
             TTF_CloseFont(font.second);
             font.second = nullptr;
         }
     }
-    Fonts::allFonts.leave();
+    FontsSharedData::allFonts.leave();
 }
 
 void Core::set_sleep_time(std::chrono::milliseconds sleepTime){

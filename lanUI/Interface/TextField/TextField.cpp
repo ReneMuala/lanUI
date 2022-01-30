@@ -199,6 +199,11 @@ std::string BSTextField::get_data() {
     return str;
 }
 
+size_t BSTextField::get_data_length(){
+    size_t size = data.get().length(); data.leave();
+    return size;
+}
+
 BSTextField& BSTextField::secret(const bool isSecret, const UTF8Char mask){
     this->isSecret.set(isSecret);
     char c_char[5];

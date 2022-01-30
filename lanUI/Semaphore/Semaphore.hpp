@@ -42,7 +42,7 @@ struct Semaphore {
             hold();
     }
     
-    void hold(){
+    void hold() {
 #ifdef LANUI_DEBUG_MODE
         SemaphoreDebuggingExtension::_hold_debug_callback(this, isBusy, errorless);
 #endif
@@ -51,7 +51,7 @@ struct Semaphore {
         isBusy = true;
     }
     
-    void leave(){
+    void leave() {
 #ifdef LANUI_DEBUG_MODE
         SemaphoreDebuggingExtension::_leave_debug_callback(this, isBusy, errorless);
 #endif

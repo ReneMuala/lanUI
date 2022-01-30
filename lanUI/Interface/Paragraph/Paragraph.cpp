@@ -40,7 +40,7 @@ BSParagraph& BSParagraph::from_stringstream(std::stringstream& stream, Wrapper w
     std::string line, buffer;
     int wordCount(0);
     hints.font = new Font();
-    *hints.font =  Fonts::DefaultFonts;
+    *hints.font =  FontsSharedData::DefaultFonts;
     hints.style = Font::Regular;
     hints.size = TextStyles::Default.size;
     hints.color = Themes::_default.colors.get_text_color<Primary>();

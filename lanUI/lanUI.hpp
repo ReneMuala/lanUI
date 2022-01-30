@@ -9,7 +9,7 @@
 #ifndef lanUI_h
 #define lanUI_h
 
-// library to create consistent user interfaces in C++
+// A framework to create consistent user interfaces in C++
 
 #include "Core/Core.hpp"
 #include "Interface/Theme/Theme.hpp"
@@ -26,5 +26,7 @@
 #include "Interface/Image/Image.hpp"
 #include "Interface/Button/Button.hpp"
 #include "Project/Project.hpp"
+
+#include "Utilities/PathResolver.hpp"
 
 #endif /* lanUI_h */

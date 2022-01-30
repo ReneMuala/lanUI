@@ -106,6 +106,8 @@ public:
     
     std::string get_data();
     
+    size_t get_data_length();
+    
     BSTextField& secret(bool const isSecret, const UTF8Char mask = "•");
     
     BSTextField& on_empty(VoidCallback);

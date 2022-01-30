@@ -9,6 +9,9 @@
 #ifndef LANUI_SETTINGS_HPP
 #define LANUI_SETTINGS_HPP
 
+#define LUI_BUNDLE_NAME "lanUI.Bundle"
+
+/// Derprecated, new implementation in Utilities/ParhResolver.hpp
 #define LANUI_DEFAULT_FONTS_PATH "lanUI.Bundle/System/Library/Fonts/"
 
 //  #define LANUI_DEBUG_MODE
@@ -98,6 +101,12 @@
 /// Lambda body to be passed as a function argument
 #define CallbackExpr(x) [&]{x}
 
-#define lanUIVersion "lanUI 0.4"
+#define LUIVersion "LUI 0.4"
+
+#define LUI_ALLOW_MESSAGE_LOGS
+
+#define LUI_ALLOW_WARNING_LOGS
+
+#define LUI_ALLOW_ERROR_LOGS
 
 #endif /* LANUI_SETTINGS_HPP */

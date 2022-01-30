@@ -10,16 +10,18 @@
 #include "../../Core/Core.hpp"
 #include <SDL2/SDL_image.h>
 #include <map>
+#include "../../Utilities/PathResolver.hpp"
 
 namespace DrawableObjectsData {
 Semaphore<std::map<const char *, SDL_Surface*>> surfacesCache;
 }
 
-SDL_Surface * get_surface(const char * source){
+SDL_Surface * get_surface(std::string source){
+    source = PathResolver::resolve(source);
     SDL_Surface * surfc = nullptr;
-    if(!(surfc = DrawableObjectsData::surfacesCache.get()[source])){
-        if((surfc = IMG_Load(source))){
-            DrawableObjectsData::surfacesCache.data[source] = surfc;
+    if(!(surfc = DrawableObjectsData::surfacesCache.get()[source.c_str()])){
+        if((surfc = IMG_Load(source.c_str()))){
+            DrawableObjectsData::surfacesCache.data[source.c_str()] = surfc;
         } else {
             goto get_surface_error;
         }
@@ -136,6 +138,13 @@ void Object::_clear_canvas(Renderer * renderer, Semaphore<Texture *> & canvas){
     SDL_RenderClear(renderer);
     canvas.leave();
     SDL_SetRenderTarget(renderer, buffer);
+}
+
+void Object::clear_surfaces_cache(){
+    for (auto &surface : DrawableObjectsData::surfacesCache.get()) {
+        SDL_FreeSurface(surface.second);
+    } DrawableObjectsData::surfacesCache.data.clear();
+    DrawableObjectsData::surfacesCache.leave();
 }
 
 Object& Object::fromFile(const char *filename, Renderer * renderer){
