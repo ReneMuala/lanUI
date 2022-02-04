@@ -10,12 +10,20 @@
 #include "../../Core/Core.hpp"
 #include <thread>
 #include <iostream>
+#include <queue>
 
-Window::Window(const char * title, float width, float height, Definition definition){
+namespace WMSSharedData
+{
+extern Window * programWindows[LUI_MAX_PROGRAM_WINDOWS];
+}
+
+Window::Window(const char * title, float width, float height, Definition definition): manager(this), firstRun(true){
+#ifdef LUI_CORE_MODE
     if(!CoreData::WAS_INIT){
         Core::init();
     }
-    
+#endif
+    //
     for(int i = 0 ; i < (WinRequests::totalRequests) ; i++){
         winRequests[i].set(false);
     }
@@ -26,13 +34,15 @@ Window::Window(const char * title, float width, float height, Definition definit
     
     sdlWindowClearColor.set({15, 15, 15, 255});
     
+    shouldClose.set(false);
+    
+#ifdef LUI_CORE_MODE
     _create(title, definition, width, height);
+#elif defined(LUI_WM_MODE)
+    manager.start(WindowManager::WindowInitParams(title, (short)definition, width, height));
+#endif
     
     _compute_DPIConstant();
-    
-    set_title(title);
-    
-    shouldClose.set(false);
     
     Core::subscribe(this);
 }
@@ -51,57 +61,57 @@ void Window::_create(const char *title, Definition definition, float width, floa
             Core::log(Core::Error, "Unable to create window renderer");
     SDL_SetRenderDrawBlendMode(sdlRenderer.data, SDL_BLENDMODE_BLEND);
     sdlWindowId.data = SDL_GetWindowID(sdlWindow.data);
+    WMSSharedData::programWindows[sdlWindowId.data] = this;
     SDL_SetWindowMinimumSize(sdlWindow.data, 10, 10);
 }
 
 void Window::_handle_events(){
-    if(CoreData::firstRun){
+    if(firstRun){
+        firstRun = false;
         _handle_others_routine(sdlEvent.data, nextInZ.data, DPIConstant.get(), true);
         DPIConstant.leave();
     }
-    while (SDL_WaitEventTimeout(&sdlEvent.data, 5) != 0) {
-        if(sdlEvent.data.type == SDL_DISPLAYEVENT)
-            _compute_DPIConstant();
-        if(sdlEvent.data.window.windowID == sdlWindowId.data){
-            if(sdlEvent.data.type == SDL_MOUSEMOTION){
-                InteractiveObjecsData::cursor.get().x = sdlEvent.data.motion.x * DPIConstant.get();
-                InteractiveObjecsData::cursor.data.y = sdlEvent.data.motion.y * DPIConstant.data;
-                InteractiveObjecsData::cursor.leave();
-                DPIConstant.leave();
-            }
-            
-            switch (sdlEvent.data.window.event) {
-                case SDL_QUIT:
-                case SDL_WINDOWEVENT_CLOSE: shouldClose.data = true; break;
-                case SDL_WINDOWEVENT_ENTER: hasMouseFocus.set(true); break;
-                case SDL_WINDOWEVENT_LEAVE: hasMouseFocus.set(false); break;
-                case SDL_WINDOWEVENT_FOCUS_GAINED: hasKeyboardFocus.set(true); break;
-                case SDL_WINDOWEVENT_FOCUS_LOST:   hasKeyboardFocus.set(false); break;
-                case SDL_WINDOWEVENT_EXPOSED:
-                case SDL_WINDOWEVENT_SHOWN: isShown.set(true); isMinimixed.set(false);  break;
-                case SDL_WINDOWEVENT_HIDDEN: isShown.set(false); break;
-                case SDL_WINDOWEVENT_MINIMIZED: isMinimixed.set(true); isMaximized.set(false); break;
-                case SDL_WINDOWEVENT_MAXIMIZED: isMaximized.set(true); fullscreen.set(true); isMinimixed.set(true); break;
-                case SDL_WINDOWEVENT_SIZE_CHANGED:
-                case SDL_WINDOWEVENT_RESIZED:
-                    size.get();
-                    size.data.w = (sdlEvent.data.window.data1);
-                    size.data.h = (sdlEvent.data.window.data2);
-                    size.leave();
-                    fullscreen.set(false);
-                    break;
-                default:
-                    break;
-            }
-            _handle_callBacks(sdlEvent.data.window.event, sdlEvent.data.type);
-            if(sdlEvent.data.type == SDL_MOUSEBUTTONDOWN)
-                Core::set_selected_object(nullptr);
-            if(nextInZ.get()) {
-                _handle_others_routine(sdlEvent.data, nextInZ.data, DPIConstant.get(), false);
-                DPIConstant.leave();
-            }
-            nextInZ.leave();
+    
+    if(sdlEvent.data.type == SDL_DISPLAYEVENT)
+        _compute_DPIConstant();
+    
+    if(sdlEvent.data.window.windowID == sdlWindowId.data){
+        if(sdlEvent.data.type == SDL_MOUSEMOTION){
+            InteractiveObjecsData::cursor.get().x = sdlEvent.data.motion.x * DPIConstant.get();
+            InteractiveObjecsData::cursor.data.y = sdlEvent.data.motion.y * DPIConstant.data;
+            InteractiveObjecsData::cursor.leave();
+            DPIConstant.leave();
         }
+        switch (sdlEvent.data.window.event) {
+            case SDL_QUIT:
+            case SDL_WINDOWEVENT_CLOSE: shouldClose.data = true; break;
+            case SDL_WINDOWEVENT_ENTER: hasMouseFocus.set(true); break;
+            case SDL_WINDOWEVENT_LEAVE: hasMouseFocus.set(false); break;
+            case SDL_WINDOWEVENT_FOCUS_GAINED: hasKeyboardFocus.set(true); break;
+            case SDL_WINDOWEVENT_FOCUS_LOST:   hasKeyboardFocus.set(false); break;
+            case SDL_WINDOWEVENT_EXPOSED:
+            case SDL_WINDOWEVENT_SHOWN: isShown.set(true); isMinimixed.set(false);  break;
+            case SDL_WINDOWEVENT_HIDDEN: isShown.set(false); break;
+            case SDL_WINDOWEVENT_MINIMIZED: isMinimixed.set(true); isMaximized.set(false); break;
+            case SDL_WINDOWEVENT_MAXIMIZED: isMaximized.set(true); fullscreen.set(true); isMinimixed.set(true); break;
+            case SDL_WINDOWEVENT_SIZE_CHANGED:
+            case SDL_WINDOWEVENT_RESIZED:
+                size.get();
+                size.data.w = (sdlEvent.data.window.data1);
+                size.data.h = (sdlEvent.data.window.data2);
+                printf(">> RESIZED (%f %f)\n", size.data.w, size.data.h);
+                size.leave();
+                break;
+            default:
+                break;
+        }
+        _handle_callBacks(sdlEvent.data.window.event, sdlEvent.data.type);
+        if(sdlEvent.data.type == SDL_MOUSEBUTTONDOWN)
+            Core::set_selected_object(nullptr);
+        if(nextInZ.get()) {
+            _handle_others_routine(sdlEvent.data, nextInZ.data, DPIConstant.get(), false);
+            DPIConstant.leave();
+        } nextInZ.leave();
     }
 }
 
@@ -175,7 +185,7 @@ void Window::_handle_callBacks(const uint8_t window_event, const uint32_t input_
             on_minimized_callback();
         } if(callbacks[OnMaximized].get() && window_event == SDL_WINDOWEVENT_MAXIMIZED){
             on_maximized_callback();
-        } if(callbacks[OnResized].get() && (window_event == SDL_WINDOWEVENT_RESIZED || window_event == SDL_WINDOWEVENT_SIZE_CHANGED)){
+        } if(callbacks[OnResized].get() && (window_event == SDL_WINDOWEVENT_RESIZED || window_event == SDL_WINDOWEVENT_SIZE_CHANGED || window_event == SDL_WINDOWEVENT_MAXIMIZED || window_event == SDL_WINDOWEVENT_MINIMIZED)){
             on_resized_callback();
         } if(callbacks[OnMouseButtonDown].get() && input_event == SDL_MOUSEBUTTONDOWN){
             on_mouse_button_down_callback();
@@ -237,11 +247,13 @@ void Window::_render(){
     sdlRenderer.hold();
     nextInZ.hold();
     DPIConstant.hold();
+    sdlWindowId.hold();
     _render_routine(DPIConstant.data);
-    _lock_renderer_in_bounds(sdlRenderer.data, DPIConstant.data);
-    if(nextInZ.data) nextInZ.data->_render(sdlRenderer.data, 0.0, 0.0, DPIConstant.data);
+    _lock_renderer_in_bounds(sdlWindowId.data, sdlRenderer.data, DPIConstant.data);
+    if(nextInZ.data) nextInZ.data->_render(sdlWindowId.data, sdlRenderer.data, 0.0, 0.0, DPIConstant.data);
     DPIConstant.leave();
-    _unlock_renderer_from_bounds(sdlRenderer.data);
+    _unlock_renderer_from_bounds(sdlWindowId.data, sdlRenderer.data);
+    sdlWindowId.leave();
     nextInZ.leave();
     SDL_RenderPresent(sdlRenderer.data);
     sdlRenderer.leave();

@@ -16,12 +16,19 @@
 #include "../../Theme/Theme.hpp"
 #include "../../../Project/CustomFonts/CustomFonts.hpp"
 #include <unordered_map>
+#include <thread>
+#include <queue>
+#include "../Window.hpp"
 
 namespace WMSSharedData
 {
 Semaphore<unsigned long> WMCount = 0;
-bool SYSTEM_FONTS_ARE_VALID = false;
+bool SYSTEM_FONTS_ARE_VALID = false,
+SYSTEM_READY = false;
 Semaphore<IMG_InitFlags> SDL_IMG_INIT_FLAGS = IMG_InitFlags(0);
+Window * programWindows[LUI_MAX_PROGRAM_WINDOWS];
+std::thread ttf_thread;
+std::queue<std::pair<void* /* return address */, unsigned /* function call id */>> ttf_thread_pendent_calls;
 }
 
 namespace FontsSharedData
@@ -36,7 +43,43 @@ namespace InteractiveObjecsData
     extern Semaphore<Object*> selectedObject;
 }
 
-WindowManager::WindowManager(){
+void WindowManager::run_global_events_handler(){
+#ifdef LUI_WM_MODE
+    static SDL_Event event;
+    WMSSharedData::SYSTEM_READY = true;
+    while (WMSSharedData::WMCount.get()) {
+        WMSSharedData::WMCount.leave();
+        do {
+            for(int i = 0 ; i < LUI_MAX_PROGRAM_WINDOWS ; i++){
+                if(WMSSharedData::programWindows[i]){
+                    WMSSharedData::programWindows[i]->_handle_requests();
+                    WMSSharedData::programWindows[i]->sdlEvent.set(event);
+                    WMSSharedData::programWindows[i]->_handle_events();
+                }
+            }
+        } while (SDL_WaitEventTimeout(&event, 5) != 0);
+    } WMSSharedData::WMCount.leave();
+#else
+    Core::log(Core::Error, "LUI_WM_MODE is not defined.");
+#endif
+}
+
+void WindowManager::rendererHandlerRoutine(void * window, bool * running){
+    Window * win = ((Window*)window);
+    while (*running) {
+        if(WMSSharedData::SYSTEM_READY){
+            win->_run_default_animation();
+            win->_compile();
+            win->_clear();
+            win->_render();
+            std::this_thread::sleep_for((std::chrono::milliseconds)LUI_WM_RENDERER_THREAD_SLEEP_TIME);
+        }
+    }
+}
+
+WindowManager::WindowManager(void* window) {
+    this->window = window;
+    running = true;
     init();
 }
 
@@ -47,8 +90,9 @@ void WindowManager::init_incr(){
 
 void WindowManager::init_sdl(){
     if(!SDL_WasInit(SDL_INIT_VIDEO)){
-        if(!SDL_Init(SDL_INIT_VIDEO))
+        if(SDL_Init(SDL_INIT_VIDEO))
             log(Error, std::string("Count not initialize SDL, possible cause: ") + SDL_GetError());
+        init_ttf_thread();
     }
 }
 
@@ -56,6 +100,19 @@ void WindowManager::init_ttf(){
     if(!TTF_WasInit()){
         if(TTF_Init() == -1){
             log(Error, std::string("Count not initialize TTF, possible cause: ") + SDL_GetError());
+        } init_ttf_thread();
+    }
+}
+
+void WindowManager::init_ttf_thread(){
+    // FIXME: ALLOW TTF_THREAD TO BE SUCESSUF INITIALIZED (RIGHT NPW ITS NOT WORKING BECAUSE ITS BEING INITIALIZED AT WM CONSTRUCTOR)
+    WMSSharedData::ttf_thread = std::thread(ttfThreadRoutine);
+}
+
+void WindowManager::ttfThreadRoutine(){
+    while (WMSSharedData::SYSTEM_READY) {
+        if(WMSSharedData::ttf_thread_pendent_calls.empty()){
+            std::this_thread::sleep_for((std::chrono::milliseconds)100);
         }
     }
 }
@@ -63,7 +120,7 @@ void WindowManager::init_ttf(){
 void WindowManager::init_image(){
     WMSSharedData::SDL_IMG_INIT_FLAGS.hold();
     if(!WMSSharedData::SDL_IMG_INIT_FLAGS.data){
-        if(IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF | IMG_INIT_WEBP) != IMG_InitFlags(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF)){
+        if(IMG_Init(IMG_INIT_PNG | IMG_INIT_PNG | IMG_INIT_TIF) != (IMG_INIT_PNG | IMG_INIT_PNG | IMG_INIT_TIF)){
             log(Error, std::string("Count not initialize IMG, possible cause: ") + SDL_GetError());
         } else {
             WMSSharedData::SDL_IMG_INIT_FLAGS.data = IMG_InitFlags(IMG_INIT_JPG & IMG_INIT_PNG & IMG_INIT_TIF);
@@ -134,6 +191,11 @@ void WindowManager::init(){
     init_image();
 }
 
+void WindowManager::start(const WindowInitParams params){
+    ((Window*)(window))->_create(params.title.c_str(), (Window::Definition) params.definition, params.width, params.height);
+    rendererHandler = std::thread(rendererHandlerRoutine, window, &running);
+}
+
 void WindowManager::log(const WindowManager::LogLevel level, const std::string message){
     static unsigned long long logCount = 0;
     switch (level) {
@@ -161,6 +223,7 @@ const void * WindowManager::$get_selected_object(){
 
 bool WindowManager::close_decr(){
     const bool last_WM = !(--WMSSharedData::WMCount.get());
+    WMSSharedData::SYSTEM_READY = !last_WM;
     WMSSharedData::WMCount.leave();
     return last_WM;
 }
@@ -170,8 +233,13 @@ void WindowManager::close_sdl(){
 }
 
 void WindowManager::close_ttf(){
+    close_ttf_thread();
     close_fonts();
     TTF_Quit();
+}
+
+void WindowManager::close_ttf_thread(){
+    WMSSharedData::ttf_thread.join();
 }
 
 void WindowManager::close_image(){
@@ -185,8 +253,7 @@ void WindowManager::close_fonts(){
             TTF_CloseFont(font.second);
             font.second = nullptr;
         }
-    }
-    FontsSharedData::allFonts.leave();
+    } FontsSharedData::allFonts.leave();
 }
 
 void WindowManager::close(){
@@ -196,5 +263,9 @@ void WindowManager::close(){
         close_fonts();
         close_ttf();
         close_image();
-    }
+    } rendererHandler.join();
+}
+
+WindowManager::~WindowManager(){
+    close();
 }

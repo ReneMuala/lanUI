@@ -113,20 +113,27 @@ void Core::init_SDL(){
 }
 
 void Core::events(){
+#ifdef LUI_CORE_MODE
     Core::log(Message, "Starting events   thread.");
+    static SDL_Event events;
     while(CoreData::running){
         static short size (0);
         size = CoreData::programWindowsCount.get();
         CoreData::programWindowsCount.leave();
-        for(short i = 0 ; i < size;){
-            if(CoreData::programWindows[i].data){
-                if(CoreData::programWindows[i].isBusy) continue;
-                CoreData::programWindows[i].data->_handle_requests();
-                CoreData::programWindows[i].data->_handle_events();
-                i++;
-            } if(CoreData::firstRun) CoreData::firstRun = false;
+        while (SDL_PollEvent(&events) != 0) {
+            for(short i = 0 ; i < size;i++){
+                if(CoreData::programWindows[i].data){
+                    if(CoreData::programWindows[i].isBusy) continue;
+                    CoreData::programWindows[i].data->_handle_requests();
+                    CoreData::programWindows[i].data->sdlEvent.set(events);
+                    CoreData::programWindows[i].data->_handle_events();
+                } if(CoreData::firstRun) CoreData::firstRun = false;
+            }
         }
     }
+#else
+    Core::log(Error, "LUI_CORE_MODE is not defined.");
+#endif
 }
 
 void Core::render(){

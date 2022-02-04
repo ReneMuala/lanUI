@@ -25,6 +25,11 @@ namespace TextStyles {
     TextStyle Default     = BodyMedium;
 }
 
+namespace FontsSharedData
+{
+extern BSemaphore TTF_Fcall;
+}
+
 const std::string TextStyle::toStr() const {
     std::string str = " ";
 
@@ -137,8 +142,10 @@ bool Text::_compile_canvas_render_text(Renderer * renderer){
     source.hold();
     foregroundColor.hold();
     backgroundColor.hold();
+    FontsSharedData::TTF_Fcall.hold();
     if(!compatibilityMode) {
         if(!(surfc=TTF_RenderUTF8_Blended(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.data))) {
+            FontsSharedData::TTF_Fcall.leave();
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
             Core::log(Core::Warning, "Text: Render failed (invalid surfc).");
 #endif
@@ -152,6 +159,7 @@ bool Text::_compile_canvas_render_text(Renderer * renderer){
         switch (compatibilityMode) {
             case RenderShadedMode:
                 if(!(surfc=TTF_RenderUTF8_Shaded(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.data, (SDL_Color)backgroundColor.data))){
+                    FontsSharedData::TTF_Fcall.leave();
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
                     Core::log(Core::Warning, "Text (CompatibilityMode[RenderShadedMode]): Render failed.");
 #endif
@@ -165,6 +173,7 @@ bool Text::_compile_canvas_render_text(Renderer * renderer){
                 break;
             case RenderSolidMode:
                 if(!(surfc=TTF_RenderUTF8_Solid(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.data))){
+                    FontsSharedData::TTF_Fcall.leave();
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
                     Core::log(Core::Warning, "Text (CompatibilityMode[RenderSolidMode]): Render failed.");
 #endif
@@ -180,6 +189,8 @@ bool Text::_compile_canvas_render_text(Renderer * renderer){
                 break;
         }
     }
+    
+    FontsSharedData::TTF_Fcall.leave();
     foregroundColor.leave();
     backgroundColor.leave();
     source.leave();
@@ -272,7 +283,7 @@ void Text::_render_background(SDL_Renderer * renderer, Rect * rect){
     SDL_RenderFillRectF(renderer, rect);
 }
 
-void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, bool inComposition){
+void Text::_render(const unsigned int id, SDL_Renderer * renderer, float x, float y, const float dpiK, bool inComposition){
         if(_inRootBounds(x, y)){
             _align(x, y);
             _set_position(x, y);
@@ -297,7 +308,7 @@ void Text::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, 
 #endif
     
     if(!inComposition)
-        _renderEmbedded(renderer, x, y, dpiK, _renderOnlyNextInX_Y);
+        _renderEmbedded(id, renderer, x, y, dpiK, _renderOnlyNextInX_Y);
 };
 
 Text& Text::inherit_background_color(){

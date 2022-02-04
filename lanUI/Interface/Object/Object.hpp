@@ -176,13 +176,13 @@ public:
         _renderOnlyNextInX_Y = 0x4,
     } _RenderEmbeddedMode;
     
-    void __renderEmbedded_routine(SDL_Renderer*, Object * embedded, const float x, const float y, const float dpiK);
+    void __renderEmbedded_routine(const unsigned int, SDL_Renderer*, Object * embedded, const float x, const float y, const float dpiK);
     
-    virtual void _renderEmbedded(SDL_Renderer*, const float x, const float y, float dpiK, _RenderEmbeddedMode mode = _RenderEmbeddedMode::_renderAllNexts);
+    virtual void _renderEmbedded(const unsigned int , SDL_Renderer*, const float x, const float y, float dpiK, _RenderEmbeddedMode mode = _RenderEmbeddedMode::_renderAllNexts);
     
-    void _lock_renderer_in_bounds(SDL_Renderer*, float dpiK);
+    void _lock_renderer_in_bounds(const unsigned int, SDL_Renderer*, float dpiK);
     
-    void _unlock_renderer_from_bounds(SDL_Renderer*);
+    void _unlock_renderer_from_bounds(const unsigned int, SDL_Renderer*);
     
     // prepare rect_buffer
     void _render_routine(float);
@@ -304,7 +304,7 @@ public:
     
     void _render_using_callback(SDL_Renderer*, float x, float y, const float dpiK);
     
-    virtual void _render(SDL_Renderer*, float x, float y, float dpiK, bool inComposition = false);
+    virtual void _render(const unsigned int, SDL_Renderer*, float x, float y, float dpiK, bool inComposition = false);
     
     SDL_Renderer * param_renderer;
     
@@ -318,9 +318,9 @@ public:
     
     void _stop_composition_mode(SDL_Renderer*);
     
-    Object& compose(SDL_Renderer*, const float dpiK);
+    Object& compose(const unsigned int, SDL_Renderer*, const float dpiK);
     
-    Object& compose_canvas(SDL_Renderer*, const float dpiK);
+    Object& compose_canvas(const unsigned int, SDL_Renderer*, const float dpiK);
     
     Object& export_composition_as_PNG(SDL_Renderer*, const char * filename);
     

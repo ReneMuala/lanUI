@@ -13,6 +13,7 @@
 #include <string>
 #include <SDL2/SDL_image.h>
 #include "../../../Semaphore/Semaphore.hpp"
+#include <thread>
 
 namespace WMSSharedData
 {
@@ -20,27 +21,57 @@ namespace WMSSharedData
 }
 
 class WindowManager {
+public:
+    
+    static void run_global_events_handler();
+    
     typedef enum {
         Error,
         Warning,
         Message,
     } LogLevel;
+
+    struct WindowInitParams {
+        std::string title;
+        short definition;
+        float width;
+        float height;
+        
+        WindowInitParams(const char * title, short definition, float width, float height): title(title), definition(definition), width(width), height(height){
+        }
+    };
     
-    WindowManager();
+private:
+    
+    void * window;
+    
+    bool running;
+    
+    std::thread rendererHandler;
+    
+    static void rendererHandlerRoutine(void*, bool *);
+    
+public:
+    
+    WindowManager(void*);
     
     void init_incr();
     
     void init_sdl();
-    
+        
     void init_ttf();
+    
+    void init_ttf_thread();
+    
+    static void ttfThreadRoutine();
     
     void init_image();
     
     void init_fonts();
-    
+        
     void init();
     
-public:
+    void start(const WindowInitParams);
     
     void log(const LogLevel , const std::string);
     
@@ -60,12 +91,14 @@ private:
     
     void close_ttf();
     
+    void close_ttf_thread();
+    
     void close_image();
     
     void close_fonts();
     
     void close();
-    
+public:
     ~WindowManager();
 };
 

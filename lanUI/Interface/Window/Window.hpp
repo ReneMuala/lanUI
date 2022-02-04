@@ -15,12 +15,16 @@
 #include "../../Semaphore/Semaphore.hpp"
 #include "../Color/Color.hpp"
 #include "../Object/Object.hpp"
+#include "WindowManager/WindowManager.hpp"
 
 //! A program window
 class Window: public Object {
 public:
     typedef std::function<void()> VoidCallback;
 private:
+    
+    WindowManager manager;
+    bool firstRun;
     
     // Request data
     Semaphore<std::string> title;
@@ -104,7 +108,6 @@ public:
     Semaphore<bool> winRequestsFlag = false;
     Semaphore<bool> callbacks[CallBacks::totalCallBacks] = {0};
     Semaphore<bool> callbacksFlag = false;
-
     
     void _subscribe();
     

@@ -20,34 +20,73 @@
 
 #include <iostream>
 
+using namespace std;
+
 class MainView : public View {
     Paragraph question;
     List answers;
     VStack mainstask;
+    Text * count;
+    int counter=0;
 public:
     MainView(Window & win){
         create(win).set_alignment(Center);
+        set_size(600, 400);
     }
     
     Object& body(Window & win) override {
-        question.from_string("%Size:16 %Bold O que é um resumo?");
+        question.from_string("%Size:48 %Italic Olá Müendo %n [ %[count] 0 ]");
+//        if((count = question["count"])){
+//            count->set_default_animation(0, CallbackExpr({
+//                counter++;
+//                count->from_string(std::to_string(counter));
+//                return true;
+//            }));
+//        }
         mainstask.fromList((std::list<Object *>){&question});
+        mainstask.set_alignment(Center);
         return mainstask;
     }
 };
 
+#include <queue>
+
+//TODO: CREATE A WRAPPER TO HOLD ALL SDL_TTF CALLS INSIDE OF A UNIQUE THREAD
+
 int main() {
+//   Core program;
     
-    std::cout << (PathResolver::resolve("Fonts:test\\image.png")) << std::endl;
     
-    return 0;
-    Core program;
-    
-    Window window;
-    
+    Window window("LUI") ;/*,
+    window2("LUI2"),
+    window3("LUI3");
+                           */
+//   ;lpplunm ,
+//
+//    window.set_window_clear_color(Colors::White_smoke);
+//
+//    Text text("Hello");
+//
+//    window.embedInZ(text.extraBold(36).set_alignment(Object::Top));
+//
     MainView
     view(window
          .set_window_clear_color(Colors::White_smoke)
-         .on_resized(CallbackExpr({view.set_relative_size(0.65, 0.9);})));
-    program.events();
+         .on_resized(CallbackExpr({
+             view.set_relative_size(1.0, 1.0);
+    })));
+    /*
+    view2(window2
+         .set_window_clear_color(Colors::White_smoke)
+         .on_resized(CallbackExpr({
+             view2.set_relative_size(1.0, 1.0);
+    }))),
+    view3(window3
+         .set_window_clear_color(Colors::White_smoke)
+         .on_resized(CallbackExpr({
+             view3.set_relative_size(1.0, 1.0);
+         })));
+*/
+//    program.events();
+    return LUI::run();
 }

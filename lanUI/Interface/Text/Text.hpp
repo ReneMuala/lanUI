@@ -93,7 +93,7 @@ public:
     
     void _render_background(SDL_Renderer*, Rect*);
     
-    void _render(SDL_Renderer*, float x, float y, const float dpiK, bool isComposition) override;
+    void _render(const unsigned int, SDL_Renderer*, float x, float y, const float dpiK, bool isComposition) override;
     
     // may be useful when using RenderShadedMode
     /// use root primary color as this->background_color

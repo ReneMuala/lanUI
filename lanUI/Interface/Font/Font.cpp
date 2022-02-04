@@ -10,12 +10,14 @@
 #include <unordered_map>
 #include "../../Utilities/PathResolver.hpp"
 
-namespace FontsSharedData {
-    Font DejaVuSans, WorkSans, OpenSans, DefaultFonts;
-    Semaphore<std::unordered_map<unsigned long /* FONT_ID */, TTF_Font*>> allFonts;
-    unsigned long allFontsCount;
-    
-    Semaphore<std::unordered_map<Font*,std::string const>> globalFonts;
+namespace FontsSharedData
+{
+BSemaphore TTF_Fcall;
+Font DejaVuSans, WorkSans, OpenSans, DefaultFonts;
+Semaphore<std::unordered_map<unsigned long /* FONT_ID */, TTF_Font*>> allFonts;
+unsigned long allFontsCount;
+
+Semaphore<std::unordered_map<Font*,std::string const>> globalFonts;
 }
 
 Font::Font(const std::string name) {
@@ -44,12 +46,14 @@ Font::~Font(){
 
 void Font::free(){
     if(ttfFont.get()){
+        FontsSharedData::allFonts.hold();
+        FontsSharedData::allFonts.data[id_inAllFonts] = nullptr;
+        FontsSharedData::allFonts.leave();
+        FontsSharedData::TTF_Fcall.hold();
         TTF_CloseFont(ttfFont.data);
+        ttfFont.data = nullptr;
+        FontsSharedData::TTF_Fcall.leave();
     }
-    FontsSharedData::allFonts.hold();
-    FontsSharedData::allFonts.data[id_inAllFonts] = nullptr;
-    FontsSharedData::allFonts.leave();
-    ttfFont.data = nullptr;
     ttfFont.leave();
 }
 
@@ -63,9 +67,11 @@ bool Font::_test(const char *path){
 
 bool Font::_load(const char *path, const int size){
     free();
+    FontsSharedData::TTF_Fcall.hold();
     if(!(ttfFont.get() = TTF_OpenFont(path, size*scalingFactorConstant)))
         Core::log(Core::Error, ("Unable to open font file: " + std::string(path) + "(" + TTF_GetError() +")").c_str());
     else {
+        FontsSharedData::TTF_Fcall.leave();
         FontsSharedData::allFonts.hold();
         FontsSharedData::allFonts.data[id_inAllFonts] = ttfFont.data;
 //        std::cout << ">>\n";

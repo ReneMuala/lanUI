@@ -11,8 +11,21 @@
 
 #define LUI_BUNDLE_NAME "lanUI.Bundle"
 
+#define LUI_MAX_PROGRAM_WINDOWS 1+ /* mutable => */ 16
+
 /// Derprecated, new implementation in Utilities/ParhResolver.hpp
 #define LANUI_DEFAULT_FONTS_PATH "lanUI.Bundle/System/Library/Fonts/"
+
+//#define LUI_CORE_MODE
+#ifndef LUI_CORE_MODE
+    #define LUI_WM_MODE
+#endif
+
+/* Renderer thread sleep time for WM mode  */
+#define LUI_WM_RENDERER_THREAD_SLEEP_TIME 10
+
+/* Events thread sleep time for WM mode  */
+#define LUI_WM_EVENTS_THREAD_SLEEP_TIME 10
 
 //  #define LANUI_DEBUG_MODE
 /*  ^^^^^^^^^^^^^^^^^^^^^^^
@@ -27,10 +40,12 @@
 
 #ifdef LANUI_DEBUG_MODE
 
-//  #define LANUI_DEBUG_SEMAPHORE_WARN_WHEN_INVALID_HOLD
+#define LANUI_DEBUG_SEMAPHORE_WARN_WHEN_INVALID_HOLD
+//#define LANUI_DEBUG_BSEMAPHORE_WARN_WHEN_INVALID_HOLD
+
 /*  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  
- USAGE: enable debug mode and uncomment the line above
+ USAGE: enable debug mode and uncomment the lines above
  
  DESCRIPTION: LANUI will show warnings whenever the program trys to hold a busy object.
  
@@ -39,9 +54,10 @@
  */
 
 //  #define LANUI_DEBUG_SEMAPHORE_WARN_WHEN_INVALID_LEAVE
+//  #define LANUI_DEBUG_BSEMAPHORE_WARN_WHEN_INVALID_LEAVE
 /*  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  
- USAGE: enable debug mode and uncomment the line above
+ USAGE: enable debug mode and uncomment the lines above
  
  DESCRIPTION: LANUI will show warnings whenever the program trys to leave an object that isn't busy.
  
@@ -49,7 +65,8 @@
  
  */
 
-//  #define LANUI_DEBUG_SEMAPHORE_ERROR_WHEN_INVALID_HOLD
+//#define LANUI_DEBUG_SEMAPHORE_ERROR_WHEN_INVALID_HOLD
+//#define LANUI_DEBUG_BSEMAPHORE_ERROR_WHEN_INVALID_HOLD
 /*  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  
  USAGE: enable debug mode and uncomment the line above
@@ -61,6 +78,7 @@
  */
 
 //  #define LANUI_DEBUG_SEMAPHORE_ERROR_WHEN_INVALID_LEAVE
+//  #define LANUI_DEBUG_BSEMAPHORE_ERROR_WHEN_INVALID_LEAVE
 /*  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  
  USAGE: enable debug mode and uncomment the line above

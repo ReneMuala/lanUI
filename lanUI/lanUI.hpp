@@ -29,4 +29,12 @@
 
 #include "Utilities/PathResolver.hpp"
 
+namespace LUI
+{
+int run(){
+    WindowManager::run_global_events_handler();
+    return 0;
+}
+}
+
 #endif /* lanUI_h */

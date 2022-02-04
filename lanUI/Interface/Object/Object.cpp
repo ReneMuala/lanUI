@@ -13,7 +13,8 @@
 #include <stack>
 #include <map>
 
-std::stack<SDL_Rect> rendererClips;
+// TODO: implement per windows rendererClips Buffer
+std::stack<SDL_Rect> rendererClips[LUI_MAX_PROGRAM_WINDOWS];
 
 void Object::__align_center(float &x, float &y){
     root.get()->size.get();
@@ -313,11 +314,11 @@ void Object::_useRootBounds(){
     usingRootBounds.set(true);
 }
 
-void Object::__renderEmbedded_routine(SDL_Renderer * renderer, Object * embedded, const float x, const float y, float dpiK){
-    embedded->_render(renderer, x, y, dpiK);
+void Object::__renderEmbedded_routine(const unsigned int id, SDL_Renderer * renderer, Object * embedded, const float x, const float y, float dpiK){
+    embedded->_render(id, renderer, x, y, dpiK);
 }
 
-void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float y, float dpiK, _RenderEmbeddedMode _renderEmbeddedMode){
+void Object::_renderEmbedded(const unsigned int id, SDL_Renderer * renderer, const float x, const float y, float dpiK, _RenderEmbeddedMode _renderEmbeddedMode){
     
     const Padding padding_buffer = padding.get();
     const Rect size_buffer = size.get();
@@ -329,21 +330,21 @@ void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float
     
     if(!(_renderEmbeddedMode & _renderOnlyNextInX_Y))
     {
-        _lock_renderer_in_bounds(renderer, dpiK);
+        _lock_renderer_in_bounds(id, renderer, dpiK);
         if(nextInZ.get())
-            __renderEmbedded_routine(renderer, nextInZ.data,
+            __renderEmbedded_routine(id, renderer, nextInZ.data,
                                      x + padding_buffer.left + scrollingFactor_buffer.horizontal,
                                      y + padding_buffer.top + scrollingFactor_buffer.vertical,
                                      dpiK);
         
         nextInZ.leave();
-        _unlock_renderer_from_bounds(renderer);
+        _unlock_renderer_from_bounds(id, renderer);
     }
     
     if(!(_renderEmbeddedMode & _renderOnlyNextInZ))
     {
         if(nextInX.get())
-            __renderEmbedded_routine(renderer, nextInX.data,
+            __renderEmbedded_routine(id, renderer, nextInX.data,
                                      x + size_buffer.w + padding_buffer.left + padding_buffer.right,
                                      y,
                                      dpiK);
@@ -351,7 +352,7 @@ void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float
         nextInX.leave();
         
         if(nextInY.get())
-            __renderEmbedded_routine(renderer, nextInY.data,
+            __renderEmbedded_routine(id, renderer, nextInY.data,
                                      x,
                                      y + size_buffer.h + padding_buffer.top + padding_buffer.bottom,
                                      dpiK);
@@ -359,7 +360,7 @@ void Object::_renderEmbedded(SDL_Renderer * renderer, const float x, const float
     }
 }
 
-void Object::_lock_renderer_in_bounds(SDL_Renderer * renderer, float dpiK){
+void Object::_lock_renderer_in_bounds(const unsigned int id, SDL_Renderer * renderer, float dpiK){
     SDL_Rect inter;
     sizeBuffer.hold();
     const SDL_Rect bounds =
@@ -371,46 +372,46 @@ void Object::_lock_renderer_in_bounds(SDL_Renderer * renderer, float dpiK){
     };
     sizeBuffer.leave();
 
-    if(rendererClips.empty()){
+    if(rendererClips[id].empty()){
         SDL_RenderSetClipRect(renderer, &bounds);
-        rendererClips.push(bounds);
+        rendererClips[id].push(bounds);
 #ifdef LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
-        printf("(1) renderer lock: [%d %d %d %d]\n", rendererClips.top().x, rendererClips.top().y, rendererClips.top().w, rendererClips.top().h);
+        printf("(1) renderer lock: [%d %d %d %d]\n", rendererClips[id].top().x, rendererClips[id].top().y, rendererClips[id].top().w, rendererClips[id].top().h);
 #endif
 
         
     } else {
-        SDL_IntersectRect(&bounds,&rendererClips.top(), &inter);
+        SDL_IntersectRect(&bounds,&rendererClips[id].top(), &inter);
         if(SDL_RectEmpty(&inter)){
-            SDL_RenderSetClipRect(renderer, &rendererClips.top());
-            rendererClips.push(bounds);
+            SDL_RenderSetClipRect(renderer, &rendererClips[id].top());
+            rendererClips[id].push(bounds);
 #ifdef LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
-            printf("(2) renderer lock: [%d %d %d %d]\n", rendererClips.top().x, rendererClips.top().y, rendererClips.top().w, rendererClips.top().h);
+            printf("(2) renderer lock: [%d %d %d %d]\n", rendererClips[id].top().x, rendererClips[id].top().y, rendererClips[id].top().w, rendererClips[id].top().h);
 #endif
         } else {
             SDL_RenderSetClipRect(renderer, &inter);
-            rendererClips.push(inter);
+            rendererClips[id].push(inter);
 #ifdef LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
-            printf("(3) renderer lock: [%d %d %d %d]\n", rendererClips.top().x, rendererClips.top().y, rendererClips.top().w, rendererClips.top().h);
+            printf("(3) renderer lock: [%d %d %d %d]\n", rendererClips[id].top().x, rendererClips[id].top().y, rendererClips[id].top().w, rendererClips[id].top().h);
 #endif
         }
     }
     
 #ifdef LANUI_DEBUG_MODE
     SDL_SetRenderDrawColor(renderer, 255, 20, 20, 20);
-    SDL_RenderFillRect(renderer, &rendererClips.top());
+    SDL_RenderFillRect(renderer, &rendererClips[id].top());
     SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
-    SDL_RenderDrawRect(renderer, &rendererClips.top());
+    SDL_RenderDrawRect(renderer, &rendererClips[id].top());
 #endif
 }
 
-void Object::_unlock_renderer_from_bounds(SDL_Renderer * renderer){
-    rendererClips.pop();
-    if(!rendererClips.empty()){
+void Object::_unlock_renderer_from_bounds(const unsigned int id, SDL_Renderer * renderer){
+    rendererClips[id].pop();
+    if(!rendererClips[id].empty()){
 #ifdef LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
-        printf("renderer unlock: [%d %d %d %d]\n", rendererClips.top().x, rendererClips.top().y, rendererClips.top().w, rendererClips.top().h);
+        printf("renderer unlock: [%d %d %d %d]\n", rendererClips[id].top().x, rendererClips[id].top().y, rendererClips[id].top().w, rendererClips[id].top().h);
 #endif
-        SDL_RenderSetClipRect(renderer, &rendererClips.top());
+        SDL_RenderSetClipRect(renderer, &rendererClips[id].top());
     } else {
 #ifdef LANUI_DEBUG_PRINT_RENDERER_LOCK_AND_UNLOCK_EVENTS
         printf("renderer unlock: [full screen]\n");
@@ -433,7 +434,7 @@ void Object::_render_routine(float dpiK){
 }
 
 void Object::_handle_others_routine(Event& event, Object * next, const float dpiK, const bool no_focus){
-    (next)->_handle_events(event, dpiK, no_focus);
+    if(next) (next)->_handle_events(event, dpiK, no_focus);
 }
 
 void Object::_handle_others(Event& event, const float dpiK, const bool no_focus){

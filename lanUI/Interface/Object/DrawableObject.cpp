@@ -215,7 +215,7 @@ void Object::_render_using_callback(SDL_Renderer * renderer, float x, float y, f
     renderer_callback.leave();
 }
 
-void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK, bool inComposition){
+void Object::_render(const unsigned int id, SDL_Renderer * renderer, float x, float y, const float dpiK, bool inComposition){
     if(_inRootBounds(x, y) || inComposition){
         _align(x, y);
         _set_position(x, y);
@@ -264,7 +264,7 @@ void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK
                     break;
             }
         if(renderMode.data != CompositionMode && !inComposition)
-            _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
+            _renderEmbedded(id, renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
 
         renderMode.leave();
 #ifdef LANUI_DEBUG_MODE
@@ -276,7 +276,7 @@ void Object::_render(SDL_Renderer * renderer, float x, float y, const float dpiK
         }
 #endif
     }
-    if(!inComposition) _renderEmbedded(renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInX_Y);
+    if(!inComposition) _renderEmbedded(id, renderer, x, y, dpiK, _RenderEmbeddedMode::_renderOnlyNextInX_Y);
 }
 
 Object& Object::set_renderer_callback(VoidCallback callback){
@@ -357,7 +357,7 @@ void Object::_stop_composition_mode(SDL_Renderer * renderer){
     SDL_SetRenderTarget(renderer, compositionRendererTargetBuffer);
 }
 
-Object& Object::compose(SDL_Renderer * renderer, const float dpiK){
+Object& Object::compose(const unsigned int id, SDL_Renderer * renderer, const float dpiK){
 #ifdef LANUI_DEBUG_MODE
     Core::log(Core::Warning, ("Composing object [" + std::to_string((long long)this) + "]. (if you use the compositionMode all interactive objects embedded in Z from this object will be disabled).").c_str());
 #endif
@@ -365,9 +365,9 @@ Object& Object::compose(SDL_Renderer * renderer, const float dpiK){
     this->renderer = renderer;
     _compile(renderer, dpiK);
     _start_composition_mode(renderer, dpiK);
-    _lock_renderer_in_bounds(renderer, dpiK);
-    _render(renderer, 0, 0, dpiK, true);
-    _unlock_renderer_from_bounds(renderer);
+    _lock_renderer_in_bounds(id, renderer, dpiK);
+    _render(id, renderer, 0, 0, dpiK, true);
+    _unlock_renderer_from_bounds(id, renderer);
     
     // reset x & y to renderer embedded objects correctly
     sizeBuffer.hold();
@@ -377,21 +377,21 @@ Object& Object::compose(SDL_Renderer * renderer, const float dpiK){
     size.data.x = size.data.y = 0;
     size.leave();
     
-    _renderEmbedded(renderer, 0, 0, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
+    _renderEmbedded(id, renderer, 0, 0, dpiK, _RenderEmbeddedMode::_renderOnlyNextInZ);
     _stop_composition_mode(renderer);
     return (*this);
 }
 
-Object& Object::compose_canvas(SDL_Renderer * renderer, const float dpiK){
+Object& Object::compose_canvas(const unsigned int id, SDL_Renderer * renderer, const float dpiK){
 #ifdef LANUI_DEBUG_MODE
     Core::log(Core::Message, ("Composing canvas of object [" + std::to_string((long long)this) + "]. (make sure to use CanvasCompositionMode).").c_str());
 #endif
     this->renderer = renderer;
     _start_composition_mode(renderer, dpiK);
     _compile(renderer, dpiK);
-    _lock_renderer_in_bounds(renderer, dpiK);
-    _render(renderer, 0, 0, dpiK, true);
-    _unlock_renderer_from_bounds(renderer);
+    _lock_renderer_in_bounds(id, renderer, dpiK);
+    _render(id, renderer, 0, 0, dpiK, true);
+    _unlock_renderer_from_bounds(id, renderer);
     // reset x & y to renderer embedded objects correctly
     sizeBuffer.hold();
     sizeBuffer.data.x = sizeBuffer.data.y = 0;

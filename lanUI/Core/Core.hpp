@@ -17,7 +17,6 @@
 #include "../Semaphore/Semaphore.hpp"
 #include <SDL2/SDL.h>
 
-/// @deprecated
 class Core {
 
 public:

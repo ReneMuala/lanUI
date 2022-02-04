@@ -76,9 +76,9 @@ public:
                 
         TextSurface();
         
-        void _renderEmbedded(SDL_Renderer*, const float x, const float y, float dpiK, _RenderEmbeddedMode mode = _RenderEmbeddedMode::_renderAllNexts) override;
+        void _renderEmbedded(const unsigned int, SDL_Renderer*, const float x, const float y, float dpiK, _RenderEmbeddedMode mode = _RenderEmbeddedMode::_renderAllNexts) override;
         
-        void _render(SDL_Renderer*, float x, float y, const float dpiK, bool iComposition) override;
+        void _render(const unsigned int, SDL_Renderer*, float x, float y, const float dpiK, bool iComposition) override;
         
     } textSurface;
     
