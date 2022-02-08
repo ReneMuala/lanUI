@@ -17,7 +17,7 @@
 #include "../Paragraph/Paragraph.hpp"
 #include "../../lanUTF/lanUTF/UTF8CharList.hpp"
 
-class BSTextField : public InterativeObject {
+class BSTextField : public InteractiveObject {
     Semaphore<bool> activated, isSecret;
     Semaphore<UTF8CharList> inputBuffer;
     UTF8CharList secretStrBuffer;

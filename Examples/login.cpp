@@ -36,10 +36,12 @@ public:
         set_size(300, 300);
         set_alignment(Center);
         
+        username.textSurface.set_foreground_color(Colors::Light_gray);
         username.set_foreground_color(Colors::White);
         username.set_border_color(Colors::Gray);
         username.set_size(220, -1);
         
+        passwd.textSurface.set_foreground_color(Colors::Light_gray);
         passwd.set_foreground_color(Colors::White);
         passwd.set_border_color(Colors::Gray);
         passwd.set_size(220, -1);
@@ -56,7 +58,17 @@ public:
             username.textSurface.regular(12);
             username.textSurface.set_foreground_color(Colors::Black);
         }))
-        .fromColorScheme(Colors::White)
+        .set_renderer_callback(CallbackExpr({
+            username.sizeBuffer.hold();
+            primitives::roundedBoxColor(username.param_renderer, username.sizeBuffer.data.x, username.sizeBuffer.data.y, username.sizeBuffer.data.w, username.sizeBuffer.data.h, 15
+                                        , username.foregroundColor.get());
+            primitives::roundedRectangleColor(username.param_renderer, username.sizeBuffer.data.x, username.sizeBuffer.data.y, username.sizeBuffer.data.w, username.sizeBuffer.data.h, 15
+                                        , username.borderColor.get());
+            username.foregroundColor.leave();
+            username.borderColor.leave();
+            username.sizeBuffer.leave();
+        }))
+//        .fromColorScheme(Colors::White)
         .set_padding(10);
         
         passwd.on_empty(CallbackExpr({
@@ -67,7 +79,17 @@ public:
             passwd.textSurface.set_foreground_color(Colors::Gray);
         }))
         .secret(true)
-        .fromColorScheme(Colors::White)
+        .set_renderer_callback(CallbackExpr({
+            passwd.sizeBuffer.hold();
+            primitives::roundedBoxColor(passwd.param_renderer, passwd.sizeBuffer.data.x, passwd.sizeBuffer.data.y, passwd.sizeBuffer.data.w, passwd.sizeBuffer.data.h, 15
+                                        , passwd.foregroundColor.get());
+            primitives::roundedRectangleColor(passwd.param_renderer, passwd.sizeBuffer.data.x, passwd.sizeBuffer.data.y, passwd.sizeBuffer.data.w, passwd.sizeBuffer.data.h, 15
+                                        , passwd.borderColor.get());
+            passwd.foregroundColor.leave();
+            passwd.borderColor.leave();
+            passwd.sizeBuffer.leave();
+        }))
+//        .fromColorScheme(Colors::White)
         .set_padding(10);
         
         Text* cont_txt = (Text*)continue_.get_content();
@@ -88,11 +110,10 @@ public:
         
         return mainArea;
     }
-    
 };
 
-int main() {{
-    Core program;
+int main() {
+//    Core test;
     
     Window mywindow("LUI", 350, 290);
         
@@ -101,11 +122,11 @@ int main() {{
     auto Login = LoginView(mywindow);
     
     Login.continue_.on_click(CallbackExpr({
-        program.terminate();
+        mywindow.close();
     }));
     
     mywindow.on_closed(CallbackExpr({
-        program.terminate();
+        mywindow.close();
     }));
     
     TextField field = TextField("Empty");
@@ -137,6 +158,6 @@ int main() {{
     field.on_change(CallbackExpr({
         printf("The text is: %s\n", field.get_data().c_str());
     }));
-    
-    program.events();
-}}
+//    test.events();
+    return LUI::run();
+}

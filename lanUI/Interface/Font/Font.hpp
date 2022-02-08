@@ -11,7 +11,7 @@
 
 #include <SDL2/SDL_ttf.h>
 #include <string>
-#include "../../Core/Core.hpp"
+#include "../../Semaphore/Semaphore.hpp"
 
 
 /** Text Font.
@@ -108,7 +108,8 @@ public:
 
 /** LanUI defaulf fonts
  */
-namespace FontsSharedData {
+namespace Fonts
+{
     extern Font DejaVuSans, WorkSans, OpenSans, DefaultFonts;
     /*   extern void set_default_font(); moved to Theme */
 }

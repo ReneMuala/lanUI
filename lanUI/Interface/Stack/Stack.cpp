@@ -7,7 +7,6 @@
 //
 
 #include "Stack.hpp"
-#include "../../Core/Core.hpp"
 
 BSStack::BSStack(){
     first = last = nullptr;

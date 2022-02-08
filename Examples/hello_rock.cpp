@@ -14,7 +14,6 @@
 #endif
 
 int main() {
-    Core lanUI;
     Window myWindow("Hello rock", 400, 300);
     
     // uma rocha | a rock
@@ -30,9 +29,9 @@ int main() {
     // fechando o programa quando o usuario fecha a janela
     // closing the window when user closes the window
     myWindow.on_closed(CallbackExpr(
-                                    lanUI.terminate();
+                                    myWindow.close();
                                     )
                        );
     
-    lanUI.events();
+    return LUI::run();
 }

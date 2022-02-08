@@ -35,7 +35,6 @@ private:
     
     // callbacks
     VoidCallback on_start_callback;
-    VoidCallback on_closed_callback;
     VoidCallback on_focus_gained_callback;
     VoidCallback on_focus_lost_callback;
     VoidCallback on_mouse_gained_callback;
@@ -49,6 +48,9 @@ private:
     VoidCallback on_mouse_button_up_callback;
     VoidCallback on_key_down_callback;
     VoidCallback on_key_up_callback;
+public:
+    /// made public because of WindowManager routines, should not be used outside if LUI internal routines.
+    VoidCallback on_closed_callback;
 public:
     // SDL2 things :P
     Semaphore<SDL_Window*> sdlWindow;
@@ -138,6 +140,10 @@ public:
     Window(const char * title = "window", float width = 600, float height = 400, Definition definition = HighDefinition);
     
     ~Window();
+    
+    void close();
+    
+    void close_all();
     
     /** Get default window view
      */

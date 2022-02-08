@@ -7,7 +7,6 @@
 //
 
 #include "List.hpp"
-#include "../../Core/Core.hpp"
 
 #include <iostream>
 
@@ -23,9 +22,10 @@ BSList::BSList(const Sint32 maxSpeed): count(0), index(0) {
     content
     .set_default_animation(0,
                            CallbackExpr({
-        if(state.get().VSpeed)
+        if(state.get().VSpeed){
             state.data.VSpeed = (state.data.VSpeed > 0) ?
             state.data.VSpeed - (.05f) : state.data.VSpeed + (.05f);
+        }
         
         if((int)(state.data.VSpeed*10) == 0) state.data.VSpeed = 0;
         content.last->isVericallyBeforeRootEnding.hold();
@@ -57,6 +57,11 @@ BSList::BSList(const Sint32 maxSpeed): count(0), index(0) {
 BSList::~BSList(){
     if(count)
         content.free();
-    InterativeObject::~InterativeObject();
+    InteractiveObject::~InteractiveObject();
 }
 
+BSList& BSList::fit_content(const float width, const float height){
+    content.set_size(width, height);
+    content.disable_reloading();
+    return (*this);
+}

@@ -36,7 +36,7 @@ Andreas Schiffler -- aschiffler at ferzkopp dot net
 
 #include "SDL2_rotozoom.hpp"
 
-namespace rotzoom {
+namespace rotozoom {
 
 /* ---- Internally used structures */
 

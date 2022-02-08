@@ -7,7 +7,7 @@
 //
 
 #include "Image.hpp"
-#include "../../Core/Core.hpp"
+#include "../Window/WindowManager/WindowManager.hpp"
 #include <thread>
 #include <math.h>
 
@@ -31,7 +31,7 @@ BSImage& BSImage::fromLinearGradient(LGOrietantion orientation, GradientElement 
     Color temp;
     SDL_SetTextureBlendMode(canvas.data, SDL_BLENDMODE_BLEND);
     if(!weight)
-        Core::log(Core::Error, "Gradient weight must to be >= 1");
+        WindowManager::log(WindowManager::Error, "Gradient weight must to be >= 1");
     
     for(int i = 0 ; i < ((orientation == Vertical) ? _h : _w) ; i+=(weight+gap)){
         temp = _getGradientFrameColor(first, second, i, ((orientation == Vertical) ? _h : _w));

@@ -245,7 +245,6 @@ public:
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    Core lanUI;
     Window window("Aves", 1100, 600, Window::HighDefinition);
     
     auto Home = MyHomeView(window);
@@ -279,7 +278,7 @@ int main(int argc, const char * argv[]) {
     
     Pinguim.last = &Pombo;
     
-    lanUI.clearCache();
+    LUI::clear_cache();
     
     Home.continueBtn.on_click(CallbackExpr(
                                            window.set_view(Coruja);
@@ -304,7 +303,7 @@ int main(int argc, const char * argv[]) {
     .on_closed(
                CallbackExpr(
                             std::cout << "window closed" << std::endl;
-                            lanUI.terminate();
+                            window.close();
                             //window.hide();
                             )
                )
@@ -396,15 +395,12 @@ int main(int argc, const char * argv[]) {
 //    window.sdlRenderer.leave();
 //    Home.set_draw_mode(Object::CompositionMode);
 //
-    Home.compose(window.sdlRenderer.get(), 2);
+    Home.compose(0,window.sdlRenderer.get(), 2);
     window.sdlRenderer.leave();
 //    Home.set_draw_mode(Object::CompositionMode);
     Home.export_composition_as_PNG(window.sdlRenderer.get(), "Home.png");
     window.sdlRenderer.leave();
-
-    Core::events();
     
-    std::cout << "Hello, World!\n";
-    return 0;
+    return LUI::run();
 }
 

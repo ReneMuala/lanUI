@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "../Color/Color.hpp"
+#include "../Pallete/Pallete.hpp"
 
 #include "../Image/Image.hpp"
 #include "../Stack/Stack.hpp"

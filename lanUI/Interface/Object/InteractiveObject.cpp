@@ -7,16 +7,16 @@
 //
 
 #include "Object.hpp"
-#include "../../Core/Core.hpp"
+#include "../Window/WindowManager/WindowManager.hpp"
 
-namespace InteractiveObjecsData {
+namespace InteractiveObjectsData {
     Semaphore<SDL_Point> cursor;
     Semaphore<Object*> selectedObject;
 }
 
-using namespace InteractiveObjecsData;
+using namespace InteractiveObjectsData;
 
-InterativeObject::InterativeObject(): scrollGain({0,0}), focus_repeated(false), isActive(false),was_resized(false),this_event(nullptr),is_selected(false) {
+InteractiveObject::InteractiveObject(): scrollGain({0,0}), focus_repeated(false), isActive(false),was_resized(false),this_event(nullptr),is_selected(false) {
     callbacks.hold();
     for(int i = 0 ; i < (CallBacks::totalCallBacks) ; i++){
         callbacks.data.all[i] = false;
@@ -24,7 +24,8 @@ InterativeObject::InterativeObject(): scrollGain({0,0}), focus_repeated(false), 
     callbacks.leave();
 }
 
-void InterativeObject::_handle_events(Event & event, const float dpiK, const bool no_focus){
+void InteractiveObject::_handle_events(Event & event, const float dpiK, const bool no_focus){
+    
     if(inRootBoundsBuffer.get() && isActive.get() && !no_focus){
         inRootBoundsBuffer.leave();
         isActive.leave();
@@ -33,13 +34,13 @@ void InterativeObject::_handle_events(Event & event, const float dpiK, const boo
             callbacks.hold();
             if(!focus_repeated && callbacks.data.all[OnFocusGained])
                 on_focus_gained_callback();
-            if(!is_selected && callbacks.data.all[OnSelected] && Core::get_selected_object() == this){
+            if(!is_selected && callbacks.data.all[OnSelected] && WindowManager::get_selected_object() == this){
                 on_selected_callback();
                 is_selected = true;
             }
             
             if(event.type == SDL_MOUSEBUTTONDOWN){
-                Core::set_selected_object(this);
+                WindowManager::set_selected_object(this);
                 if(callbacks.data.all[OnClick]
                    && event.button.button == SDL_BUTTON_LEFT
                    && event.button.clicks == 1)
@@ -144,10 +145,6 @@ void InterativeObject::_handle_events(Event & event, const float dpiK, const boo
                     on_paste_callback();
                 }
             }
-            if(callbacks.data.all[OnUnselected] && Core::get_selected_object() != this){
-                on_unselected_callback();
-                is_selected = false;
-            }
             callbacks.leave();
         } if(nextInZ.get()){
             nextInZ.leave();
@@ -164,7 +161,6 @@ void InterativeObject::_handle_events(Event & event, const float dpiK, const boo
     } else if(!no_focus_repeated) {
         if(callbacks.data.all[OnFocusLost] && !no_focus_repeated)
             on_focus_lost_callback();
-        
         callbacks.leave();
         
         if(nextInZ.get()){
@@ -175,18 +171,27 @@ void InterativeObject::_handle_events(Event & event, const float dpiK, const boo
         focus_repeated = false;
         no_focus_repeated = true;
     }
+    
     isActive.leave();
     inRootBoundsBuffer.leave();
     _handle_others(event, dpiK, no_focus);
 }
 
-InterativeObject& InterativeObject::set_size(const float w, const float h){
+void InteractiveObject::_on_unselected_default_callback(){
+    callbacks.get();
+    if(is_selected && callbacks.data.all[OnUnselected]){
+        on_unselected_callback();
+        is_selected = false;
+    } callbacks.leave();
+}
+
+InteractiveObject& InteractiveObject::set_size(const float w, const float h){
     Object::set_size(w, h);
     was_resized.set(true);
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_focus_gained(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_focus_gained(VoidCallback callback){
     on_focus_gained_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnFocusGained] = true;
@@ -195,7 +200,7 @@ InterativeObject& InterativeObject::on_focus_gained(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_focus_lost(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_focus_lost(VoidCallback callback){
     on_focus_lost_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnFocusLost] = true;
@@ -204,7 +209,7 @@ InterativeObject& InterativeObject::on_focus_lost(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_selected(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_selected(VoidCallback callback){
     on_selected_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnSelected] = true;
@@ -213,7 +218,7 @@ InterativeObject& InterativeObject::on_selected(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_unselected(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_unselected(VoidCallback callback){
     on_unselected_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnUnselected] = true;
@@ -222,7 +227,7 @@ InterativeObject& InterativeObject::on_unselected(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_resized(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_resized(VoidCallback callback){
     on_resized_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnResized] = true;
@@ -231,7 +236,7 @@ InterativeObject& InterativeObject::on_resized(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_click(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_click(VoidCallback callback){
     on_click_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnClick] = true;
@@ -240,7 +245,7 @@ InterativeObject& InterativeObject::on_click(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_double_click(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_double_click(VoidCallback callback){
     on_double_click_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnDoubleClick] = true;
@@ -249,7 +254,7 @@ InterativeObject& InterativeObject::on_double_click(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_secondary_click(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_secondary_click(VoidCallback callback){
     on_secondary_click_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnSecondaryClick] = true;
@@ -258,7 +263,7 @@ InterativeObject& InterativeObject::on_secondary_click(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_mouse_button_down(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_mouse_button_down(VoidCallback callback){
     on_mouse_button_down_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnMouseButtonDown] = true;
@@ -268,7 +273,7 @@ InterativeObject& InterativeObject::on_mouse_button_down(VoidCallback callback){
 }
 
 
-InterativeObject& InterativeObject::on_mouse_button_up(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_mouse_button_up(VoidCallback callback){
     on_mouse_button_up_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnMouseButtonUp] = true;
@@ -277,7 +282,7 @@ InterativeObject& InterativeObject::on_mouse_button_up(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_key_down(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_key_down(VoidCallback callback){
     on_key_down_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnKeyDown] = true;
@@ -286,7 +291,7 @@ InterativeObject& InterativeObject::on_key_down(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_key_up(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_key_up(VoidCallback callback){
     on_key_up_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnKeyUp] = true;
@@ -295,7 +300,7 @@ InterativeObject& InterativeObject::on_key_up(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_scroll(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_scroll(VoidCallback callback){
     on_scroll_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnScroll] = true;
@@ -304,7 +309,7 @@ InterativeObject& InterativeObject::on_scroll(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_drop_begin(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_drop_begin(VoidCallback callback){
     on_drop_begin_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnDropBegin] = true;
@@ -313,7 +318,7 @@ InterativeObject& InterativeObject::on_drop_begin(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_drop_end(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_drop_end(VoidCallback callback){
     on_drop_end_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnDropEnd] = true;
@@ -322,7 +327,7 @@ InterativeObject& InterativeObject::on_drop_end(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_drop_file(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_drop_file(VoidCallback callback){
     on_drop_file_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnDropFile] = true;
@@ -331,7 +336,7 @@ InterativeObject& InterativeObject::on_drop_file(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_drop_text(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_drop_text(VoidCallback callback){
     on_drop_text_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnDropText] = true;
@@ -340,7 +345,7 @@ InterativeObject& InterativeObject::on_drop_text(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_cut(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_cut(VoidCallback callback){
     on_cut_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnCut] = true;
@@ -349,7 +354,7 @@ InterativeObject& InterativeObject::on_cut(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_copy(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_copy(VoidCallback callback){
     on_copy_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnCopy] = true;
@@ -358,7 +363,7 @@ InterativeObject& InterativeObject::on_copy(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_paste(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_paste(VoidCallback callback){
     on_paste_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnPaste] = true;
@@ -369,7 +374,7 @@ InterativeObject& InterativeObject::on_paste(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_audio_play(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_audio_play(VoidCallback callback){
     on_audio_play_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnAudioPlay] = true;
@@ -378,7 +383,7 @@ InterativeObject& InterativeObject::on_audio_play(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_audio_stop(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_audio_stop(VoidCallback callback){
     on_audio_stop_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnAudioStop] = true;
@@ -387,7 +392,7 @@ InterativeObject& InterativeObject::on_audio_stop(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_audio_next(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_audio_next(VoidCallback callback){
     on_audio_next_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnAudioNext] = true;
@@ -396,7 +401,7 @@ InterativeObject& InterativeObject::on_audio_next(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_audio_prev(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_audio_prev(VoidCallback callback){
     on_audio_prev_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnAudioPrev] = true;
@@ -405,7 +410,7 @@ InterativeObject& InterativeObject::on_audio_prev(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_audio_mute(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_audio_mute(VoidCallback callback){
     on_audio_mute_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnAudioMute] = true;
@@ -414,7 +419,7 @@ InterativeObject& InterativeObject::on_audio_mute(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_audio_rewind(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_audio_rewind(VoidCallback callback){
     on_audio_rewind_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnAudioRewind] = true;
@@ -423,7 +428,7 @@ InterativeObject& InterativeObject::on_audio_rewind(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_audio_fast_forward(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_audio_fast_forward(VoidCallback callback){
     on_audio_fast_forward_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnAudioFastForward] = true;
@@ -432,7 +437,7 @@ InterativeObject& InterativeObject::on_audio_fast_forward(VoidCallback callback)
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_f1(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_f1(VoidCallback callback){
     on_f1_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnF1] = true;
@@ -441,7 +446,7 @@ InterativeObject& InterativeObject::on_f1(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_f2(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_f2(VoidCallback callback){
     on_f2_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnF2] = true;
@@ -450,7 +455,7 @@ InterativeObject& InterativeObject::on_f2(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_f3(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_f3(VoidCallback callback){
     on_f3_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnF3] = true;
@@ -459,7 +464,7 @@ InterativeObject& InterativeObject::on_f3(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_f4(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_f4(VoidCallback callback){
     on_f4_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnF4] = true;
@@ -468,7 +473,7 @@ InterativeObject& InterativeObject::on_f4(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_f5(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_f5(VoidCallback callback){
     on_f5_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnF5] = true;
@@ -477,7 +482,7 @@ InterativeObject& InterativeObject::on_f5(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_f6(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_f6(VoidCallback callback){
     on_f6_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnF6] = true;
@@ -486,7 +491,7 @@ InterativeObject& InterativeObject::on_f6(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_f7(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_f7(VoidCallback callback){
     on_f7_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnF7] = true;
@@ -495,7 +500,7 @@ InterativeObject& InterativeObject::on_f7(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_f8(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_f8(VoidCallback callback){
     on_f8_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnF8] = true;
@@ -504,7 +509,7 @@ InterativeObject& InterativeObject::on_f8(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_f9(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_f9(VoidCallback callback){
     on_f9_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnF9] = true;
@@ -513,7 +518,7 @@ InterativeObject& InterativeObject::on_f9(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_f10(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_f10(VoidCallback callback){
     on_f10_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnF10] = true;
@@ -522,7 +527,7 @@ InterativeObject& InterativeObject::on_f10(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_f11(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_f11(VoidCallback callback){
     on_f11_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnF11] = true;
@@ -531,7 +536,7 @@ InterativeObject& InterativeObject::on_f11(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::on_f12(VoidCallback callback){
+InteractiveObject& InteractiveObject::on_f12(VoidCallback callback){
     on_f12_callback = callback;
     callbacks.hold();
     callbacks.data.all[OnF12] = true;
@@ -540,7 +545,7 @@ InterativeObject& InterativeObject::on_f12(VoidCallback callback){
     return (*this);
 }
 
-InterativeObject& InterativeObject::custom_event(VoidCallback callback){
+InteractiveObject& InteractiveObject::custom_event(VoidCallback callback){
     custom_event_callback = callback;
     callbacks.hold();
     callbacks.data.all[CustomEvent] = true;

@@ -26,10 +26,10 @@ public:
     
     Object rock[5];
     Spacer spacer;
-    Text text[5];
-    Container textContainer;
+    Text text[4];
     VStack mainStack;
     VStack textStack;
+    Container textContainer = Container(textStack);
     HStack rocksStack;
     
     MyHomeView(Window & win){
@@ -51,12 +51,12 @@ public:
 
         text[0].set_font(CustomFonts::Lobster);
 
-        text[0].set_style(TextStyles::Header);
+        text[0].set_style(TextStyles::Headline1);
         
         text[1].from_string("Header", window.sdlRenderer.get());
         window.sdlRenderer.leave();
 
-        text[1].set_style(TextStyles::Header);
+        text[1].set_style(TextStyles::Headline1);
 
         text[2].from_string("Default text", window.sdlRenderer.get());
         window.sdlRenderer.leave();
@@ -68,18 +68,11 @@ public:
 
         text[3].set_style(TextStyles::Caption);
 
-        text[4].from_string("Footer text", window.sdlRenderer.get());
-        window.sdlRenderer.leave();
-
-        text[4].set_style(TextStyles::Footer);
-
         spacer.set_size(0, 200);
 
-        textStack.fromList((std::list<Object*>){&text[0], &text[1], &text[2], &text[3], &text[4]});
+        textStack.fromList((std::list<Object*>){&text[0], &text[1], &text[2], &text[3]});
 
         textStack.set_alignment(Alignment::Center);
-
-        textContainer.set_content(textStack);
         
         //textContainer.size.set({0,0, rocksStack.size.get().w, textContainer.size.data.w});
         //rocksStack.size.leave();
@@ -102,7 +95,6 @@ public:
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    Core lanUI;
     Window window("hello world", 350, 500, Window::HighDefinition);
     
     auto Home = MyHomeView(window);
@@ -113,6 +105,9 @@ int main(int argc, const char * argv[]) {
     
     Home.fromFile("lanUI.Bundle/System/Resources/forest.png", window.sdlRenderer.get());
     window.sdlRenderer.leave();
+    
+    // frees the cache mem used by surfaces
+    LUI::clear_cache();
         
     Home.set_size(460, 460);
     Home.disable_reloading();
@@ -130,7 +125,7 @@ int main(int argc, const char * argv[]) {
     .on_closed(
                CallbackExpr(
                             std::cout << "window closed" << std::endl;
-                            lanUI.terminate();
+                            window.close();
                             //window.hide();
                             )
                )
@@ -158,8 +153,9 @@ int main(int argc, const char * argv[]) {
 
     .on_focus_lost(
                    CallbackExpr(
+                                std::cout << "focus lost" << std::endl;
                                 window
-                                .set_window_clear_color(Colors::Dim_gray);
+                                .set_window_clear_color(Colors::Black);
                                 )
                    )
 
@@ -232,8 +228,5 @@ int main(int argc, const char * argv[]) {
     
     //.embedInZ(box[0]);
     
-    Core::events();
-    
-    std::cout << "Hello, World!\n";
-    return 0;
+    return LUI::run();
 }

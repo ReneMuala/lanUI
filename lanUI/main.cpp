@@ -126,8 +126,6 @@ public:
 };
 
 int main(int argc, const char * argv[]) {
-    Core lanUI;
-    
     Window myWindow = Window("LanUI Changes", 600, 650, Window::HighDefinition);
     
     myWindow.set_window_clear_color(Colors::White);
@@ -145,11 +143,9 @@ int main(int argc, const char * argv[]) {
     }));
     
     myWindow.on_closed(CallbackExpr(
-                                    lanUI.terminate();
+                                    myWindow.close();
                                     )
                        );
-    
-    lanUI.events();
-    
-    return 0;
+        
+    return LUI::run();
 }

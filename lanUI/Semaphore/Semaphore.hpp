@@ -84,6 +84,13 @@ struct Semaphore : public BSemaphore {
         return data;
     }
     
+    any get_copy(){
+        hold();
+        any copy = data;
+        leave();
+        return copy;
+    }
+    
     /// async
     void set(const any & data){
         hold();

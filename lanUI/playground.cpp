@@ -35,14 +35,14 @@ public:
     }
     
     Object& body(Window & win) override {
-        question.from_string("%Size:48 %Italic Olá Müendo %n [ %[count] 0 ]");
-//        if((count = question["count"])){
-//            count->set_default_animation(0, CallbackExpr({
-//                counter++;
-//                count->from_string(std::to_string(counter));
-//                return true;
-//            }));
-//        }
+        question.from_string("%Size:12 %Italic Olá Müendo %n [ %[count] 0 ]");
+        if((count = question["count"])){
+            count->set_default_animation(0, CallbackExpr({
+                counter++;
+                count->from_string(std::to_string(counter));
+                return true;
+            }));
+        }
         mainstask.fromList((std::list<Object *>){&question});
         mainstask.set_alignment(Center);
         return mainstask;
@@ -51,16 +51,14 @@ public:
 
 #include <queue>
 
-//TODO: CREATE A WRAPPER TO HOLD ALL SDL_TTF CALLS INSIDE OF A UNIQUE THREAD
-
 int main() {
 //   Core program;
     
     
-    Window window("LUI") ;/*,
+    Window window("LUI") ,
     window2("LUI2"),
     window3("LUI3");
-                           */
+                           
 //   ;lpplunm ,
 //
 //    window.set_window_clear_color(Colors::White_smoke);
@@ -74,19 +72,32 @@ int main() {
          .set_window_clear_color(Colors::White_smoke)
          .on_resized(CallbackExpr({
              view.set_relative_size(1.0, 1.0);
-    })));
-    /*
+    }))
+         .on_closed(CallbackExpr({
+        window.close();
+    }))),
+    
     view2(window2
          .set_window_clear_color(Colors::White_smoke)
          .on_resized(CallbackExpr({
              view2.set_relative_size(1.0, 1.0);
-    }))),
+    }))
+          .on_closed(CallbackExpr({
+         window2.close();
+     }))),
     view3(window3
          .set_window_clear_color(Colors::White_smoke)
          .on_resized(CallbackExpr({
              view3.set_relative_size(1.0, 1.0);
-         })));
-*/
+         }))
+          .on_closed(CallbackExpr({
+         window3.close();
+     })));
 //    program.events();
+    LUI::on_quit(CallbackExpr({
+        window.close_all();
+    }));
+    
+    
     return LUI::run();
 }

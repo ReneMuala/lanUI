@@ -7,7 +7,6 @@
 //
 
 #include "Semaphore.hpp"
-#include "../Core/Core.hpp"
 #ifdef LANUI_DEBUG_MODE
 
 void SemaphoreDebuggingExtension::_hold_debug_callback(void* address, bool isBusy, const bool errorless, const std::string typname){

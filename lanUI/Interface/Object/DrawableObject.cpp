@@ -7,7 +7,7 @@
 //
 
 #include "Object.hpp"
-#include "../../Core/Core.hpp"
+#include "../Window/WindowManager/WindowManager.hpp"
 #include <SDL2/SDL_image.h>
 #include <map>
 #include "../../Utilities/PathResolver.hpp"
@@ -27,7 +27,7 @@ SDL_Surface * get_surface(std::string source){
         }
     } else {
         get_surface_error:
-        Core::log(Core::Warning, (std::string("Unable to load image source from path: ") + source).c_str());
+        WindowManager::log(WindowManager::Warning, (std::string("Unable to load image source from path: ") + source).c_str());
     } DrawableObjectsData::surfacesCache.leave();
     return surfc;
 }
@@ -163,7 +163,7 @@ Object& Object::fromSurface(Surface * surfc, Renderer * renderer, const bool res
         if(reset_backgroundColor)
             backgroundColor.set(Colors::Transparent);
     } else {
-        Core::log(Core::Warning, "Unable to load canvas from image source (nullptr)");
+        WindowManager::log(WindowManager::Warning, "Unable to load canvas from image source (nullptr)");
     }
     return (*this);
 }
@@ -306,7 +306,7 @@ Object& Object::set_default_animation(const FrameCount delay, BoolCallback callb
     default_animation.hold();
     default_animation.data._using = true;
     default_animation.data.delay = delay;
-    if(delay<0) Core::log(Core::Error, "animation::delay must to be >= 0.");
+    if(delay<0) WindowManager::log(WindowManager::Error, "animation::delay must to be >= 0.");
     default_animation.data.callback = callback;
     default_animation.leave();
     return (*this);
@@ -359,7 +359,7 @@ void Object::_stop_composition_mode(SDL_Renderer * renderer){
 
 Object& Object::compose(const unsigned int id, SDL_Renderer * renderer, const float dpiK){
 #ifdef LANUI_DEBUG_MODE
-    Core::log(Core::Warning, ("Composing object [" + std::to_string((long long)this) + "]. (if you use the compositionMode all interactive objects embedded in Z from this object will be disabled).").c_str());
+    WindowManager::log(WindowManager::Warning, ("Composing object [" + std::to_string((long long)this) + "]. (if you use the compositionMode all interactive objects embedded in Z from this object will be disabled).").c_str());
 #endif
     
     this->renderer = renderer;
@@ -384,7 +384,7 @@ Object& Object::compose(const unsigned int id, SDL_Renderer * renderer, const fl
 
 Object& Object::compose_canvas(const unsigned int id, SDL_Renderer * renderer, const float dpiK){
 #ifdef LANUI_DEBUG_MODE
-    Core::log(Core::Message, ("Composing canvas of object [" + std::to_string((long long)this) + "]. (make sure to use CanvasCompositionMode).").c_str());
+    WindowManager::log(WindowManager::Message, ("Composing canvas of object [" + std::to_string((long long)this) + "]. (make sure to use CanvasCompositionMode).").c_str());
 #endif
     this->renderer = renderer;
     _start_composition_mode(renderer, dpiK);
@@ -440,11 +440,11 @@ Object& Object::export_composition_as_PNG(SDL_Renderer * renderer, const char * 
         SDL_SetRenderTarget(renderer, target);
         
 #ifdef LANUI_DEBUG_MODE
-    Core::log(Core::Message, ("The composition [" + std::to_string((long long)compositionCanvas.data) + "] will be destroyed after exported to avoid renderer errors.").c_str());
+    WindowManager::log(WindowManager::Message, ("The composition [" + std::to_string((long long)compositionCanvas.data) + "] will be destroyed after exported to avoid renderer errors.").c_str());
 #endif
         
         } else {
-        Core::log(Core::Warning, "Object::export_composition_as_PNG: empty compositions cannot be exported");
+        WindowManager::log(WindowManager::Warning, "Object::export_composition_as_PNG: empty compositions cannot be exported");
     }
     compositionCanvas.leave();
     _free_canvas(compositionCanvas);

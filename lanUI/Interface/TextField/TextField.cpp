@@ -7,10 +7,10 @@
 //
 
 #include "TextField.hpp"
-#include "../../Core/Core.hpp"
 #include <regex>
 #include <string>
 #include <iostream>
+#include "../Window/WindowManager/WindowManager.hpp"
 
 void BSTextField::__default_on_selected_callback(){
     activated.set(true);
@@ -75,7 +75,7 @@ void BSTextField::_init(const std::string placeholder){
     set_size(150, 25);
     cursor_change_flag = 0;
     this->placeholder = placeholder;
-    Core::log(Core::Warning, "TextField isn't stable yet.");
+    WindowManager::log(WindowManager::Warning, "TextField isn't stable yet.");
     disable_reloading();
     
     for(int i = 0 ; i < BSTextFieldCallbackTotal ; i++)
@@ -291,7 +291,7 @@ void BSTextField::_sync_strings() {
 }
 
 void BSTextField::_handle_events(Event & event, const float dpiK, const bool no_focus){
-    InterativeObject::_handle_events(event, dpiK, no_focus);
+    InteractiveObject::_handle_events(event, dpiK, no_focus);
     if(activated.get()){
         if(!SDL_IsTextInputActive()){
             SDL_StartTextInput();
@@ -299,7 +299,6 @@ void BSTextField::_handle_events(Event & event, const float dpiK, const bool no_
         
         inputBuffer.hold();
         BSTextFieldCallbacks.hold();
-        
         
         if(event.type == SDL_TEXTINPUT){
             input_size_change +=
@@ -335,7 +334,7 @@ void BSTextField::_handle_events(Event & event, const float dpiK, const bool no_
                     on_delete_callback();
                 }
             } else if(event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_TAB){
-                Core::set_selected_object(nullptr);
+                WindowManager::set_selected_object(nullptr);
                 if(BSTextFieldCallbacks.data.all[OnSubmit]){
                     on_submit_callback();
                 }

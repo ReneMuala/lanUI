@@ -14,7 +14,7 @@
 
 /** A Scrollable VStack
  */
-class BSList : public InterativeObject {
+class BSList : public InteractiveObject {
     std::list<Object*> baseList;
     Sint32 maxSpeed;
 public:

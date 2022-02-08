@@ -8,6 +8,7 @@
 
 #include "Text.hpp"
 #include "../Theme/Theme.hpp"
+#include "../Window/WindowManager/WindowManager.hpp"
 
 namespace TextStyles {
     TextStyle Display     = ThemeTextStyles::THSDisplay;
@@ -119,7 +120,7 @@ Text& Text::set_font_style(const Font::Style style, const unsigned int size){
         fontVirtualSize.leave();
         tryCompile();
     } else {
-        Core::log(Core::Warning, "Failed to set Text::Font* (nullptr)");
+        WindowManager::log(WindowManager::Warning, "Failed to set Text::Font* (nullptr)");
     } return (*this);
 }
 
@@ -127,7 +128,7 @@ bool Text::_compile_canvas_prepare_font(){
     if(!font->ttfFont.get()){
         font->ttfFont.leave();
         source.leave();
-        Core::log(Core::Warning, "Text compilation failed  (Invalid font style).");
+        WindowManager::log(WindowManager::Warning, "Text compilation failed  (Invalid font style).");
         return false;
     } else {
         if(((TTF_api_style)TTF_GetFontStyle(font->ttfFont.data)) != ttf_api_style.get()){
@@ -147,7 +148,7 @@ bool Text::_compile_canvas_render_text(Renderer * renderer){
         if(!(surfc=TTF_RenderUTF8_Blended(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.data))) {
             FontsSharedData::TTF_Fcall.leave();
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-            Core::log(Core::Warning, "Text: Render failed (invalid surfc).");
+            WindowManager::log(WindowManager::Warning, "Text: Render failed (invalid surfc).");
 #endif
             foregroundColor.leave();
             backgroundColor.leave();
@@ -161,7 +162,7 @@ bool Text::_compile_canvas_render_text(Renderer * renderer){
                 if(!(surfc=TTF_RenderUTF8_Shaded(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.data, (SDL_Color)backgroundColor.data))){
                     FontsSharedData::TTF_Fcall.leave();
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-                    Core::log(Core::Warning, "Text (CompatibilityMode[RenderShadedMode]): Render failed.");
+                    WindowManager::log(WindowManager::Warning, "Text (CompatibilityMode[RenderShadedMode]): Render failed.");
 #endif
                     foregroundColor.leave();
                     backgroundColor.leave();
@@ -175,7 +176,7 @@ bool Text::_compile_canvas_render_text(Renderer * renderer){
                 if(!(surfc=TTF_RenderUTF8_Solid(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.data))){
                     FontsSharedData::TTF_Fcall.leave();
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-                    Core::log(Core::Warning, "Text (CompatibilityMode[RenderSolidMode]): Render failed.");
+                    WindowManager::log(WindowManager::Warning, "Text (CompatibilityMode[RenderSolidMode]): Render failed.");
 #endif
                     foregroundColor.leave();
                     backgroundColor.leave();
@@ -225,13 +226,13 @@ bool Text::compile_canvas(SDL_Renderer * renderer){
     } else if (source.data.empty()) {
         source.leave();
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-        Core::log(Core::Warning, "Text compilation ignored (invalid string).");
+        WindowManager::log(WindowManager::Warning, "Text compilation ignored (invalid string).");
 #endif
         return true;
     } renderMode.set(RenderMode::DefaultMode);
     source.leave();
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-    Core::log(Core::Warning, "Text compilation failed (invalid renderer).");
+    WindowManager::log(WindowManager::Warning, "Text compilation failed (invalid renderer).");
 #endif
     _free_canvas();
     return false;
@@ -265,7 +266,7 @@ void Text::_compile(Renderer * renderer, const float dpiK){
     if(!wasCompiled.get()) {
         do {
 #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-            Core::log(Core::Warning, "Text was not compiled, compiling... (MAIN CASE)");
+            WindowManager::log(WindowManager::Warning, "Text was not compiled, compiling... (MAIN CASE)");
 #endif
             wasCompiled.data = compile_canvas(renderer);
         } while(!wasCompiled.data);
@@ -292,7 +293,7 @@ void Text::_render(const unsigned int id, SDL_Renderer * renderer, float x, floa
         }
     #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
         else {
-            Core::log(Core::Warning, "Text outside root bounds.");
+            WindowManager::log(WindowManager::Warning, "Text outside root bounds.");
         }
     #endif
 
@@ -316,7 +317,7 @@ Text& Text::inherit_background_color(){
             backgroundColor.set((root.data)->foregroundColor.get());
             (root.data)->foregroundColor.leave();
     } else
-        Core::log(Core::Warning, "Using inherit_backgroundColor(...) without a root. (nullptr)");
+        WindowManager::log(WindowManager::Warning, "Using inherit_backgroundColor(...) without a root. (nullptr)");
     root.leave();
     return (*this);
 }

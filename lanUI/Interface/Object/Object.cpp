@@ -7,14 +7,19 @@
 //
 
 #include "Object.hpp"
-#include "../../Core/Core.hpp"
+#include "../Window/WindowManager/WindowManager.hpp"
 #include <iostream>
 #include <string>
 #include <stack>
 #include <map>
 
-// TODO: implement per windows rendererClips Buffer
 std::stack<SDL_Rect> rendererClips[LUI_MAX_PROGRAM_WINDOWS];
+
+namespace InteractiveObjectsData
+{
+    extern Semaphore<SDL_Point> cursor;
+    extern Semaphore<Object*> selectedObject;
+}
 
 void Object::__align_center(float &x, float &y){
     root.get()->size.get();
@@ -163,7 +168,7 @@ void Object::_fix_size(const float w, const float h){
 }
 
 Object& Object::set_relative_size(const float size_w, const float size_h, const float w_correction, const float h_correction){
-    if(!root.get()) Core::log(Core::Error, "set_relative_size(...) must to be used in embedded objects.");
+    if(!root.get()) WindowManager::log(WindowManager::Error, "set_relative_size(...) must to be used in embedded objects.");
     root.data->size.hold();
     const float w = root.data->size.data.w * size_w;
     const float h = root.data->size.data.h * size_h;
@@ -208,7 +213,7 @@ Object& Object::set_alignment(Alignment alignment){
 }
 
 Object& Object::updateRoot(Object * newRoot){
-    if(root.get()) Core::log(Core::Error, ("Object ["+ std::to_string((long)this)+"] already has a root, this operation is unsafe. (Cast to continue).").c_str());
+    if(root.get()) WindowManager::log(WindowManager::Error, ("Object ["+ std::to_string((long)this)+"] already has a root, this operation is unsafe. (Cast to continue).").c_str());
     root.leave();
     root.set(newRoot);
     if(nextInX.get())
@@ -450,7 +455,7 @@ void Object::_handle_others(Event& event, const float dpiK, const bool no_focus)
         nextInY.leave();
 }
 
-using namespace InteractiveObjecsData;
+using namespace InteractiveObjectsData;
 
 bool Object::_has_focus(const float dpiK){
     bool focus(false);
@@ -482,7 +487,7 @@ void Object::_handle_events(Event & event, const float dpiK, const bool no_focus
             } else
                 nextInZ.leave();
             no_focus_repeated = false;
-    } else if (!no_focus_repeated)  {
+    } else if (!no_focus_repeated) {
         if(nextInZ.get()){
             nextInZ.leave();
             _handle_others_routine(event, nextInZ.data, dpiK, true);

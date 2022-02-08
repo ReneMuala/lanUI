@@ -12,8 +12,7 @@
 #include "../../Semaphore/Semaphore.hpp"
 #include "../Color/Color.hpp"
 
-#include "../../Core/Graphics/SDL2_rotozoom.hpp"
-#include "../../Core/Graphics/SDL2_gfxPrimitives.hpp"
+#include "../../Primives/Primitives.hpp"
 
 #include <SDL2/SDL.h>
 #include <list>
@@ -193,6 +192,8 @@ public:
     
     /// Handle events for nextInX & nextInY
     void _handle_others(Event&, const float dpiK, const bool no_focus = false);
+    
+    virtual void _on_unselected_default_callback(){};
     
     // Fixes object-compatibility issues
     virtual void _handle_events(Event&, const float dpiK, const bool no_focus = false);
@@ -385,7 +386,7 @@ public:
     };
 };
 
-class InterativeObject: public BSIOContainer {
+class InteractiveObject: public BSIOContainer {
     
     /*
      
@@ -510,91 +511,93 @@ public:
     
     SDL_Event* this_event;
     
-    InterativeObject();
+    InteractiveObject();
     
     void _handle_events(Event&, const float dpiK, const bool no_focus) override;
     
-    InterativeObject& set_size(const float w, const float h) override;
+    void _on_unselected_default_callback() override;
+    
+    InteractiveObject& set_size(const float w, const float h) override;
         
-    InterativeObject& on_focus_gained(VoidCallback);
+    InteractiveObject& on_focus_gained(VoidCallback);
     
-    InterativeObject& on_focus_lost(VoidCallback);
+    InteractiveObject& on_focus_lost(VoidCallback);
     
-    InterativeObject& on_selected(VoidCallback);
+    InteractiveObject& on_selected(VoidCallback);
     
-    InterativeObject& on_unselected(VoidCallback);
+    InteractiveObject& on_unselected(VoidCallback);
     
-    InterativeObject& on_resized(VoidCallback);
+    InteractiveObject& on_resized(VoidCallback);
     
-    InterativeObject& on_click(VoidCallback);
+    InteractiveObject& on_click(VoidCallback);
     
-    InterativeObject& on_double_click(VoidCallback);
+    InteractiveObject& on_double_click(VoidCallback);
     
-    InterativeObject& on_secondary_click(VoidCallback);
+    InteractiveObject& on_secondary_click(VoidCallback);
     
-    InterativeObject& on_mouse_button_down(VoidCallback);
+    InteractiveObject& on_mouse_button_down(VoidCallback);
     
-    InterativeObject& on_mouse_button_up(VoidCallback);
+    InteractiveObject& on_mouse_button_up(VoidCallback);
     
-    InterativeObject& on_key_down(VoidCallback);
+    InteractiveObject& on_key_down(VoidCallback);
     
-    InterativeObject& on_key_up(VoidCallback);
+    InteractiveObject& on_key_up(VoidCallback);
     
-    InterativeObject& on_scroll(VoidCallback);
+    InteractiveObject& on_scroll(VoidCallback);
     
-    InterativeObject& on_drop_begin(VoidCallback);
+    InteractiveObject& on_drop_begin(VoidCallback);
     
-    InterativeObject& on_drop_end(VoidCallback);
+    InteractiveObject& on_drop_end(VoidCallback);
     
-    InterativeObject& on_drop_file(VoidCallback);
+    InteractiveObject& on_drop_file(VoidCallback);
     
-    InterativeObject& on_drop_text(VoidCallback);
+    InteractiveObject& on_drop_text(VoidCallback);
 
-    InterativeObject& on_cut(VoidCallback);
+    InteractiveObject& on_cut(VoidCallback);
 
-    InterativeObject& on_copy(VoidCallback);
+    InteractiveObject& on_copy(VoidCallback);
 
-    InterativeObject& on_paste(VoidCallback);
+    InteractiveObject& on_paste(VoidCallback);
     
-    InterativeObject& on_audio_play(VoidCallback);
+    InteractiveObject& on_audio_play(VoidCallback);
         
-    InterativeObject& on_audio_stop(VoidCallback);
+    InteractiveObject& on_audio_stop(VoidCallback);
     
-    InterativeObject& on_audio_next(VoidCallback);
+    InteractiveObject& on_audio_next(VoidCallback);
     
-    InterativeObject& on_audio_prev(VoidCallback);
+    InteractiveObject& on_audio_prev(VoidCallback);
     
-    InterativeObject& on_audio_mute(VoidCallback);
+    InteractiveObject& on_audio_mute(VoidCallback);
     
-    InterativeObject& on_audio_rewind(VoidCallback);
+    InteractiveObject& on_audio_rewind(VoidCallback);
     
-    InterativeObject& on_audio_fast_forward(VoidCallback);
+    InteractiveObject& on_audio_fast_forward(VoidCallback);
     
-    InterativeObject& on_f1(VoidCallback);
+    InteractiveObject& on_f1(VoidCallback);
     
-    InterativeObject& on_f2(VoidCallback);
+    InteractiveObject& on_f2(VoidCallback);
     
-    InterativeObject& on_f3(VoidCallback);
+    InteractiveObject& on_f3(VoidCallback);
     
-    InterativeObject& on_f4(VoidCallback);
+    InteractiveObject& on_f4(VoidCallback);
     
-    InterativeObject& on_f5(VoidCallback);
+    InteractiveObject& on_f5(VoidCallback);
     
-    InterativeObject& on_f6(VoidCallback);
+    InteractiveObject& on_f6(VoidCallback);
     
-    InterativeObject& on_f7(VoidCallback);
+    InteractiveObject& on_f7(VoidCallback);
     
-    InterativeObject& on_f8(VoidCallback);
+    InteractiveObject& on_f8(VoidCallback);
     
-    InterativeObject& on_f9(VoidCallback);
+    InteractiveObject& on_f9(VoidCallback);
     
-    InterativeObject& on_f10(VoidCallback);
+    InteractiveObject& on_f10(VoidCallback);
     
-    InterativeObject& on_f11(VoidCallback);
+    InteractiveObject& on_f11(VoidCallback);
     
-    InterativeObject& on_f12(VoidCallback);
+    InteractiveObject& on_f12(VoidCallback);
 
-    InterativeObject& custom_event(VoidCallback);
+    InteractiveObject& custom_event(VoidCallback);
     
 };
 

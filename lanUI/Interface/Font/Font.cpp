@@ -9,15 +9,19 @@
 #include "Font.hpp"
 #include <unordered_map>
 #include "../../Utilities/PathResolver.hpp"
+#include "../Window/WindowManager/WindowManager.hpp"
 
 namespace FontsSharedData
 {
 BSemaphore TTF_Fcall;
-Font DejaVuSans, WorkSans, OpenSans, DefaultFonts;
 Semaphore<std::unordered_map<unsigned long /* FONT_ID */, TTF_Font*>> allFonts;
 unsigned long allFontsCount;
 
 Semaphore<std::unordered_map<Font*,std::string const>> globalFonts;
+}
+
+namespace Fonts {
+Font DejaVuSans, WorkSans, OpenSans, DefaultFonts;
 }
 
 Font::Font(const std::string name) {
@@ -69,7 +73,7 @@ bool Font::_load(const char *path, const int size){
     free();
     FontsSharedData::TTF_Fcall.hold();
     if(!(ttfFont.get() = TTF_OpenFont(path, size*scalingFactorConstant)))
-        Core::log(Core::Error, ("Unable to open font file: " + std::string(path) + "(" + TTF_GetError() +")").c_str());
+        WindowManager::log(WindowManager::Error, ("Unable to open font file: " + std::string(path) + "(" + TTF_GetError() +")").c_str());
     else {
         FontsSharedData::TTF_Fcall.leave();
         FontsSharedData::allFonts.hold();
@@ -103,10 +107,10 @@ Font& Font::set_style(const Style new_style, const int new_size) {
         style = new_style;
         _load(path_copy[new_style].c_str(), size);
     } else if(!path_copy[Regular].empty()) {
-        Core::log(Core::Warning, "set_style(...) must to be used with a valid font style. Using Regular...");
+        WindowManager::log(WindowManager::Warning, "set_style(...) must to be used with a valid font style. Using Regular...");
         _load(path_copy[Regular].c_str(), size);
     } else {
-        Core::log(Core::Error, "Using set_style(...) without any valid font style loaded.");
+        WindowManager::log(WindowManager::Error, "Using set_style(...) without any valid font style loaded.");
     } return (*this);
 }
 
@@ -117,15 +121,15 @@ Font& Font::fromFile(std::string path, Style style){
 #ifdef LANUI_DEBUG_MODE
         std::string message = path;
         message+=" (Font style successful loaded).";
-        Core::log(Core::Message, message.c_str());
+        WindowManager::log(WindowManager::Message, message.c_str());
 #endif
     } else {
 #ifdef LANUI_DEBUG_MODE
         std::string message = path;
         message+=" (Unable to load font style file).";
-        Core::log(Core::Error, message.c_str());
+        WindowManager::log(WindowManager::Error, message.c_str());
 #endif
-        Core::log(Core::Error, "Unable to load font style.");
+        WindowManager::log(WindowManager::Error, "Unable to load font style.");
     }
     return (*this);
 }
@@ -135,7 +139,7 @@ Font& Font::set_scaling_factor(const int constant){
     if(!path_copy[style].empty()) {
         _load(path_copy[style].c_str(), size);
     } else {
-        Core::log(Core::Warning, "Using Font::set_scaling_factor(...) without a valid style.");
+        WindowManager::log(WindowManager::Warning, "Using Font::set_scaling_factor(...) without a valid style.");
     }
     return (*this);
 }
@@ -154,7 +158,7 @@ Font* Font::_get_font_by_global_name(const std::string name){
         if(strcasecmp(font.second.c_str(), name.c_str()) == 0)
             target_font = font.first;
     } if(!target_font && strncasecmp(name.c_str(), "default", 7) == 0){
-        target_font = &FontsSharedData::DefaultFonts;
+        target_font = &Fonts::DefaultFonts;
     }
     FontsSharedData::globalFonts.leave();
     return target_font;

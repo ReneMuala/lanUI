@@ -22,6 +22,9 @@ namespace WMSSharedData
 
 class WindowManager {
 public:
+    typedef std::function<void()> VoidCallback;
+    
+    static void on_quit(VoidCallback);
     
     static void run_global_events_handler();
     
@@ -45,11 +48,9 @@ private:
     
     void * window;
     
-    bool running;
-    
-    std::thread rendererHandler;
-    
-    static void rendererHandlerRoutine(void*, bool *);
+    bool ready;
+        
+    static void rendererHandlerRoutine();
     
 public:
     
@@ -61,10 +62,6 @@ public:
         
     void init_ttf();
     
-    void init_ttf_thread();
-    
-    static void ttfThreadRoutine();
-    
     void init_image();
     
     void init_fonts();
@@ -73,11 +70,18 @@ public:
     
     void start(const WindowInitParams);
     
-    void log(const LogLevel , const std::string);
+    void start_rendererHandler_thread();
     
-    static void $set_selected_object(void*);
+    static void log(const LogLevel , const std::string);
     
-    static const void * $get_selected_object();
+    static void set_selected_object(void*);
+    
+    static const void * get_selected_object();
+    
+    static void close_all();
+    
+    void close();
+    
     
 private:
     /*
@@ -85,21 +89,19 @@ private:
      static const void * get_selected_object();
      */
     
-    bool close_decr();
+    bool close_disable_window();
+    
+    bool close_disable_decr_window();
+    
+    void close_stop_renderer_thread();
     
     void close_sdl();
     
     void close_ttf();
-    
-    void close_ttf_thread();
-    
+        
     void close_image();
     
     void close_fonts();
-    
-    void close();
-public:
-    ~WindowManager();
 };
 
 #endif /* WindowManager_hpp */

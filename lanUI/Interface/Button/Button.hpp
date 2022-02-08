@@ -13,10 +13,10 @@
 
 /** A Button
  */
-class BSButton : public InterativeObject {
+class BSButton : public InteractiveObject {
 public:
     BSButton(Object* content = nullptr){
-        InterativeObject();
+        InteractiveObject();
         if(content) set_content(*content);
     }
 };

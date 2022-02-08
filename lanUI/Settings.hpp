@@ -16,23 +16,15 @@
 /// Derprecated, new implementation in Utilities/ParhResolver.hpp
 #define LANUI_DEFAULT_FONTS_PATH "lanUI.Bundle/System/Library/Fonts/"
 
-//#define LUI_CORE_MODE
-#ifndef LUI_CORE_MODE
-    #define LUI_WM_MODE
-#endif
-
 /* Renderer thread sleep time for WM mode  */
 #define LUI_WM_RENDERER_THREAD_SLEEP_TIME 10
-
-/* Events thread sleep time for WM mode  */
-#define LUI_WM_EVENTS_THREAD_SLEEP_TIME 10
 
 //  #define LANUI_DEBUG_MODE
 /*  ^^^^^^^^^^^^^^^^^^^^^^^
  
  USAGE: Uncomment the line above to enable debug mode (BEFORE BUILDING LANUI)
 
- DESCRITION: DEBUG MODE
+ DESCRIPTION: DEBUG MODE
  
  -------------------------------------------------------------------------------
 
@@ -40,7 +32,7 @@
 
 #ifdef LANUI_DEBUG_MODE
 
-#define LANUI_DEBUG_SEMAPHORE_WARN_WHEN_INVALID_HOLD
+//#define LANUI_DEBUG_SEMAPHORE_WARN_WHEN_INVALID_HOLD
 //#define LANUI_DEBUG_BSEMAPHORE_WARN_WHEN_INVALID_HOLD
 
 /*  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

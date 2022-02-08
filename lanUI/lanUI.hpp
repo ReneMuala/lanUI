@@ -11,7 +11,6 @@
 
 // A framework to create consistent user interfaces in C++
 
-#include "Core/Core.hpp"
 #include "Interface/Theme/Theme.hpp"
 #include "Interface/Object/Object.hpp"
 #include "Interface/Color/Color.hpp"
@@ -31,6 +30,12 @@
 
 namespace LUI
 {
+void clear_cache(){
+    Object::clear_surfaces_cache();
+}
+void on_quit(Window::VoidCallback callback){
+    WindowManager::on_quit(callback);
+}
 int run(){
     WindowManager::run_global_events_handler();
     return 0;

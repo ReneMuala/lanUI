@@ -10,10 +10,11 @@
 #include "../Theme/Theme.hpp"
 #include <iostream>
 #include <regex>
+#include "../Window/WindowManager/WindowManager.hpp"
 
 Text * BSParagraph::operator[](std::string id){
     if(identifiableWords.empty())
-        Core::log(Core::Warning, "Using Paragraph::operator[] in Paragraph without any id.");
+        WindowManager::log(WindowManager::Warning, "Using Paragraph::operator[] in Paragraph without any id.");
     for(auto idfyWord : identifiableWords){
         if(idfyWord.first == id){
             return idfyWord.second;
@@ -40,7 +41,7 @@ BSParagraph& BSParagraph::from_stringstream(std::stringstream& stream, Wrapper w
     std::string line, buffer;
     int wordCount(0);
     hints.font = new Font();
-    *hints.font =  FontsSharedData::DefaultFonts;
+    *hints.font =  Fonts::DefaultFonts;
     hints.style = Font::Regular;
     hints.size = TextStyles::Default.size;
     hints.color = Themes::_default.colors.get_text_color<Primary>();
@@ -263,7 +264,7 @@ void BSParagraph::_parse_hint(const std::string src, std::string & line){
         if((font_buffer = Font::_get_font_by_global_name(global_name.c_str()))){
             *hints.font = (*font_buffer);
         } else {
-            Core::log(Core::Warning, std::string("(Paragraph::_parse_hint): Unable to find a global font with the name \"" + global_name + "\".").c_str());
+            WindowManager::log(WindowManager::Warning, std::string("(Paragraph::_parse_hint): Unable to find a global font with the name \"" + global_name + "\".").c_str());
         }
     } else if(std::regex_match(src, DisplayREG)){
         hints.style = TextStyles::Display.font_style;
@@ -302,7 +303,7 @@ void BSParagraph::_parse_hint(const std::string src, std::string & line){
         hints.style = TextStyles::BodyArticle.font_style;
         hints.size = TextStyles::BodyArticle.size;
     } else {
-        Core::log(Core::Warning, (std::string("(Paragraph::_parse_hint): Unknow Paragraph hint: \"" + src + "\"")).c_str());
+        WindowManager::log(WindowManager::Warning, (std::string("(Paragraph::_parse_hint): Unknow Paragraph hint: \"" + src + "\"")).c_str());
     }
 }
 

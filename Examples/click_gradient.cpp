@@ -27,7 +27,7 @@ public:
     
     Image gradient;
     VStack mainArea;
-    InterativeObject interative;
+    InteractiveObject interative;
     Object example;
     ZStack myList;
     Text mainText;
@@ -155,7 +155,6 @@ public:
 
 int main(int argc, const char * argv[]) {
     // insert code here...
-    Core lanUI;
     Window window("Window 1", 350, 500, Window::HighDefinition);
 
     auto Home = MyHomeView(window);
@@ -175,7 +174,7 @@ int main(int argc, const char * argv[]) {
     .on_closed(
                CallbackExpr(
                             std::cout << "window closed" << std::endl;
-                            lanUI.terminate();
+                            window.close();
                             //window.hide();
                             )
                )
@@ -273,13 +272,10 @@ int main(int argc, const char * argv[]) {
     .set_title("lanUI Demo");
 
     
-    Home.compose(window.sdlRenderer.get(), 2);
+    Home.compose(0, window.sdlRenderer.get(), 2);
     window.sdlRenderer.leave();
     Home.export_composition_as_PNG(window.sdlRenderer.get(), "Home.png");
     window.sdlRenderer.leave();
     
-    Core::events();
-    
-    std::cout << "Hello, World!\n";
-    return 0;
+    return LUI::run();
 }

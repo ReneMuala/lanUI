@@ -7,7 +7,7 @@
 //
 
 #include "Window.hpp"
-#include "../../Core/Core.hpp"
+#include "WindowManager/WindowManager.hpp"
 #include <thread>
 #include <iostream>
 #include <queue>
@@ -17,12 +17,13 @@ namespace WMSSharedData
 extern Window * programWindows[LUI_MAX_PROGRAM_WINDOWS];
 }
 
+namespace InteractiveObjectsData
+{
+    extern Semaphore<SDL_Point> cursor;
+    extern Semaphore<Object*> selectedObject;
+}
+
 Window::Window(const char * title, float width, float height, Definition definition): manager(this), firstRun(true){
-#ifdef LUI_CORE_MODE
-    if(!CoreData::WAS_INIT){
-        Core::init();
-    }
-#endif
     //
     for(int i = 0 ; i < (WinRequests::totalRequests) ; i++){
         winRequests[i].set(false);
@@ -36,29 +37,24 @@ Window::Window(const char * title, float width, float height, Definition definit
     
     shouldClose.set(false);
     
-#ifdef LUI_CORE_MODE
-    _create(title, definition, width, height);
-#elif defined(LUI_WM_MODE)
     manager.start(WindowManager::WindowInitParams(title, (short)definition, width, height));
-#endif
     
     _compute_DPIConstant();
-    
-    Core::subscribe(this);
 }
 
 Window::~Window(){
-    Core::unsubscribe(this);
-    SDL_DestroyWindow(sdlWindow.get());
-    sdlWindow.leave();
+    if(sdlWindow.get()){
+        SDL_DestroyWindow(sdlWindow.data);
+        sdlWindow.data = nullptr;
+    } sdlWindow.leave();
 }
 
 void Window::_create(const char *title, Definition definition, float width, float height){
     if(!(sdlWindow.data = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (size.data.w = width), (size.data.h = height), SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | definition)))
-        Core::log(Core::Error, "Unable to create window");
+        WindowManager::log(WindowManager::Error, "Unable to create window");
     else
         if(!(sdlRenderer.data = SDL_CreateRenderer(sdlWindow.data, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)))
-            Core::log(Core::Error, "Unable to create window renderer");
+            WindowManager::log(WindowManager::Error, "Unable to create window renderer");
     SDL_SetRenderDrawBlendMode(sdlRenderer.data, SDL_BLENDMODE_BLEND);
     sdlWindowId.data = SDL_GetWindowID(sdlWindow.data);
     WMSSharedData::programWindows[sdlWindowId.data] = this;
@@ -72,19 +68,17 @@ void Window::_handle_events(){
         DPIConstant.leave();
     }
     
-    if(sdlEvent.data.type == SDL_DISPLAYEVENT)
-        _compute_DPIConstant();
-    
     if(sdlEvent.data.window.windowID == sdlWindowId.data){
         if(sdlEvent.data.type == SDL_MOUSEMOTION){
-            InteractiveObjecsData::cursor.get().x = sdlEvent.data.motion.x * DPIConstant.get();
-            InteractiveObjecsData::cursor.data.y = sdlEvent.data.motion.y * DPIConstant.data;
-            InteractiveObjecsData::cursor.leave();
+            InteractiveObjectsData::cursor.get().x = sdlEvent.data.motion.x * DPIConstant.get();
+            InteractiveObjectsData::cursor.data.y = sdlEvent.data.motion.y * DPIConstant.data;
+            InteractiveObjectsData::cursor.leave();
             DPIConstant.leave();
+        } else if(sdlEvent.data.type == SDL_DISPLAYEVENT){
+            _compute_DPIConstant();
         }
         switch (sdlEvent.data.window.event) {
-            case SDL_QUIT:
-            case SDL_WINDOWEVENT_CLOSE: shouldClose.data = true; break;
+            case SDL_WINDOWEVENT_CLOSE:shouldClose.data = true; break;
             case SDL_WINDOWEVENT_ENTER: hasMouseFocus.set(true); break;
             case SDL_WINDOWEVENT_LEAVE: hasMouseFocus.set(false); break;
             case SDL_WINDOWEVENT_FOCUS_GAINED: hasKeyboardFocus.set(true); break;
@@ -99,7 +93,6 @@ void Window::_handle_events(){
                 size.get();
                 size.data.w = (sdlEvent.data.window.data1);
                 size.data.h = (sdlEvent.data.window.data2);
-                printf(">> RESIZED (%f %f)\n", size.data.w, size.data.h);
                 size.leave();
                 break;
             default:
@@ -107,7 +100,7 @@ void Window::_handle_events(){
         }
         _handle_callBacks(sdlEvent.data.window.event, sdlEvent.data.type);
         if(sdlEvent.data.type == SDL_MOUSEBUTTONDOWN)
-            Core::set_selected_object(nullptr);
+            WindowManager::set_selected_object(nullptr);
         if(nextInZ.get()) {
             _handle_others_routine(sdlEvent.data, nextInZ.data, DPIConstant.get(), false);
             DPIConstant.leave();
@@ -259,8 +252,16 @@ void Window::_render(){
     sdlRenderer.leave();
 }
 
+void Window::close(){
+    manager.close();
+}
+
+void Window::close_all(){
+    manager.close_all();
+}
+
 Semaphore<Object*> Window::view(){
-    if(!nextInZ.get()) Core::log(Core::Error, "A window view must to be declared befure using window.view()");
+    if(!nextInZ.get()) WindowManager::log(WindowManager::Error, "A window view must to be declared befure using window.view()");
     nextInZ.leave();
     return nextInZ;
 }
