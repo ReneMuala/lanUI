@@ -7,7 +7,6 @@
 //
 
 #include "Theme.hpp"
-#include "ThemeTextStyles.hpp"
 
 void Theme::Button::default_init(){
     child = nullptr;
@@ -23,7 +22,7 @@ Theme::Button::Button(Object & child){
 Theme::Button::Button(Text & child){
     default_init();
     child.set_foreground_color(Themes::_default.colors.get_accent_color<Primary>());
-    child.set_ttf_api_style(Text::TTF_api_style::Underline);
+    child.set_text_effect(Text::Underline);
     child.set_alignment(Center);
     set_content(child);
 }
@@ -32,7 +31,7 @@ Theme::Button::Button(std::string const str){
     default_init();
     heap_child = (child = new Text(str));
     child->set_foreground_color(Themes::_default.colors.get_accent_color<Primary>());
-    child->set_ttf_api_style(Text::TTF_api_style::Underline);
+    child->set_text_effect(Text::Underline);
     child->set_alignment(Center);
     set_content(*child);
 }

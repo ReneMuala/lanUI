@@ -55,7 +55,8 @@ BSParagraph& BSParagraph::from_stringstream(std::stringstream& stream, Wrapper w
             if(empty) empty = false;
             wordCount++;
         __line_creation_begin:
-            if(!hints.noSpace && !words.empty() && !line.empty()) line+=" ";
+            if(!hints.noSpace && !words.empty() && !line.empty())
+                line+=" ";
             _add_word((line.empty() ? buffer : (!hints.noSpace ? " " : "")+buffer).c_str());
             hints.noSpace = false;
             hints.space = false;
@@ -86,8 +87,7 @@ BSParagraph& BSParagraph::from_stringstream(std::stringstream& stream, Wrapper w
         } else {
             _parse_hint(buffer, line);
             if(hints.space){
-                buffer = " ";
-                goto __line_creation_begin;
+                _add_word(" ");
             }
         }
     } if (!line.empty()) {
@@ -312,11 +312,13 @@ void BSParagraph::_add_word(const char * str){
     if(!hints.id.empty()) {
         identifiableWords.insert(std::pair<std::string, Text*>{hints.id, word});
         hints.id.clear();
+        _add_word(" ");
     }
-    word->set_foreground_color(hints.color);
-    if(word->font) {
-        *word->font = *hints.font;
-    } word->set_font_style(hints.style, hints.size);
+    word->
+    set_foreground_color(hints.color)
+    .set_font(*hints.font)
+    .set_font_size(hints.size)
+    .set_font_style(hints.style);
     words.push_back(word);
 }
 

@@ -12,14 +12,29 @@
 #include "../../Semaphore/Semaphore.hpp"
 #include "../Color/Color.hpp"
 
-#include "../../Primives/Primitives.hpp"
+#include "../../Primitives/Primitives.hpp"
 
 #include <SDL2/SDL.h>
+#include "../../CairoSDL/Cairo.hpp"
+#include "../../Types.hpp"
 #include <list>
 #include <stack>
+#include <queue>
 #include <functional>
+#include "../Mask/Mask.hpp"
 
-class Object {
+#include "../Extensions/Inheritable/Border.hpp"
+#include "../Extensions/Padding.hpp"
+#include "../Extensions/ScrollingFactor.hpp"
+#include "../Extensions/Inheritable/Animation.hpp"
+
+
+class Object : public
+/*
+Extensions:
+*/ Animated // default animaition
+
+{
     
     /*
      
@@ -35,19 +50,7 @@ class Object {
      
      */
     
-public:
-    
-    typedef SDL_FRect Rect;
-    typedef SDL_Event Event;
-    typedef SDL_Texture Texture;
-    typedef SDL_Surface Surface;
-    typedef SDL_Renderer Renderer;
-    typedef double Angle;
-    typedef long FrameCount;
-    typedef std::function<void()> VoidCallback;
-    typedef std::function<bool()> BoolCallback;
-    
-private:
+protected:
     
     void __align_center(float & x, float & y);
     
@@ -60,30 +63,6 @@ private:
     void __align_right(float & x, float & y);
     
 public:
-    
-    struct Padding {
-        float top, bottom, left, right;
-        Padding(){}
-        Padding(const float all): top(all),bottom(all),left(all),right(all){}
-        Padding(const float top_bottom, const float left_right): top(top_bottom), bottom(top_bottom), left(left_right), right(left_right){}
-        Padding(const float top, const float left_right, const float bottom): top(top), bottom(bottom), left(left_right), right(left_right){}
-        Padding(const float top, const float right, const float bottom, const float left): top(top), bottom(bottom), left(left), right(right){}
-        Padding(const Padding &other){
-            (*this) = other;
-        }
-    };
-    
-    struct ScrollingFactor {
-        float horizontal, vertical;
-        
-        bool operator==(const ScrollingFactor other){
-            return horizontal == other.horizontal && vertical == other.vertical;
-        }
-        
-        bool operator != (const ScrollingFactor other){
-            return !((*this) == other);
-        }
-    };
     
     typedef enum {
         None,
@@ -104,7 +83,7 @@ public:
     
     // base data
     Semaphore<Rect> size;
-    Semaphore<Rect> crop;
+    Semaphore<std::pair<double /* vertical */, double /* horizontal*/>> sizeCompensation;
     Semaphore<Padding> padding;
     Semaphore<ScrollingFactor> scrollingFactor;
     Semaphore<bool> requests[Requests::totalRequests];
@@ -128,7 +107,7 @@ public:
     // [From interactive object] to allow no_focus events
     bool no_focus_repeated;
     
-    Semaphore<double> DPIConstant;
+    Semaphore<double> obj_dpiK;
     
 public:
     
@@ -150,25 +129,38 @@ public:
     Object& disable_reloading();
     
     virtual Object& set_size(const float w, const float h);
-    void _fix_size(const float w, const float h);
+    
+    /**
+     Sets sizeCompensation values.
+     Must to be used before Object::set_size(...)
+     */
+    Object& set_size_compensation(const float w, const float h);
+    
+    void _fix_size(const float w, const float h, bool require_composition = true);
+    
     Object& set_relative_size(const float w, const float h, const float w_correction = 0, const float h_corretion = 0);
+    
     Object& set_padding(const Padding padding);
     
     /** Sets Scrolling Factor.
      Scrolling Factor changes the original position of an object, it's used in lists to create a scrolling animation.
      */
     Object& set_scrollingFactor(const ScrollingFactor scrollingFactor);
+    
     Object& set_alignment(const Alignment alignment);
     
     Object& updateRoot(Object*);
+    
     Object& embedInX(Object&);
+    
     Object& embedInY(Object&);
+    
     Object& embedInZ(Object&);
     
     bool _inRootBounds(float x, float y);
     
     void _useRootBounds();
-    
+
     typedef enum {
         _renderAllNexts = 0x0,
         _renderOnlyNextInZ = 0x2,
@@ -186,6 +178,7 @@ public:
     // prepare rect_buffer
     void _render_routine(float);
     
+
     bool _has_focus(const float dpiK);
     
     void _handle_others_routine(Event&, Object*, const float dpiK, const bool no_focus);
@@ -227,49 +220,50 @@ public:
     typedef enum {
         DefaultMode,
         ImageMode,
-        ColorSchemeMode,
         CallbackMode,
-        CompositionMode,
-        CanvasCompositionMode,
+        PrecompositionMode,
+        CanvasPrecompositionMode,
     } RenderMode;
     
-    struct Animation {
-        bool _using;
-        FrameCount delay;
-        BoolCallback callback;
-    };
+protected:
     
-private:
-    
-    /// images only
-    bool withBorder;
-    bool withBackground;
     FrameCount delay;
     bool using_renderer_callback;
     Semaphore<VoidCallback> renderer_callback;
     
+    bool using_composer_callback;
+    Semaphore<VoidCallback> composer_callback;
+    
 public:
     
+    CairoContext* cairoContext;
+    Semaphore<std::list<Mask*>> composerMasks;
     Semaphore<RenderMode> renderMode;
-    Semaphore<bool> wasCompiled;
+    Semaphore<bool> wasCompiled, isSurfaceValid, composerManuallyScaleCairo;
+    Semaphore<Surface*> surface;
     Semaphore<Texture*> canvas;
-    Semaphore<Texture*> compositionCanvas;
+    Semaphore<Texture*> precompositionCanvas;
     Semaphore<Renderer*> renderer;
     Semaphore<Angle> angle;
-    Semaphore<Color> foregroundColor, backgroundColor, borderColor;
-    Semaphore<Animation> default_animation;
+    Semaphore<CairoPattern*> foregroundPattern, backgroundPattern;
+    Semaphore<Color> foregroundColor, backgroundColor;
     
-    /// Used to save || protect important data during composition mode
-    Semaphore<std::stack<float>> compositionBuffer;
-    Texture* compositionRendererTargetBuffer;
+    /// Used to save || protect important data during precomposition mode
+    Semaphore<std::stack<float>> precompositionBuffer;
+    Texture* precompositionRendererTargetBuffer;
     
 public:
     
     Object& set_render_mode(RenderMode mode);
     
+    void _free_surface(Semaphore<Surface*>&);
+    
     void _free_canvas(Semaphore<Texture*>&);
-    void _free_canvas();
+    
     void _generate_canvas(Renderer *, Semaphore<Texture*>&, const float dpiK = 1);
+    
+    void _generate_surface();
+    
     void _clear_canvas(Renderer *, Semaphore<Texture*>&);
     
     static void clear_surfaces_cache();
@@ -278,52 +272,97 @@ public:
     
     Object& fromSurface(Surface*, Renderer *, const bool reset_secondaryColor = true);
     
-    Object& fromColorScheme(const Color color = Colors::Primary, const Color color2 = Colors::Secondary);
+    Object& set_color_scheme(const Color = Colors::Primary, const Color = Colors::Secondary);
+    
+    /**
+     Sets the pattern to be used as the foreground source by the composer.
+     * Does not work with images.
+     */
+    virtual Object& set_foreground_pattern(CairoPattern*);
+    
+    /**
+     Sets the pattern to be used as the background source by the composer.
+     * Does not work with images.
+     */
+    virtual Object& set_background_pattern(CairoPattern*);
     
     virtual Object& set_foreground_color(const Color);
     
     virtual Object& set_background_color(const Color);
+        
+    void _compose_embedded(SDL_Renderer* renderer, const float dpiK, const int32_t windowId);
     
-    /// set_secondary_color(...)
-    Object& set_border_color(const Color);
+    void _composer_routine_prepare_params();
     
-    void _compile_embedded(SDL_Renderer* renderer, const float dpiK);
+    void _composer_prepare_masks(std::list<Mask*>&);
     
-    virtual void _compile(SDL_Renderer* renderer, const float dpiK);
+    void _composer_apply_masks(std::list<Mask*>&);
     
-    void _render_composition(SDL_Renderer*, float x, float y, const float dpiK);
+    virtual void _composer_routine(SDL_Renderer* renderer);
+    
+    /**
+     Crops the actual composer surface.
+     
+     Note:
+     * Must to be used during composition, in a possivle override of _composer_routine(...).
+     * The surface must to be Busy (by calling hold(...)).
+     */
+    void composer_crop_surface(const int x, const int y, const int nw, const int nh);
+    
+    bool composer_set_foreground_pattern_as_source(CairoContext*);
+    
+    bool composer_set_background_pattern_as_source(CairoContext*);
+    
+    double composer_get_cairo_pixel_size();
+    
+    virtual void _compose(SDL_Renderer* renderer, const float dpiK, const int32_t windowId);
+        
+    struct ComposerCallbackParams {
+        CairoContext* context;
+        double w, h, scale_param, lowerSide, greaterSide;
+    } composerParams;
+        
+    Object& composer_push_mask(Mask*);
+    
+    Object& composer_push_front_mask(Mask*);
+    
+    Object& composer_pop_last_mask();
+    
+    Object& composer_pop_first_mask();
+    
+    Object& composer_manually_scale_cairo();
+    
+    Object& set_composer_callback(VoidCallback);
+    
+    void _render_precomposition(SDL_Renderer*, float x, float y, const float dpiK);
     
     void _render_image(SDL_Renderer*, float x, float y, const float dpiK);
-    
-    void _render_color_scheme(SDL_Renderer*, float x, float y, const float dpiK);
-    
+        
     void _render_default(SDL_Renderer*, float x, float y, const float dpiK);
     
-    void _render_background(SDL_Renderer*, Rect*);
-    
-    void _render_border(SDL_Renderer*, Rect*);
-    
-    void _render_using_callback(SDL_Renderer*, float x, float y, const float dpiK);
+    void _render_using_callback(const unsigned int, SDL_Renderer*, float x, float y, const float dpiK);
     
     virtual void _render(const unsigned int, SDL_Renderer*, float x, float y, float dpiK, bool inComposition = false);
     
-    SDL_Renderer * param_renderer;
-    
-    float param_dpiK;
+    struct RendererCallbackParams {
+        SDL_Renderer * renderer;
+        float dpik;
+        int window_id;
+    } rendererParams;
     
     Object& set_renderer_callback(VoidCallback);
     
     Object& set_default_animation(const FrameCount delay, BoolCallback);
     
-    void _start_composition_mode(SDL_Renderer*, const float dpiK);
+    void _start_precomposition_mode(SDL_Renderer*, const float dpiK);
     
-    void _stop_composition_mode(SDL_Renderer*);
+    void _stop_precomposition_mode(SDL_Renderer*);
     
-    Object& compose(const unsigned int, SDL_Renderer*, const float dpiK);
+    Object& precompose(const unsigned int, SDL_Renderer*, const float dpiK);
     
-    Object& compose_canvas(const unsigned int, SDL_Renderer*, const float dpiK);
+    Object& precompose_canvas(const unsigned int, SDL_Renderer*, const float dpiK);
     
-    Object& export_composition_as_PNG(SDL_Renderer*, const char * filename);
+    Object& export_precomposition_as_PNG(SDL_Renderer*, const char * filename);
     
     void _disable_renderer(SDL_Renderer*);
     

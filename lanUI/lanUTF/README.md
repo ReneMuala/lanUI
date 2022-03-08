@@ -1,7 +1,12 @@
 # LANUTF
-###### `0.1.5 stable`
+###### `0.1.6 stable`
 
-#### A library to deal with UTF8 encoded characters in C++.
+#### A library to handle Unicode (UTF-8) in C++.
+
+## Whats new in version 0.1.6
+
+- Debugging methods added
+    - <strong>(UTF8Char)</strong> tests passed for all <strong>2097023</strong> unicode characters.
 
 # `UTF8Char`
 
@@ -9,9 +14,17 @@ A **UTF8 character** is a unicode character encoded in UTF8 format, as “ü” 
 
 ### Important methods:
 
+#### `unsigned int get_charcode();`
+
+ Returns the unicode scalar value aka charcode of the current character.
+
 #### `void composeUTF8Char(char * source)`
 
-   Composes a new  character from UTF8 encoded source.
+Composes a new  character from UTF8 encoded source.
+
+#### `void composeUTF8Char(const unsigned int code);`
+
+Composes a new  character from a unicode scalar value aka  charcode.
 
 #### `void copy(UTF8Char & other)`
 
@@ -83,3 +96,6 @@ A **UTF8 character list** is a string of UTF8 encoded characters, as “rené”
 
    Clears the list.
 
+# Projets using LanUTF
+- [LanUI](github.com/renemuala/lanui) a library to create user interfaces in c++.
+    - LanUTF is being user do handle with unicode characters in [Freetype2](https://freetype.org/index.html) and text input routines.

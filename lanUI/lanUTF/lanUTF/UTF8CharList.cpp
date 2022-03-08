@@ -51,6 +51,10 @@ bool UTF8CharList::empty() const {
 }
 
 const char * UTF8CharList::operator[](size_t index) const {
+    return char_at(index);
+}
+
+const char * UTF8CharList::char_at(size_t index) const {
     size_t subIndex = 0;
     UTF8Char * ptr = first;
     while (ptr) {
@@ -58,6 +62,16 @@ const char * UTF8CharList::operator[](size_t index) const {
         subIndex++;
         ptr = ptr->_next;
     } return nullptr;
+}
+
+unsigned int UTF8CharList::charcode_at(size_t index) const {
+    size_t subIndex = 0;
+    UTF8Char * ptr = first;
+    while (ptr) {
+        if(subIndex == index) return ptr->get_charcode();
+        subIndex++;
+        ptr = ptr->_next;
+    } return 0;
 }
 
 void UTF8CharList::remove(size_t index){
@@ -77,8 +91,11 @@ void UTF8CharList::remove(size_t index){
                 last->_next = ptr->_next;
             
             delete ptr;
-        } else
-            printf("%s\n", ("[" + std::string(lanUTFVersion) + " Warning]: " + "invalid range [" + std::to_string(index) +"], unable to remove char.").c_str());
+        }
+#ifdef LANUTF_DEBUG_MODE
+        else
+            fprintf(stderr,"%s\n", ("[" + std::string(lanUTFVersion) + " Warning]: " + "invalid range [" + std::to_string(index) +"], unable to remove char.").c_str());
+#endif
     }
 }
 
@@ -161,6 +178,20 @@ size_t UTF8CharList::append(const char * src){
     } return append_len;
 }
 
+size_t UTF8CharList::append(std::list<const unsigned int> codes){
+    UTF8Char * last_ptr = first ? first->_last() : nullptr;
+    size_t append_len = 0;
+    for(auto code : codes) {
+        append_len++;
+        if(last_ptr){
+            last_ptr->_createNext();
+            last_ptr=last_ptr->_next;
+        } else {
+            last_ptr = first = new UTF8Char;
+        } last_ptr->composeUTF8Char(code);
+    } return append_len;
+}
+
 size_t UTF8CharList::append(const char * src, size_t index) {
     UTF8Char * last_ptr = first->_at(index);
     char src_cpy [strlen(src)], *src_cpy_ptr = src_cpy;
@@ -191,9 +222,31 @@ size_t UTF8CharList::append(const char * src, size_t index) {
             } last_ptr=last_ptr->_next;
         }
     } else {
-        printf("%s\n", ("[" + std::string(lanUTFVersion) + " Warning]: " + "invalid range [" + std::to_string(index) +"], using default append(...) method.").c_str());
+#ifdef LANUTF_DEBUG_MODE
+        fprintf(stderr,"%s\n", ("[" + std::string(lanUTFVersion) + " Warning]: " + "invalid range [" + std::to_string(index) +"], using default append(...) method.").c_str());
+#endif
         return append(src);
     } return append_len;
+}
+
+size_t UTF8CharList::append(std::list<const unsigned int> codes, size_t index){
+    UTF8Char * last_ptr = first->_at(index);
+    size_t append_len = 0;
+    if(last_ptr){
+        for(auto code : codes) {
+            append_len++;
+            append_len++;
+            last_ptr->_appendNext();
+            last_ptr->_next->copy(*last_ptr);
+            last_ptr->composeUTF8Char(code);
+            last_ptr=last_ptr->_next;
+        } return append_len;
+    } else {
+#ifdef LANUTF_DEBUG_MODE
+        fprintf(stderr,"%s\n", ("[" + std::string(lanUTFVersion) + " Warning]: " + "invalid range [" + std::to_string(index) +"], using default append(...) method.").c_str());
+#endif
+        return append(codes);
+    }
 }
 
 void UTF8CharList::clear(){

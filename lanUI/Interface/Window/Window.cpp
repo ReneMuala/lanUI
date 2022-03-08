@@ -14,7 +14,7 @@
 
 namespace WMSSharedData
 {
-extern Window * programWindows[LUI_MAX_PROGRAM_WINDOWS];
+    extern std::vector<Window *> programWindows;
 }
 
 namespace InteractiveObjectsData
@@ -39,7 +39,7 @@ Window::Window(const char * title, float width, float height, Definition definit
     
     manager.start(WindowManager::WindowInitParams(title, (short)definition, width, height));
     
-    _compute_DPIConstant();
+    _compute_dpiK();
 }
 
 Window::~Window(){
@@ -56,6 +56,7 @@ void Window::_create(const char *title, Definition definition, float width, floa
         if(!(sdlRenderer.data = SDL_CreateRenderer(sdlWindow.data, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)))
             WindowManager::log(WindowManager::Error, "Unable to create window renderer");
     SDL_SetRenderDrawBlendMode(sdlRenderer.data, SDL_BLENDMODE_BLEND);
+    HDWindow = definition & SDL_WINDOW_ALLOW_HIGHDPI;
     sdlWindowId.data = SDL_GetWindowID(sdlWindow.data);
     WMSSharedData::programWindows[sdlWindowId.data] = this;
     SDL_SetWindowMinimumSize(sdlWindow.data, 10, 10);
@@ -64,21 +65,22 @@ void Window::_create(const char *title, Definition definition, float width, floa
 void Window::_handle_events(){
     if(firstRun){
         firstRun = false;
-        _handle_others_routine(sdlEvent.data, nextInZ.data, DPIConstant.get(), true);
-        DPIConstant.leave();
+        _handle_others_routine(sdlEvent.data, nextInZ.data, obj_dpiK.get(), true);
+        obj_dpiK.leave();
     }
     
     if(sdlEvent.data.window.windowID == sdlWindowId.data){
         if(sdlEvent.data.type == SDL_MOUSEMOTION){
-            InteractiveObjectsData::cursor.get().x = sdlEvent.data.motion.x * DPIConstant.get();
-            InteractiveObjectsData::cursor.data.y = sdlEvent.data.motion.y * DPIConstant.data;
+            InteractiveObjectsData::cursor.get().x = sdlEvent.data.motion.x * obj_dpiK.get();
+            InteractiveObjectsData::cursor.data.y = sdlEvent.data.motion.y * obj_dpiK.data;
             InteractiveObjectsData::cursor.leave();
-            DPIConstant.leave();
-        } else if(sdlEvent.data.type == SDL_DISPLAYEVENT){
-            _compute_DPIConstant();
+            obj_dpiK.leave();
+        } else if(HDWindow && sdlEvent.data.type == SDL_WINDOWEVENT){
+            _compute_dpiK();
         }
+        
         switch (sdlEvent.data.window.event) {
-            case SDL_WINDOWEVENT_CLOSE:shouldClose.data = true; break;
+            case SDL_WINDOWEVENT_CLOSE: shouldClose.data = true; break;
             case SDL_WINDOWEVENT_ENTER: hasMouseFocus.set(true); break;
             case SDL_WINDOWEVENT_LEAVE: hasMouseFocus.set(false); break;
             case SDL_WINDOWEVENT_FOCUS_GAINED: hasKeyboardFocus.set(true); break;
@@ -102,8 +104,8 @@ void Window::_handle_events(){
         if(sdlEvent.data.type == SDL_MOUSEBUTTONDOWN)
             WindowManager::set_selected_object(nullptr);
         if(nextInZ.get()) {
-            _handle_others_routine(sdlEvent.data, nextInZ.data, DPIConstant.get(), false);
-            DPIConstant.leave();
+            _handle_others_routine(sdlEvent.data, nextInZ.data, obj_dpiK.get(), false);
+            obj_dpiK.leave();
         } nextInZ.leave();
     }
 }
@@ -201,27 +203,33 @@ void Window::_handle_callBacks(const uint8_t window_event, const uint32_t input_
 void Window::_run_default_animation(){
     if(nextInZ.get()) {
         nextInZ.leave();
-        nextInZ.data->param_dpiK = DPIConstant.get();
-        DPIConstant.leave();
+        nextInZ.data->rendererParams.dpik = obj_dpiK.get();
+        obj_dpiK.leave();
         nextInZ.data->_run_default_animation();
     } else
         nextInZ.leave();
 }
 
-void Window::_compute_DPIConstant(){
-    int realw, realh;
-    SDL_GL_GetDrawableSize(sdlWindow.get(), &realw, &realh);
-    DPIConstant.set((float)realw/size.get().w);
-    size.leave();
+void Window::_compute_dpiK(){
+    int
+    // drawable x and y
+    drw, drh,
+    // window x and y
+    ww, wh;
+    SDL_GL_GetDrawableSize(sdlWindow.get(), &drw, &drh);
+    SDL_GetWindowSize(sdlWindow.data, &ww, &wh);
     sdlWindow.leave();
+    obj_dpiK.set((float)drw/ww);
+    size.leave();
 }
 
-void Window::_compile(){
+void Window::_compose(){
     if(nextInZ.get()) {
         nextInZ.leave();
-        nextInZ.data->_compile(sdlRenderer.get(), DPIConstant.get());
+        nextInZ.data->_compose(sdlRenderer.get(), obj_dpiK.get(), sdlWindowId.get());
         sdlRenderer.leave();
-        DPIConstant.leave();
+        obj_dpiK.leave();
+        sdlWindowId.leave();
     } else
         nextInZ.leave();
 }
@@ -239,12 +247,12 @@ void Window::_render(){
     _run_default_animation();
     sdlRenderer.hold();
     nextInZ.hold();
-    DPIConstant.hold();
+    obj_dpiK.hold();
     sdlWindowId.hold();
-    _render_routine(DPIConstant.data);
-    _lock_renderer_in_bounds(sdlWindowId.data, sdlRenderer.data, DPIConstant.data);
-    if(nextInZ.data) nextInZ.data->_render(sdlWindowId.data, sdlRenderer.data, 0.0, 0.0, DPIConstant.data);
-    DPIConstant.leave();
+    _render_routine(obj_dpiK.data);
+    _lock_renderer_in_bounds(sdlWindowId.data, sdlRenderer.data, obj_dpiK.data);
+    if(nextInZ.data) nextInZ.data->_render(sdlWindowId.data, sdlRenderer.data, 0.0, 0.0, obj_dpiK.data);
+    obj_dpiK.leave();
     _unlock_renderer_from_bounds(sdlWindowId.data, sdlRenderer.data);
     sdlWindowId.leave();
     nextInZ.leave();

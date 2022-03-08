@@ -148,7 +148,7 @@ void InteractiveObject::_handle_events(Event & event, const float dpiK, const bo
             callbacks.leave();
         } if(nextInZ.get()){
             nextInZ.leave();
-            if(renderMode.get() != CompositionMode) {
+            if(renderMode.get() != PrecompositionMode) {
                 renderMode.leave();
                 _handle_others_routine(event, nextInZ.data, dpiK, false);
             } else {

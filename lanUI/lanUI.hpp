@@ -13,9 +13,11 @@
 
 #include "Interface/Theme/Theme.hpp"
 #include "Interface/Object/Object.hpp"
+#include "Interface/Mask/Mask.hpp"
 #include "Interface/Color/Color.hpp"
 #include "Interface/Window/Window.hpp"
 #include "Interface/View/View.hpp"
+#include "Interface/Loader/Loader.hpp"
 #include "Interface/Stack/Stack.hpp"
 #include "Interface/List/List.hpp"
 #include "Interface/Text/Text.hpp"
@@ -24,8 +26,6 @@
 #include "Interface/Spacer/Spacer.hpp"
 #include "Interface/Image/Image.hpp"
 #include "Interface/Button/Button.hpp"
-#include "Project/Project.hpp"
-
 #include "Utilities/PathResolver.hpp"
 
 namespace LUI
@@ -33,7 +33,7 @@ namespace LUI
 void clear_cache(){
     Object::clear_surfaces_cache();
 }
-void on_quit(Window::VoidCallback callback){
+void on_quit(VoidCallback callback){
     WindowManager::on_quit(callback);
 }
 int run(){

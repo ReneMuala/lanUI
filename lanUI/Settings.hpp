@@ -9,17 +9,23 @@
 #ifndef LANUI_SETTINGS_HPP
 #define LANUI_SETTINGS_HPP
 
-#define LUI_BUNDLE_NAME "lanUI.Bundle"
+namespace LUI
+{
+extern const char * BUNDLE_NAME;
 
-#define LUI_MAX_PROGRAM_WINDOWS 1+ /* mutable => */ 16
+extern const unsigned int MAX_PROGRAM_WINDOWS;
 
-/// Derprecated, new implementation in Utilities/ParhResolver.hpp
-#define LANUI_DEFAULT_FONTS_PATH "lanUI.Bundle/System/Library/Fonts/"
+/// Derprecated, new implementation in Utilities/PathResolver.hpp
+extern const char * DEFAULT_FONTS_PATH;
 
-/* Renderer thread sleep time for WM mode  */
-#define LUI_WM_RENDERER_THREAD_SLEEP_TIME 10
+/* Renderer thread sleep time for WM mode (ms) */
+extern const unsigned WM_RENDERER_THREAD_SLEEP_TIME;
+}
 
-//  #define LANUI_DEBUG_MODE
+#define LUIVersion "LUI 0.5 Deprecated"
+
+
+  #define LANUI_DEBUG_MODE
 /*  ^^^^^^^^^^^^^^^^^^^^^^^
  
  USAGE: Uncomment the line above to enable debug mode (BEFORE BUILDING LANUI)
@@ -110,8 +116,6 @@
 
 /// Lambda body to be passed as a function argument
 #define CallbackExpr(x) [&]{x}
-
-#define LUIVersion "LUI 0.4"
 
 #define LUI_ALLOW_MESSAGE_LOGS
 

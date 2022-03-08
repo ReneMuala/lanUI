@@ -172,7 +172,8 @@ void BSTextField::_compute_cursor_position(Renderer * renderer){
     textSurface.source.leave();
 }
 
-void BSTextField::_compile(Renderer * renderer, const float dpiK){
+void BSTextField::_compose(Renderer * renderer, const float dpiK, const int32_t windowId){
+    
     if(!wasCompiled.get()){
         _sync_strings();
         if(data.get().empty()){
@@ -189,7 +190,7 @@ void BSTextField::_compile(Renderer * renderer, const float dpiK){
         wasCompiled.data = true;
     } wasCompiled.leave();
     _compute_cursor_position(renderer);
-    _compile_embedded(renderer, dpiK);
+    _compose_embedded(renderer, dpiK, windowId);
 }
 
 std::string BSTextField::get_data() {

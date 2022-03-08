@@ -13,6 +13,7 @@
 #include "../Color/Color.hpp"
 #include "../Pallete/Pallete.hpp"
 
+#include "../Loader/Loader.hpp"
 #include "../Image/Image.hpp"
 #include "../Stack/Stack.hpp"
 #include "../List/List.hpp"
@@ -53,6 +54,12 @@ public:
     /// Theme colors
     colors;
     
+    class Loader : public BSLoader{
+    public:
+        Loader(State state = Active, int radius = 20, int active = 10, int indeterminate = 5){
+            BSLoader(state, radius, active, indeterminate);
+        }
+    };
     class Image  : public BSImage  {};
     class Stack  : public BSStack  {};
     class VStack : public BSVStack {};
@@ -97,6 +104,7 @@ namespace Themes {
     const _default_theme_type _default;
 }
 
+typedef Themes::_default_theme_type::Loader  Loader;
 typedef Themes::_default_theme_type::Image   Image;
 typedef Themes::_default_theme_type::Stack   Stack;
 typedef Themes::_default_theme_type::VStack  VStack;

@@ -9,15 +9,15 @@
 #ifndef Font_hpp
 #define Font_hpp
 
-#include <SDL2/SDL_ttf.h>
 #include <string>
 #include "../../Semaphore/Semaphore.hpp"
-
+#include "FontFace.hpp"
+#include <list>
+#include <utility>
 
 /** Text Font.
- Can be loaded from standard font formats (TTF, OTF,...).
- By default lanUI uses Dejavu sans, witch are loaded in the Core/Core.cpp file.
- You can setup your custum fonts in Project/CurstomFonts/ (BEFORE TEMPLATE CREATION)
+ Stores font configurations and static font styles that can later result in a Freetype2 font face.
+ Setup your custum fonts in Project/CustomFonts/ (BEFORE TEMPLATE CREATION)
  */
 class Font {
 public:
@@ -48,70 +48,64 @@ public:
         ThinItalic,
         totalStyles,
     } Style;
+    
 private:
-    std::string path_copy[Style::totalStyles];
-public:
+    
+    std::string filenames[Style::totalStyles];
     
     std::string name;
-        
-    int size, scalingFactorConstant;
     
-    size_t id_inAllFonts;
+    double size;
     
     Style style;
+
+public:
     
-    Semaphore<TTF_Font*> ttfFont;
+    Font(const std::string name = "", std::list<std::pair<const std::string,const Style>> = {});
     
-    Font(Font& other) = delete;
-    
-    Font(const std::string name = "");
-    
-    void _init(const std::string name = "");
+    Font(const Font& other);
     
     ~Font();
     
-    /**Free font.
-     Clears font data.
-     */
-    void free();
+    /// a font is valid and can be used when its Regular style is loaded.
+    bool is_valid() const;
     
-    bool _test(const char * path);
-    
-    bool _load(const char * path, const int size);
-    
-    /// Font is valid and can be used.
-    const bool isValid() const;
+    bool is_style_loaded(const Style style) const;
     
     const void operator=(const Font&other);
+    
+    const double get_size();
+    
+    Font& set_size(const double size);
+    
+    const Style get_style();
+    
+    const std::string get_name();
     
     /**Sets font style and size.
      Invalid font styles may generate warnings.
      */
-    Font& set_style(const Style style, const int size = 0);
+    Font& set_style(const Style style , const Style alternative_style = Regular);
     
     /**Loads font data from a file.
     DON'T FORGET to load the Regular style, it will be necessary to handle erros.
      */
-    Font& fromFile(std::string path, Style style = Style::Regular);
-    
-    Font& set_scaling_factor(const int constant);
-    
+    Font& load_style(const std::string filename, const Style style);
+        
     /** Sets the global name for this font, allowing it to be explicitly used in Paragrafs.
      */
     Font& set_global_name(const std::string);
     
     static Font* _get_font_by_global_name(const std::string);
     
+    /**
+     Generate freetype2 font face.
+     @throws runtime_error: if Freetype2 can't open the specific face or if the current style is invalid.
+     */
+    bool generate_ft_face(FontFace & ft_face, const int32_t windowId);
+    
     void print_avaliable_styles() const;
     
 };
-
-/** LanUI defaulf fonts
- */
-namespace Fonts
-{
-    extern Font DejaVuSans, WorkSans, OpenSans, DefaultFonts;
-    /*   extern void set_default_font(); moved to Theme */
-}
 
 #endif /* Font_hpp */

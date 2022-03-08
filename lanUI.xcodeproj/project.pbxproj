@@ -7,10 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		17057293272466150001AEBC /* TextSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17057292272466150001AEBC /* TextSurface.cpp */; };
-		170572962724663A0001AEBC /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 170572952724663A0001AEBC /* Cursor.cpp */; };
+		170EF8FD27D7E0FE0048208A /* Settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 170EF8FC27D7E0FE0048208A /* Settings.cpp */; };
 		1734118626BAB77300444E40 /* Image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1734118426BAB77300444E40 /* Image.cpp */; };
-		173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 173504D626B859FF00359EF5 /* CustomFonts.cpp */; };
+		173A78F827D35F1700313792 /* TextParams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 173A78F627D35F1700313792 /* TextParams.cpp */; };
+		173A790327D3C06F00313792 /* ProgramFonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 173A790127D3C06F00313792 /* ProgramFonts.cpp */; };
+		173A790627D3C3A400313792 /* TextStyle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 173A790427D3C3A400313792 /* TextStyle.cpp */; };
+		1740937B27BFEDDB004C1095 /* cairosdl.c in Sources */ = {isa = PBXBuildFile; fileRef = 1740937A27BFEDDB004C1095 /* cairosdl.c */; };
+		1740937D27BFEE97004C1095 /* libcairo.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1740937C27BFEE97004C1095 /* libcairo.dylib */; };
+		1740937E27BFEE97004C1095 /* libcairo.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 1740937C27BFEE97004C1095 /* libcairo.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1741951F27A598560013BAF0 /* WindowManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1741951D27A598560013BAF0 /* WindowManager.cpp */; };
 		1746B21926AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */; };
 		1746B21A26AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -20,11 +24,12 @@
 		174F1F0B268252AE009B8159 /* libSDL2-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 174F1F09268252AE009B8159 /* libSDL2-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		174F1F132682533B009B8159 /* Window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 174F1F112682533B009B8159 /* Window.cpp */; };
 		17550B4E26C0082600A697E6 /* Button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17550B4C26C0082600A697E6 /* Button.cpp */; };
+		1772050127C589F20001AF8B /* libfreetype.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 177204FF27C589F20001AF8B /* libfreetype.dylib */; };
+		1772050227C589F20001AF8B /* libfreetype.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 177204FF27C589F20001AF8B /* libfreetype.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17734DA526BDD31E00212851 /* InteractiveObject.cpp */; };
 		177C47F72711C1DF00A0B99D /* Text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17D997B826B3186E00219F36 /* Text.cpp */; };
 		1781821126C41BCB00F986B6 /* List.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1781820F26C41BCB00F986B6 /* List.cpp */; };
 		17A3EE3E27B2F67D00BC331C /* SDL2_rotozoom.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17DE7ECE2708AF7B007667BA /* SDL2_rotozoom.cpp */; };
-		17A3EE4327B2FE5400BC331C /* login.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A7DD24279222B9003ECF55 /* login.cpp */; };
 		17A43EC5271C54320063E2F3 /* UTF8CharList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A43EBB271C54310063E2F3 /* UTF8CharList.cpp */; };
 		17A43EC6271C54320063E2F3 /* UTF8Char.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A43EBC271C54310063E2F3 /* UTF8Char.cpp */; };
 		17A7DD2327921F12003ECF55 /* Loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17A7DD2127921F12003ECF55 /* Loader.cpp */; };
@@ -36,8 +41,8 @@
 		17D997BD26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */; };
 		17D997BE26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 17D997BC26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		17DE7ED12708AF7B007667BA /* SDL2_gfxPrimitives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17DE7ECF2708AF7B007667BA /* SDL2_gfxPrimitives.cpp */; };
+		17F0152D27B3CAC700096B22 /* playground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17C7970D26D8FFD800CF551B /* playground.cpp */; };
 		17FC391827130EC500E47CAF /* Semaphore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17FC391727130EC500E47CAF /* Semaphore.cpp */; };
-		17FC39222713999800E47CAF /* TextField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 17FC39202713999800E47CAF /* TextField.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,8 +63,10 @@
 			dstSubfolderSpec = 10;
 			files = (
 				17D997BE26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Embed Libraries */,
+				1740937E27BFEE97004C1095 /* libcairo.dylib in Embed Libraries */,
 				1746B21A26AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Embed Libraries */,
 				174F1F0B268252AE009B8159 /* libSDL2-2.0.0.dylib in Embed Libraries */,
+				1772050227C589F20001AF8B /* libfreetype.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -78,6 +85,13 @@
 /* Begin PBXFileReference section */
 		17057292272466150001AEBC /* TextSurface.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TextSurface.cpp; sourceTree = "<group>"; };
 		170572952724663A0001AEBC /* Cursor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Cursor.cpp; sourceTree = "<group>"; };
+		170EF8FC27D7E0FE0048208A /* Settings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Settings.cpp; sourceTree = "<group>"; };
+		171FFAF827C2C64600080E0D /* Border.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Border.hpp; sourceTree = "<group>"; };
+		171FFAFA27C2CAB900080E0D /* Padding.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Padding.hpp; sourceTree = "<group>"; };
+		171FFAFB27C2CB5300080E0D /* ScrollingFactor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ScrollingFactor.hpp; sourceTree = "<group>"; };
+		171FFAFC27C2CBF600080E0D /* Animation.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Animation.hpp; sourceTree = "<group>"; };
+		171FFAFE27C2D09200080E0D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		171FFAFF27C2D61B00080E0D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		17241E2126B6EDF8009912C9 /* Container.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Container.hpp; sourceTree = "<group>"; };
 		17319C5B2717867100FD1EEC /* libicuio.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicuio.dylib; path = ../../../../../opt/local/lib/libicuio.dylib; sourceTree = "<group>"; };
 		17319C5E2717868800FD1EEC /* libicuio.67.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicuio.67.1.dylib; path = ../../../../../opt/local/lib/libicuio.67.1.dylib; sourceTree = "<group>"; };
@@ -85,13 +99,22 @@
 		17319C66271788F400FD1EEC /* libicuuc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libicuuc.dylib; path = ../../../../../opt/local/lib/libicuuc.dylib; sourceTree = "<group>"; };
 		1734118426BAB77300444E40 /* Image.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Image.cpp; sourceTree = "<group>"; };
 		1734118526BAB77300444E40 /* Image.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Image.hpp; sourceTree = "<group>"; };
-		173504D426B843E600359EF5 /* CustomFonts.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CustomFonts.hpp; sourceTree = "<group>"; };
-		173504D526B843FA00359EF5 /* CustomTextStyles.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CustomTextStyles.hpp; sourceTree = "<group>"; };
-		173504D626B859FF00359EF5 /* CustomFonts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CustomFonts.cpp; sourceTree = "<group>"; };
 		173504D926B89A9400359EF5 /* Spacer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Spacer.hpp; sourceTree = "<group>"; };
+		173A78F627D35F1700313792 /* TextParams.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TextParams.cpp; sourceTree = "<group>"; };
+		173A78F727D35F1700313792 /* TextParams.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextParams.hpp; sourceTree = "<group>"; };
+		173A790127D3C06F00313792 /* ProgramFonts.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ProgramFonts.cpp; sourceTree = "<group>"; };
+		173A790227D3C06F00313792 /* ProgramFonts.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ProgramFonts.hpp; sourceTree = "<group>"; };
+		173A790427D3C3A400313792 /* TextStyle.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TextStyle.cpp; sourceTree = "<group>"; };
+		173A790527D3C3A400313792 /* TextStyle.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextStyle.hpp; sourceTree = "<group>"; };
+		1740937927BFEDDB004C1095 /* cairosdl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cairosdl.h; sourceTree = "<group>"; };
+		1740937A27BFEDDB004C1095 /* cairosdl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cairosdl.c; sourceTree = "<group>"; };
+		1740937C27BFEE97004C1095 /* libcairo.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcairo.dylib; path = ../../../../../opt/local/lib/libcairo.dylib; sourceTree = "<group>"; };
+		1740938327C05AFB004C1095 /* Mask.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Mask.hpp; sourceTree = "<group>"; };
+		1740938527C05C31004C1095 /* Types.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Types.hpp; sourceTree = "<group>"; };
 		1741951D27A598560013BAF0 /* WindowManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WindowManager.cpp; sourceTree = "<group>"; };
 		1741951E27A598560013BAF0 /* WindowManager.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = WindowManager.hpp; sourceTree = "<group>"; };
 		1746B21826AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL2_image-2.0.0.dylib"; path = "../../../../../opt/local/lib/libSDL2_image-2.0.0.dylib"; sourceTree = "<group>"; };
+		174EA13427C42C7C0090DD29 /* Cairo.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Cairo.hpp; sourceTree = "<group>"; };
 		174F1F09268252AE009B8159 /* libSDL2-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL2-2.0.0.dylib"; path = "../../../../../usr/local/Cellar/sdl2/2.0.14_1/lib/libSDL2-2.0.0.dylib"; sourceTree = "<group>"; };
 		174F1F0E268252F9009B8159 /* View.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = View.hpp; sourceTree = "<group>"; };
 		174F1F112682533B009B8159 /* Window.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Window.cpp; sourceTree = "<group>"; };
@@ -100,14 +123,13 @@
 		17550B4C26C0082600A697E6 /* Button.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Button.cpp; sourceTree = "<group>"; };
 		17550B4D26C0082600A697E6 /* Button.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Button.hpp; sourceTree = "<group>"; };
 		1761BD4C274EDF2E0063B0FE /* MemoryTest.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MemoryTest.hpp; sourceTree = "<group>"; };
-		1764DBDF2764B96D006D3245 /* ThemeTextStyles.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ThemeTextStyles.hpp; sourceTree = "<group>"; };
+		177204FF27C589F20001AF8B /* libfreetype.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.dylib; path = ../../../../../usr/local/Cellar/freetype/2.10.4/lib/libfreetype.dylib; sourceTree = "<group>"; };
 		17734DA526BDD31E00212851 /* InteractiveObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = InteractiveObject.cpp; sourceTree = "<group>"; };
 		1781820F26C41BCB00F986B6 /* List.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = List.cpp; sourceTree = "<group>"; };
 		1781821026C41BCB00F986B6 /* List.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = List.hpp; sourceTree = "<group>"; };
 		1781821226C4330D00F986B6 /* click_gradient.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = click_gradient.cpp; sourceTree = "<group>"; };
 		1792B90A260328B200836D7A /* lanUI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = lanUI; sourceTree = BUILT_PRODUCTS_DIR; };
 		1792B90D260328B200836D7A /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		1793867926BE9964004B452C /* Project.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Project.hpp; sourceTree = "<group>"; };
 		179819CE2687B71A00CCBC43 /* Color.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Color.hpp; sourceTree = "<group>"; };
 		179819CF2687CA4500CCBC43 /* Object.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Object.cpp; sourceTree = "<group>"; };
 		179819D02687CA4500CCBC43 /* Object.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Object.hpp; sourceTree = "<group>"; };
@@ -131,6 +153,7 @@
 		17C7970A26D8F85F00CF551B /* Paragraph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Paragraph.cpp; sourceTree = "<group>"; };
 		17C7970B26D8F85F00CF551B /* Paragraph.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Paragraph.hpp; sourceTree = "<group>"; };
 		17C7970D26D8FFD800CF551B /* playground.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = playground.cpp; sourceTree = "<group>"; };
+		17D18F0F27C4F6BF005BBE42 /* FontFace.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = FontFace.hpp; sourceTree = "<group>"; };
 		17D997AF26B2AAB000219F36 /* hello_rock.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = hello_rock.cpp; sourceTree = "<group>"; };
 		17D997B326B2B6CF00219F36 /* Stack.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Stack.cpp; sourceTree = "<group>"; };
 		17D997B426B2B6CF00219F36 /* Stack.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Stack.hpp; sourceTree = "<group>"; };
@@ -156,14 +179,36 @@
 			buildActionMask = 2147483647;
 			files = (
 				17D997BD26B31A0B00219F36 /* libSDL2_ttf-2.0.0.dylib in Frameworks */,
+				1740937D27BFEE97004C1095 /* libcairo.dylib in Frameworks */,
 				1746B21926AF1E630011EFC3 /* libSDL2_image-2.0.0.dylib in Frameworks */,
 				174F1F0A268252AE009B8159 /* libSDL2-2.0.0.dylib in Frameworks */,
+				1772050127C589F20001AF8B /* libfreetype.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		171FFAF927C2C68E00080E0D /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				171FFAFD27C2D06400080E0D /* Inheritable */,
+				171FFAFA27C2CAB900080E0D /* Padding.hpp */,
+				171FFAFB27C2CB5300080E0D /* ScrollingFactor.hpp */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		171FFAFD27C2D06400080E0D /* Inheritable */ = {
+			isa = PBXGroup;
+			children = (
+				171FFAFE27C2D09200080E0D /* README.md */,
+				171FFAF827C2C64600080E0D /* Border.hpp */,
+				171FFAFC27C2CBF600080E0D /* Animation.hpp */,
+			);
+			path = Inheritable;
+			sourceTree = "<group>";
+		};
 		17241E2326B6EDFD009912C9 /* Container */ = {
 			isa = PBXGroup;
 			children = (
@@ -181,22 +226,48 @@
 			path = Image;
 			sourceTree = "<group>";
 		};
-		173504D326B8439500359EF5 /* Project */ = {
-			isa = PBXGroup;
-			children = (
-				1793867926BE9964004B452C /* Project.hpp */,
-				1793867A26BEB7A9004B452C /* CustomFonts */,
-				1793867B26BEB7BA004B452C /* CustomTextStyles */,
-			);
-			path = Project;
-			sourceTree = "<group>";
-		};
 		173504DB26B89A9900359EF5 /* Spacer */ = {
 			isa = PBXGroup;
 			children = (
 				173504D926B89A9400359EF5 /* Spacer.hpp */,
 			);
 			path = Spacer;
+			sourceTree = "<group>";
+		};
+		173A78FA27D3659A00313792 /* TextParams */ = {
+			isa = PBXGroup;
+			children = (
+				173A78F627D35F1700313792 /* TextParams.cpp */,
+				173A78F727D35F1700313792 /* TextParams.hpp */,
+			);
+			path = TextParams;
+			sourceTree = "<group>";
+		};
+		173A790727D3C3EC00313792 /* TextStyle */ = {
+			isa = PBXGroup;
+			children = (
+				173A790427D3C3A400313792 /* TextStyle.cpp */,
+				173A790527D3C3A400313792 /* TextStyle.hpp */,
+			);
+			path = TextStyle;
+			sourceTree = "<group>";
+		};
+		1740937727BFECE7004C1095 /* CairoSDL */ = {
+			isa = PBXGroup;
+			children = (
+				174EA13427C42C7C0090DD29 /* Cairo.hpp */,
+				1740937A27BFEDDB004C1095 /* cairosdl.c */,
+				1740937927BFEDDB004C1095 /* cairosdl.h */,
+			);
+			path = CairoSDL;
+			sourceTree = "<group>";
+		};
+		1740938027C05AE3004C1095 /* Mask */ = {
+			isa = PBXGroup;
+			children = (
+				1740938327C05AFB004C1095 /* Mask.hpp */,
+			);
+			path = Mask;
 			sourceTree = "<group>";
 		};
 		1741952127A5985F0013BAF0 /* WindowManager */ = {
@@ -211,6 +282,8 @@
 		174F1F08268252AE009B8159 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				177204FF27C589F20001AF8B /* libfreetype.dylib */,
+				1740937C27BFEE97004C1095 /* libcairo.dylib */,
 				17319C66271788F400FD1EEC /* libicuuc.dylib */,
 				17319C612717869400FD1EEC /* libicudata.dylib */,
 				17319C5E2717868800FD1EEC /* libicuio.67.1.dylib */,
@@ -225,6 +298,8 @@
 		174F1F102682530B009B8159 /* Interface */ = {
 			isa = PBXGroup;
 			children = (
+				171FFAF927C2C68E00080E0D /* Extensions */,
+				1740938027C05AE3004C1095 /* Mask */,
 				17A7DD1F27921EE6003ECF55 /* Loader */,
 				17BE8D7A2750F22A00729192 /* Theme */,
 				17BE74A526AC03C5009A3D8C /* Color */,
@@ -246,13 +321,13 @@
 			path = Interface;
 			sourceTree = "<group>";
 		};
-		174F1F1526825410009B8159 /* Primives */ = {
+		174F1F1526825410009B8159 /* Primitives */ = {
 			isa = PBXGroup;
 			children = (
 				17A3EE3D27B2F59200BC331C /* Primitives.hpp */,
 				17DE7ECD2708AEC4007667BA /* SDL2_gfx */,
 			);
-			path = Primives;
+			path = Primitives;
 			sourceTree = "<group>";
 		};
 		17550B4B26C0080900A697E6 /* Button */ = {
@@ -284,6 +359,7 @@
 		178838DA26A61E39003B122A /* Object */ = {
 			isa = PBXGroup;
 			children = (
+				171FFAFF27C2D61B00080E0D /* README.md */,
 				17734DA526BDD31E00212851 /* InteractiveObject.cpp */,
 				17BE74A926AC5B87009A3D8C /* DrawableObject.cpp */,
 				179819CF2687CA4500CCBC43 /* Object.cpp */,
@@ -314,35 +390,20 @@
 			isa = PBXGroup;
 			children = (
 				17FC391427130C8B00E47CAF /* Settings.hpp */,
+				170EF8FC27D7E0FE0048208A /* Settings.cpp */,
+				1740937727BFECE7004C1095 /* CairoSDL */,
 				1761BD4E274EDF470063B0FE /* Tests */,
 				17A43EB7271C54310063E2F3 /* lanUTF */,
 				17FC391627130EB000E47CAF /* Semaphore */,
 				17BE74A826AC052C009A3D8C /* lanUI.hpp */,
+				1740938527C05C31004C1095 /* Types.hpp */,
 				17A547A527A5CEAD001FA58E /* Utilities */,
-				174F1F1526825410009B8159 /* Primives */,
+				174F1F1526825410009B8159 /* Primitives */,
 				174F1F102682530B009B8159 /* Interface */,
-				173504D326B8439500359EF5 /* Project */,
 				1792B90D260328B200836D7A /* main.cpp */,
 				17C7970D26D8FFD800CF551B /* playground.cpp */,
 			);
 			path = lanUI;
-			sourceTree = "<group>";
-		};
-		1793867A26BEB7A9004B452C /* CustomFonts */ = {
-			isa = PBXGroup;
-			children = (
-				173504D426B843E600359EF5 /* CustomFonts.hpp */,
-				173504D626B859FF00359EF5 /* CustomFonts.cpp */,
-			);
-			path = CustomFonts;
-			sourceTree = "<group>";
-		};
-		1793867B26BEB7BA004B452C /* CustomTextStyles */ = {
-			isa = PBXGroup;
-			children = (
-				173504D526B843FA00359EF5 /* CustomTextStyles.hpp */,
-			);
-			path = CustomTextStyles;
 			sourceTree = "<group>";
 		};
 		17A3EE3B27B2F36600BC331C /* Pallete */ = {
@@ -430,7 +491,6 @@
 			children = (
 				17BE8D7C2750F24000729192 /* Theme.cpp */,
 				17BE8D7D2750F24000729192 /* Theme.hpp */,
-				1764DBDF2764B96D006D3245 /* ThemeTextStyles.hpp */,
 			);
 			path = Theme;
 			sourceTree = "<group>";
@@ -468,6 +528,8 @@
 		17D997BB26B3187D00219F36 /* Text */ = {
 			isa = PBXGroup;
 			children = (
+				173A790727D3C3EC00313792 /* TextStyle */,
+				173A78FA27D3659A00313792 /* TextParams */,
 				17D997B826B3186E00219F36 /* Text.cpp */,
 				17D997B926B3186E00219F36 /* Text.hpp */,
 			);
@@ -477,6 +539,9 @@
 		17D997C826B3283000219F36 /* Font */ = {
 			isa = PBXGroup;
 			children = (
+				173A790127D3C06F00313792 /* ProgramFonts.cpp */,
+				173A790227D3C06F00313792 /* ProgramFonts.hpp */,
+				17D18F0F27C4F6BF005BBE42 /* FontFace.hpp */,
 				17D997C526B3282A00219F36 /* Font.cpp */,
 				17D997C626B3282A00219F36 /* Font.hpp */,
 			);
@@ -588,28 +653,29 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				173A78F827D35F1700313792 /* TextParams.cpp in Sources */,
 				17AC1704272FECE1002BA291 /* Font.cpp in Sources */,
 				17A43EC5271C54320063E2F3 /* UTF8CharList.cpp in Sources */,
-				17FC39222713999800E47CAF /* TextField.cpp in Sources */,
+				17F0152D27B3CAC700096B22 /* playground.cpp in Sources */,
+				173A790627D3C3A400313792 /* TextStyle.cpp in Sources */,
 				1741951F27A598560013BAF0 /* WindowManager.cpp in Sources */,
-				17A3EE4327B2FE5400BC331C /* login.cpp in Sources */,
-				170572962724663A0001AEBC /* Cursor.cpp in Sources */,
 				1748FBBC2721AB650087D5EC /* Object.cpp in Sources */,
 				17D997B526B2B6CF00219F36 /* Stack.cpp in Sources */,
+				173A790327D3C06F00313792 /* ProgramFonts.cpp in Sources */,
+				1740937B27BFEDDB004C1095 /* cairosdl.c in Sources */,
 				1748FBC12721AED00087D5EC /* DrawableObject.cpp in Sources */,
 				17BE74A426AC0364009A3D8C /* Color.cpp in Sources */,
 				177C47F72711C1DF00A0B99D /* Text.cpp in Sources */,
 				174F1F132682533B009B8159 /* Window.cpp in Sources */,
 				17A7DD2327921F12003ECF55 /* Loader.cpp in Sources */,
-				173504D726B859FF00359EF5 /* CustomFonts.cpp in Sources */,
 				17DE7ED12708AF7B007667BA /* SDL2_gfxPrimitives.cpp in Sources */,
+				170EF8FD27D7E0FE0048208A /* Settings.cpp in Sources */,
 				1781821126C41BCB00F986B6 /* List.cpp in Sources */,
 				17FC391827130EC500E47CAF /* Semaphore.cpp in Sources */,
 				17550B4E26C0082600A697E6 /* Button.cpp in Sources */,
 				1734118626BAB77300444E40 /* Image.cpp in Sources */,
 				17734DA626BDD31E00212851 /* InteractiveObject.cpp in Sources */,
 				17C7970C26D8F85F00CF551B /* Paragraph.cpp in Sources */,
-				17057293272466150001AEBC /* TextSurface.cpp in Sources */,
 				17A3EE3E27B2F67D00BC331C /* SDL2_rotozoom.cpp in Sources */,
 				17BE8D7E2750F24000729192 /* Theme.cpp in Sources */,
 				17A43EC6271C54320063E2F3 /* UTF8Char.cpp in Sources */,
@@ -735,12 +801,16 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
-					/usr/local/Cellar/sdl2/2.0.14_1/include,
+					/usr/local/Cellar/sdl2/2.0.14_1/include/,
 					/opt/local/include/,
+					/opt/local/include/cairo/,
+					/usr/local/Cellar/freetype/2.10.4/include/freetype2/,
 				);
 				LIBRARY_SEARCH_PATHS = (
-					/usr/local/Cellar/sdl2/2.0.14_1/lib,
+					/usr/local/Cellar/sdl2/2.0.14_1/lib/,
+					/opt/local/lib/,
 					/opt/local/lib,
+					/usr/local/Cellar/freetype/2.10.4/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -751,12 +821,16 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
-					/usr/local/Cellar/sdl2/2.0.14_1/include,
+					/usr/local/Cellar/sdl2/2.0.14_1/include/,
 					/opt/local/include/,
+					/opt/local/include/cairo/,
+					/usr/local/Cellar/freetype/2.10.4/include/freetype2/,
 				);
 				LIBRARY_SEARCH_PATHS = (
-					/usr/local/Cellar/sdl2/2.0.14_1/lib,
+					/usr/local/Cellar/sdl2/2.0.14_1/lib/,
+					/opt/local/lib/,
 					/opt/local/lib,
+					/usr/local/Cellar/freetype/2.10.4/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

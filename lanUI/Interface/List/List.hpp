@@ -11,6 +11,7 @@
 
 #include "../Object/Object.hpp"
 #include "../Stack/Stack.hpp"
+#include "../../Types.hpp"
 
 /** A Scrollable VStack
  */

@@ -22,20 +22,31 @@ const std::list<const std::pair<const std::regex, const std::string>> macros = {
     /*
      Hint: Create your path-macro by adding a line following the scruch bellow:
      
-        {std::regex("example:", std::regex_constants::icase), LUI_BUNDLE_NAME"/Example/path"},
+        {std::regex("example:", std::regex_constants::icase), (std::string(LUI::BUNDLE_NAME)+"/Example/path")},
      
     */
     
     // Add your macro here
-    {std::regex("user:", std::regex_constants::icase), LUI_BUNDLE_NAME"/User/"},
-    {std::regex("(cache|tmp):", std::regex_constants::icase), LUI_BUNDLE_NAME"/User/Cache/"},
-    {std::regex("(license|licenses):", std::regex_constants::icase), LUI_BUNDLE_NAME"/User/License/"},
-    {std::regex("(settings|configs):", std::regex_constants::icase), LUI_BUNDLE_NAME"/User/Settings/"},
-    {std::regex("(system|software):", std::regex_constants::icase), LUI_BUNDLE_NAME"/System/"},
-    {std::regex("library:", std::regex_constants::icase), LUI_BUNDLE_NAME"/System/Library/"},
-    {std::regex("fonts:", std::regex_constants::icase), LUI_BUNDLE_NAME"/System/Library/Fonts/"},
-    {std::regex("(dependences|libraries):", std::regex_constants::icase), LUI_BUNDLE_NAME"/System/Dependences/"},
-    {std::regex("(resources|media):", std::regex_constants::icase), LUI_BUNDLE_NAME"/System/Resources/"},
+    {
+        std::regex("user:", std::regex_constants::icase), (std::string(LUI::BUNDLE_NAME)+"/User/")
+    },
+    {
+        std::regex("(cache|tmp):", std::regex_constants::icase), (std::string(LUI::BUNDLE_NAME)+ "/User/Cache/")
+    },
+    {std::regex("(license|licenses):", std::regex_constants::icase), (std::string(LUI::BUNDLE_NAME)+"/User/License/")
+    },
+    {std::regex("(settings|configs):", std::regex_constants::icase), (std::string(LUI::BUNDLE_NAME)+"/User/Settings/")
+    },
+    {std::regex("(system|software):", std::regex_constants::icase), (std::string(LUI::BUNDLE_NAME)+"/System/")
+    },
+    {std::regex("library:", std::regex_constants::icase), (std::string(LUI::BUNDLE_NAME)+"/System/Library/")
+    },
+    {std::regex("fonts:", std::regex_constants::icase), (std::string(LUI::BUNDLE_NAME)+"/System/Library/Fonts/")
+    },
+    {std::regex("(dependences|libraries):", std::regex_constants::icase), (std::string(LUI::BUNDLE_NAME)+"/System/Dependences/")
+    },
+    {std::regex("(resources|media):", std::regex_constants::icase), (std::string(LUI::BUNDLE_NAME)+"/System/Resources/")
+    },
 };
 }
 

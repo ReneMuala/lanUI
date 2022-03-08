@@ -9,27 +9,7 @@
 #include "Text.hpp"
 #include "../Theme/Theme.hpp"
 #include "../Window/WindowManager/WindowManager.hpp"
-
-namespace TextStyles {
-    TextStyle Display     = ThemeTextStyles::THSDisplay;
-    TextStyle Headline1   = ThemeTextStyles::THSHeadline1;
-    TextStyle Headline2   = ThemeTextStyles::THSHeadline2;
-    TextStyle Headline3   = ThemeTextStyles::THSHeadline3;
-    TextStyle Headline4   = ThemeTextStyles::THSHeadline4;
-    TextStyle Headline5   = ThemeTextStyles::THSHeadline5;
-    TextStyle CaptionCaps = ThemeTextStyles::THSCaptionCaps;
-    TextStyle Caption     = ThemeTextStyles::THSCaption;
-    TextStyle BodyLarge   = ThemeTextStyles::THSBodyLarge;
-    TextStyle BodyMedium  = ThemeTextStyles::THSBodyMedium;
-    TextStyle BodySmall   = ThemeTextStyles::THSBodySmall;
-    TextStyle BodyArticle = ThemeTextStyles::THSBodyArticle;
-    TextStyle Default     = BodyMedium;
-}
-
-namespace FontsSharedData
-{
-extern BSemaphore TTF_Fcall;
-}
+#include <iostream>
 
 const std::string TextStyle::toStr() const {
     std::string str = " ";
@@ -69,403 +49,240 @@ const std::string TextStyle::toStr() const {
     return str;
 }
 
-Text::Text(const std::string source, Font& font): withBackground(false), source(source), ttf_api_style(TTF_api_style::Normal), fontVirtualSize(12), font(nullptr), surfc(nullptr){
-    this->font = new Font();
-    (*this->font) = font;
-    foregroundColor.set(Themes::_default.colors.get_text_color<Primary>());
-    backgroundColor.set(Colors::Transparent);
-    if(source.size())
-        from_string(source);
+namespace WMSSharedData
+{
+extern std::vector<Window *> programWindows;
 }
 
-Text::~Text(){
-    _delete_custom_data();
-    Object::~Object();
-}
-
-void Text::_delete_custom_data(){
-    source.data.clear();
-    _free_font();
-}
-
-void Text::_free_font(){
-    if(font)
-        delete font;
-    font = nullptr;
-}
-
-Text& Text::from_string(const std::string source, Renderer * renderer){
-    this->renderer.set(renderer);
-    this->source.set(source);
-    tryCompile();
-    if(renderer) compile_canvas(renderer);
-    return (*this);
-}
-
-void Text::tryCompile(){
-    DPIConstant.set(1);
-    wasCompiled.set(false);
-}
-
-void Text::_adjustTextDPI(){
-    font->size = fontVirtualSize.get();
-    font->set_scaling_factor(DPIConstant.get());
-    DPIConstant.leave();
-    fontVirtualSize.leave();
-}
-
-Text& Text::set_font_style(const Font::Style style, const unsigned int size){
-    if(font){
-        font->set_style(style, (fontVirtualSize.get() = size));
-        fontVirtualSize.leave();
-        tryCompile();
-    } else {
-        WindowManager::log(WindowManager::Warning, "Failed to set Text::Font* (nullptr)");
-    } return (*this);
-}
-
-bool Text::_compile_canvas_prepare_font(){
-    if(!font->ttfFont.get()){
-        font->ttfFont.leave();
-        source.leave();
-        WindowManager::log(WindowManager::Warning, "Text compilation failed  (Invalid font style).");
-        return false;
-    } else {
-        if(((TTF_api_style)TTF_GetFontStyle(font->ttfFont.data)) != ttf_api_style.get()){
-            TTF_SetFontStyle(font->ttfFont.data, (int)ttf_api_style.data);
-        } ttf_api_style.leave();
-        font->ttfFont.leave();
-    } return true;
-}
-
-bool Text::_compile_canvas_render_text(Renderer * renderer){
-    font->ttfFont.hold();
-    source.hold();
-    foregroundColor.hold();
-    backgroundColor.hold();
-    FontsSharedData::TTF_Fcall.hold();
-    if(!compatibilityMode) {
-        if(!(surfc=TTF_RenderUTF8_Blended(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.data))) {
-            FontsSharedData::TTF_Fcall.leave();
-#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-            WindowManager::log(WindowManager::Warning, "Text: Render failed (invalid surfc).");
-#endif
-            foregroundColor.leave();
-            backgroundColor.leave();
-            source.leave();
-            font->ttfFont.leave();
-            return false;
-        }
-    } else {
-        switch (compatibilityMode) {
-            case RenderShadedMode:
-                if(!(surfc=TTF_RenderUTF8_Shaded(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.data, (SDL_Color)backgroundColor.data))){
-                    FontsSharedData::TTF_Fcall.leave();
-#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-                    WindowManager::log(WindowManager::Warning, "Text (CompatibilityMode[RenderShadedMode]): Render failed.");
-#endif
-                    foregroundColor.leave();
-                    backgroundColor.leave();
-                    source.leave();
-                    font->ttfFont.leave();
-                    return false;
-                } else
-                    backgroundColor.leave();
-                break;
-            case RenderSolidMode:
-                if(!(surfc=TTF_RenderUTF8_Solid(font->ttfFont.data, source.data.data(), (SDL_Color)foregroundColor.data))){
-                    FontsSharedData::TTF_Fcall.leave();
-#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-                    WindowManager::log(WindowManager::Warning, "Text (CompatibilityMode[RenderSolidMode]): Render failed.");
-#endif
-                    foregroundColor.leave();
-                    backgroundColor.leave();
-                    source.leave();
-                    font->ttfFont.leave();
-                    return false;
-                }
-                break;
-            default:
-                return false;
-                break;
-        }
-    }
+void Text::default_composer_callback()
+{
+    CairoContext * cr = composerParams.context;
+    cairo_rectangle(cr, 0, 0, textExtents.x_advance, fontExtents.height);
+    cairo_set_source_rgba(cr, 0, 0, 0, 0.3);
+    cairo_fill(cr);
+        
+    printf("%s\n", font.get_name().c_str());
     
-    FontsSharedData::TTF_Fcall.leave();
-    foregroundColor.leave();
-    backgroundColor.leave();
-    source.leave();
-    font->ttfFont.leave();
-    return true;
-}
-
-void Text::_compile_canvas_free_surfc(){
-    if(surfc) {
-        SDL_FreeSurface(surfc);
-        surfc = nullptr;
-    }
-}
-
-bool Text::compile_canvas(SDL_Renderer * renderer){
-    if(renderer && !source.get().empty()){
-        source.leave();
-        
-        _free_canvas();
-        if(!_compile_canvas_prepare_font()) return false;
-        
-        _compile_canvas_free_surfc();
-        
-        if(!_compile_canvas_render_text(renderer)) return false;
-        
-        this->canvas.set(SDL_CreateTextureFromSurface(renderer, surfc));
-        
-        _compile_canvas_free_surfc();
-
-        renderMode.set(RenderMode::ImageMode);
-        return true;
-    } else if (source.data.empty()) {
-        source.leave();
-#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-        WindowManager::log(WindowManager::Warning, "Text compilation ignored (invalid string).");
-#endif
-        return true;
-    } renderMode.set(RenderMode::DefaultMode);
-    source.leave();
-#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-    WindowManager::log(WindowManager::Warning, "Text compilation failed (invalid renderer).");
-#endif
-    _free_canvas();
-    return false;
+    cairo_set_font_face(cr, cairoFontFace);
+    
+    // (size-(size-0.88010350017162*size))
+    cairo_set_font_size(cr, font.get_size()/(composerParams.greaterSide));
+    
+    cairo_move_to(cr, 0, fontExtents.ascent/(composerParams.greaterSide));
+    if(!composer_set_foreground_pattern_as_source(cr)){
+        foregroundColor.hold();
+        cairo_set_source_rgba(cr, foregroundColor.data.get_premultiplied_r(), foregroundColor.data.get_premultiplied_g(), foregroundColor.data.get_premultiplied_b(), foregroundColor.data.get_premultiplied_a());
+        foregroundColor.leave();
+    } cairo_show_text(cr, source.c_str());
 }
 
 void Text::_compute_text_size(){
-    if(font && !source.get().empty()){
-        if(font->ttfFont.get() && font->scalingFactorConstant >= 1){
-            const int constantBuffer = font->scalingFactorConstant;
-            font->ttfFont.leave();
-            if(font->scalingFactorConstant > 1) font->set_scaling_factor(1);
-            int w, h;
-            TTF_SizeUTF8(font->ttfFont.data, source.data.c_str(), &w, &h);
-            set_size(w, h);
-            if(font->scalingFactorConstant > 1) font->set_scaling_factor(constantBuffer);
-        } else
-            font->ttfFont.leave();
-    } source.leave();
-    source.leave();
+//    WMSSharedData::programWindows[windowId]->textParams.compute_params(cairoFontFace, textExtents, fontExtents, font.get_size(), source.c_str());
+    set_size(textExtents.x_advance, fontExtents.height);
 }
 
-void Text::_compile(Renderer * renderer, const float dpiK){
-    // prepare text
-    if(dpiK != DPIConstant.get()){
-        DPIConstant.data = (dpiK);
-        DPIConstant.leave();
-        _adjustTextDPI();
-        wasCompiled.set(false);
-    } else
-        DPIConstant.leave();
-    if(!wasCompiled.get()) {
-        do {
-#ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-            WindowManager::log(WindowManager::Warning, "Text was not compiled, compiling... (MAIN CASE)");
-#endif
-            wasCompiled.data = compile_canvas(renderer);
-        } while(!wasCompiled.data);
-        
-        _compute_text_size();
-        
-    } wasCompiled.leave();
-    _compile_embedded(renderer, dpiK);
+bool Text::_allocate_cairo_font_face(){
+    if(font.generate_ft_face(fontFace,windowId)){
+        cairoFontFace = fontFace.new_cairo_font_face();
+        return true;
+    } return false;
 }
 
-void Text::_render_background(SDL_Renderer * renderer, Rect * rect){
-    backgroundColor.hold();
-    SDL_SetRenderDrawColor(renderer, backgroundColor.data.r, backgroundColor.data.g, backgroundColor.data.b, backgroundColor.data.a);
-    backgroundColor.leave();
-    SDL_RenderFillRectF(renderer, rect);
+void Text::_free_cairo_font_face(){
+    fontFace.done_face();
+    if(cairoFontFace){
+        cairo_font_face_destroy(cairoFontFace);
+        cairoFontFace = nullptr;
+    }
 }
 
-void Text::_render(const unsigned int id, SDL_Renderer * renderer, float x, float y, const float dpiK, bool inComposition){
-        if(_inRootBounds(x, y)){
-            _align(x, y);
-            _set_position(x, y);
-            _render_routine(dpiK);
-            _render_image(renderer, x, y, dpiK);
-        }
-    #ifdef LANUI_DEBUG_PRINT_OBJECT_TEXT_ERRORS
-        else {
-            WindowManager::log(WindowManager::Warning, "Text outside root bounds.");
-        }
-    #endif
-
-#ifdef LANUI_DEBUG_MODE
-    if(inComposition)
-        SDL_SetRenderDrawColor(renderer, 200, 200, 255, 50);
-    else
-        SDL_SetRenderDrawColor(renderer, 255, 200, 200, 50);
-    SDL_RenderFillRectF(renderer, &sizeBuffer.get());
-    SDL_SetRenderDrawColor(renderer, 20, 255, 200, 200);
-    SDL_RenderDrawRectF(renderer, &sizeBuffer.data);
-    sizeBuffer.leave();
-#endif
-    
-    if(!inComposition)
-        _renderEmbedded(id, renderer, x, y, dpiK, _renderOnlyNextInX_Y);
-};
-
-Text& Text::inherit_background_color(){
-    if(root.get()){
-            backgroundColor.set((root.data)->foregroundColor.get());
-            (root.data)->foregroundColor.leave();
-    } else
-        WindowManager::log(WindowManager::Warning, "Using inherit_backgroundColor(...) without a root. (nullptr)");
-    root.leave();
+Text& Text::set_size(const float size_w, const float size_h){
+    Object::set_size(size_w, size_h);
     return (*this);
 }
 
-Text& Text::set_ttf_api_style(const TTF_api_style style){
-    ttf_api_style.set(style);
+void Text::_compose(Renderer * renderer, const float dpiK, const int32_t windowId){
+    if(wasCompiled.get()){
+        if(!(wasCompiled.data = dpiK == obj_dpiK.get_copy()))
+            obj_dpiK.set(dpiK);
+    } else
+        obj_dpiK.set(dpiK);
+        wasCompiled.leave();
+    
+    this->windowId = windowId;
+        
+    if(!wasCompiled.get()){
+        _allocate_cairo_font_face();
+        wasCompiled.leave();
+        _compute_text_size();
+        _composer_routine(renderer);
+        _free_cairo_font_face();
+//        TODO: FIX TEXT COMPILATION INCONSISTENCES
+//        wasCompiled.data = true;
+    } wasCompiled.leave();
+    _compose_embedded(renderer, dpiK, windowId);
+}
+
+Text::Text(const std::string source, Font& font): source(source), textEffect(Normal), font(font) {
+    Object();
+    globalSemaphore.leave();
+    foregroundColor.set(Themes::_default.colors.get_text_color<Primary>());
+    backgroundColor.set(Colors::Transparent);
+    this->font.set_size(12);
+    set_composer_callback(CallbackExpr(default_composer_callback();));
+}
+
+Text& Text::from_string(const std::string source){
+    globalSemaphore.hold();
+    this->source = source;
+    wasCompiled.set(false);
+    globalSemaphore.leave();
+    return (*this);
+}
+
+Text& Text::set_font_size(const double size){
+    globalSemaphore.hold();
+    font.set_size(size);
+    wasCompiled.set(false);
+    globalSemaphore.leave();
+    return (*this);
+}
+
+Text& Text::set_font_style(const Font::Style style, const Font::Style alternative_style){
+    globalSemaphore.hold();
+    font.set_style(style, alternative_style);
+    wasCompiled.set(false);
+    globalSemaphore.leave();
+    return (*this);
+}
+
+Text& Text::set_text_effect(const TextEffect effect){
+    globalSemaphore.hold();
+    textEffect = effect;
+    wasCompiled.set(false);
+    globalSemaphore.leave();
     return (*this);
 }
 
 Text& Text::set_style(const TextStyle preset){
-    fontVirtualSize = preset.size;
-    font->set_style(preset.font_style, preset.size);
-    tryCompile();
+    globalSemaphore.hold();
+    font.set_size(preset.size);
+    font.set_style(preset.font_style);
+    wasCompiled.set(false);
+    globalSemaphore.leave();
     return (*this);
 }
 
 Text& Text::set_font(Font & new_font){
-    Font::Style last_font_style = font->style;
-    _free_font();
-    font = new Font();
-    (*this->font) = new_font;
+    globalSemaphore.hold();
+    Font::Style last_font_style = font.get_style();
+    font = new_font;
+    wasCompiled.set(false);
+    globalSemaphore.leave();
     set_font_style(last_font_style);
-    tryCompile();
     return (*this);
 }
 
 Text& Text::set_foreground_color(const Color color){
+    globalSemaphore.hold();
     foregroundColor.set(color);
-    tryCompile();
+    wasCompiled.set(false);
+    globalSemaphore.leave();
     return (*this);
 }
 
-Text& Text::regular(const unsigned int size){
-    set_font_style(Font::Regular, size);
-    return (*this);
+Text& Text::regular(){
+    return set_font_style(Font::Regular);
 }
 
-Text& Text::bold(const unsigned int size){
-    set_font_style(Font::Bold, size);
-    return (*this);
+Text& Text::bold(){
+    return set_font_style(Font::Bold);
 }
 
-Text& Text::boldOblique(const unsigned int size){
-    set_font_style(Font::BoldOblique, size);
-    return (*this);
+Text& Text::boldOblique(){
+   return set_font_style(Font::BoldOblique, Font::Bold);
 }
 
-Text& Text::extraLight(const unsigned int size){
-    set_font_style(Font::ExtraLight, size);
-    return (*this);
+Text& Text::extraLight(){
+    return set_font_style(Font::ExtraLight, Font::Light);
 }
 
-Text& Text::oblique(const unsigned int size){
-    set_font_style(Font::Oblique, size);
-    return (*this);
+Text& Text::oblique(){
+    return set_font_style(Font::Oblique, Font::Italic);
 }
 
-Text& Text::condensed_Bold(const unsigned int size){
-    set_font_style(Font::Condensed_Bold, size);
-    return (*this);
+Text& Text::condensed_Bold(){
+    return set_font_style(Font::Condensed_Bold, Font::Bold);
 }
 
-Text& Text::condensed_BoldOblique(const unsigned int size){
-    set_font_style(Font::Condensed_BoldOblique, size);
-    return (*this);
+Text& Text::condensed_BoldOblique(){
+    return set_font_style(Font::Condensed_BoldOblique, Font::BoldOblique);
 }
 
-Text& Text::condensed_Oblique(const unsigned int size){
-    set_font_style(Font::Condensed_Oblique, size);
-    return (*this);
+Text& Text::condensed_Oblique(){
+    return set_font_style(Font::Condensed_Oblique, Font::Oblique);
 }
 
-Text& Text::condensed(const unsigned int size){
-    set_font_style(Font::Condensed, size);
-    return (*this);
+Text& Text::condensed(){
+    return set_font_style(Font::Condensed);
 }
 
-Text& Text::black(const unsigned int size){
-    set_font_style(Font::Black, size);
-    return (*this);
+Text& Text::black(){
+    return set_font_style(Font::Black, Font::Bold);
 }
 
-Text& Text::blackItalic(const unsigned int size){
-    set_font_style(Font::BlackItalic, size);
-    return (*this);
+Text& Text::blackItalic(){
+    return set_font_style(Font::BlackItalic, Font::BoldItalic);
 }
 
-Text& Text::boldItalic(const unsigned int size){
-    set_font_style(Font::Black, size);
-    return (*this);
+Text& Text::boldItalic(){
+    return set_font_style(Font::BoldItalic, Font::Bold);
 }
 
-Text& Text::extraLightItalic(const unsigned int size){
-    set_font_style(Font::ExtraLightItalic, size);
-    return (*this);
+Text& Text::extraLightItalic(){
+    return set_font_style(Font::ExtraLightItalic, Font::ExtraLight);
 }
 
-Text& Text::extraBold(const unsigned int size){
-    set_font_style(Font::ExtraBold, size);
-    return (*this);
+Text& Text::extraBold(){
+    return set_font_style(Font::ExtraBold, Font::Bold);
 }
 
-Text& Text::extraBoldItalic(const unsigned int size){
-    set_font_style(Font::ExtraBoldItalic, size);
-    return (*this);
+Text& Text::extraBoldItalic(){
+    return set_font_style(Font::ExtraBoldItalic, Font::ExtraBold);
 }
 
-Text& Text::italic(const unsigned int size){
-    set_font_style(Font::Italic, size);
-    return (*this);
+Text& Text::italic(){
+    return set_font_style(Font::Italic, Font::Oblique);
 }
 
-Text& Text::light(const unsigned int size){
-    set_font_style(Font::Light, size);
-    return (*this);
+Text& Text::light(){
+    return set_font_style(Font::Light);
 }
 
-Text& Text::lightItalic(const unsigned int size){
-    set_font_style(Font::LightItalic, size);
-    return (*this);
+Text& Text::lightItalic(){
+    return set_font_style(Font::LightItalic, Font::Light);
 }
 
-Text& Text::medium(const unsigned int size){
-    set_font_style(Font::Medium, size);
-    return (*this);
+Text& Text::medium(){
+    return set_font_style(Font::Medium, Font::Regular);
 }
 
-Text& Text::mediumItalic(const unsigned int size){
-    set_font_style(Font::MediumItalic, size);
-    return (*this);
+Text& Text::mediumItalic(){
+    return set_font_style(Font::MediumItalic, Font::Italic);
 }
 
-Text& Text::semiBold(const unsigned int size){
-    set_font_style(Font::SemiBold, size);
-    return (*this);
+Text& Text::semiBold(){
+    return set_font_style(Font::SemiBold, Font::Bold);
 }
 
-Text& Text::semiBoldItalic(const unsigned int size){
-    set_font_style(Font::SemiBoldItalic, size);
-    return (*this);
+Text& Text::semiBoldItalic(){
+    return set_font_style(Font::SemiBoldItalic, Font::BoldItalic);
 }
 
-Text& Text::thin(const unsigned int size){
-    set_font_style(Font::Thin, size);
-    return (*this);
+Text& Text::thin(){
+    return set_font_style(Font::Thin, Font::Light);
 }
 
-Text& Text::thinItalic(const unsigned int size){
-    set_font_style(Font::ThinItalic, size);
-    return (*this);
+Text& Text::thinItalic(){
+    return set_font_style(Font::ThinItalic, Font::LightItalic);
 }

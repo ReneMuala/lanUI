@@ -102,7 +102,7 @@ public:
     
     void _compute_cursor_position(Renderer* );
     
-    void _compile(Renderer*, const float dpiK) override;
+    void _compose(Renderer*, const float dpiK, const int32_t windowId) override;
     
     std::string get_data();
     

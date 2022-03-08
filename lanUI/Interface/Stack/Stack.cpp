@@ -10,7 +10,7 @@
 
 BSStack::BSStack(){
     first = last = nullptr;
-    fromColorScheme(Colors::Transparent, Colors::Transparent);
+    set_color_scheme(Colors::Transparent, Colors::Transparent);
 }
 
 void BSStack::free(){

@@ -50,6 +50,22 @@ struct Color : public SDL_Color {
         return Color({r,g,b,a});
     }
     
+    inline double get_premultiplied_r() const {
+        return ((double)r)/255.0;
+    }
+    
+    inline double get_premultiplied_g() const {
+        return ((double)g)/255.0;
+    }
+    
+    inline double get_premultiplied_b() const {
+        return ((double)b)/255.0;
+    }
+    
+    inline double get_premultiplied_a() const {
+        return ((double)a)/255.0;
+    }
+    
     const std::string toStr() const;
 };
 
@@ -75,7 +91,7 @@ const Color Silver = {192,192,192,255};
 const Color Gray = {128,128,128,255};
 const Color Maroon = {128,0,0,255};
 const Color Olive = {128,128,0,255};
-const Color Green = {0,128,0,255};
+const Color Green = {0,255,0,255};
 const Color Purple = {128,0,128,255};
 const Color Teal = {0,128,128,255};
 const Color Navy = {0,0,128,255};

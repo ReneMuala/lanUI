@@ -11,8 +11,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <bitset>
+#include <list>
 
-#define lanUTFVersion "lanUTF 0.1.5"
+#define lanUTFVersion "lanUTF 0.1.6"
+
+#define LANUTF_DEBUG_MODE
 
 class UTF8Char {
 public:
@@ -43,7 +46,7 @@ public:
 private:
     
     char data[5];
-    
+        
     UTF8_OctetType octetType;
                 
 public:
@@ -66,13 +69,30 @@ public:
     
     void _readUTF8_1o(char * source);
     
-    /// composes a new  character from UTF8 encoded source
+    static unsigned int _get_byte_as_intermediate(char byte);
+    
+    unsigned int get_UTF8_4o_charcode();
+    
+    unsigned int get_UTF8_3o_charcode();
+
+    unsigned int get_UTF8_2o_charcode();
+
+    unsigned int get_UTF8_1o_charcode();
+
+    unsigned int get_charcode();
+    
+    /// composes a new  character from a UTF8 encoded source
     void composeUTF8Char(char * source);
+    
+    /// composes a new  character from a UTF8 charcode
+    void composeUTF8Char(const unsigned int code);
+    
+    static bool is_charcode_valid(const unsigned int code);
     
     /// copies data from another UTF8Char
     void copy(UTF8Char & other);
 
-    /// returns the c_char encoded version of the UTF8 char
+    /// returns the c_char version of the UTF8 char
     char const * c_char() const;
     
     /// returns the UTF8 octet type of the character.
@@ -87,7 +107,18 @@ public:
     UTF8Char * _at(size_t index) const;
     
     UTF8Char * _last() const;
-        
+    
+#ifdef LANUTF_DEBUG_MODE
+    
+    bool dbg_test_UTF8Char_char(char *);
+    
+    bool dbg_test_UTF8Char_charcode(unsigned int);
+
+    /// test all unicode characters
+    void dbg_test_global(unsigned int beg = 0x0, unsigned int end = 0x1FFFFF);
+    
+#endif
+    
     UTF8Char();
     
     UTF8Char(char *);
@@ -119,6 +150,12 @@ public:
     
     const char * operator[](size_t index) const;
     
+    /// returns the character at the given index (if possible)
+    const char * char_at(size_t index) const;
+    
+    /// returns the charcode at the given index (if possible)
+    unsigned int charcode_at(size_t index) const;
+    
     /// removes a specified UTF8 character
     void remove(size_t index);
     
@@ -137,8 +174,14 @@ public:
     /// adds characters to the end of the list
     size_t append(const char * str);
     
+    /// adds characters to the end of the list
+    size_t append(std::list<const unsigned int> codes);
+    
     /// adds characters to a specified position of the list or to the end if the index isn't valid
     size_t append(const char * str, size_t index);
+    
+    /// adds characters to a specified position of the list or to the end if the index isn't valid
+    size_t append(std::list<const unsigned int> codes, size_t index);
     
     /// clears the list
     void clear();

@@ -14,26 +14,29 @@
 
 #include "../../Font/Font.hpp"
 #include "../../Theme/Theme.hpp"
-#include "../../../Project/CustomFonts/CustomFonts.hpp"
 #include <unordered_map>
 #include <thread>
 #include <queue>
+#include <vector>
 #include "../Window.hpp"
+#include "../../Font/Font.hpp"
 
 namespace WMSSharedData
 {
 Semaphore<unsigned long> WMCount = 0;
 bool SYSTEM_FONTS_ARE_VALID = false,
-SYSTEM_READY = false, RENDERER_THREAD_READY = false;
+SYSTEM_READY = false, RENDERER_THREAD_READY = false, GLOBAL_FL_LIBRARY_READY = false;
 Semaphore<IMG_InitFlags> SDL_IMG_INIT_FLAGS = IMG_InitFlags(0);
-Window * programWindows[LUI_MAX_PROGRAM_WINDOWS];
-BSemaphore windowCanClose[LUI_MAX_PROGRAM_WINDOWS];
+
+std::vector<Window *> programWindows(LUI::MAX_PROGRAM_WINDOWS);
+std::vector<BSemaphore> windowCanClose(LUI::MAX_PROGRAM_WINDOWS);
+std::vector<FT_Library> WindowFTLibraries(LUI::MAX_PROGRAM_WINDOWS);
 
 std::thread rendererHandler;
 std::queue<std::pair<void* /* return address */, unsigned /* function call id */>> ttf_thread_pendent_calls;
 
 bool on_quit_callback_flag;
-Window::VoidCallback on_quit_callback;
+VoidCallback on_quit_callback;
 }
 
 namespace FontsSharedData
@@ -67,9 +70,9 @@ void WindowManager::run_global_events_handler(){
             if(FRUN) FRUN = false;
             if(event.type == SDL_QUIT && WMSSharedData::on_quit_callback_flag)
                 WMSSharedData::on_quit_callback();
-            if(event.type == SDL_MOUSEBUTTONDOWN)
+            else if(event.type == SDL_MOUSEBUTTONDOWN)
                 WindowManager::set_selected_object(nullptr);
-            for(int i = 0 ; i < LUI_MAX_PROGRAM_WINDOWS ; i++){
+            for(int i = 0 ; i < LUI::MAX_PROGRAM_WINDOWS ; i++){
                 if(WMSSharedData::programWindows[i]){
                     WMSSharedData::programWindows[i]->sdlEvent.set(event);
                     WMSSharedData::programWindows[i]->_handle_events();
@@ -83,16 +86,16 @@ void WindowManager::run_global_events_handler(){
 
 void WindowManager::rendererHandlerRoutine(){
     while (WMSSharedData::RENDERER_THREAD_READY) {
-        for(int i = 0 ; i < LUI_MAX_PROGRAM_WINDOWS ; i++){
+        for(int i = 0 ; i < LUI::MAX_PROGRAM_WINDOWS ; i++){
             if(WMSSharedData::SYSTEM_READY){
                 WMSSharedData::windowCanClose[i].hold();
                 if(WMSSharedData::programWindows[i]){
                     WMSSharedData::programWindows[i]->_run_default_animation();
-                    WMSSharedData::programWindows[i]->_compile();
+                    WMSSharedData::programWindows[i]->_compose();
                     WMSSharedData::programWindows[i]->_clear();
                     WMSSharedData::programWindows[i]->_render();
                     WMSSharedData::windowCanClose[i].leave();
-                    std::this_thread::sleep_for((std::chrono::milliseconds)LUI_WM_RENDERER_THREAD_SLEEP_TIME);
+                    std::this_thread::sleep_for((std::chrono::milliseconds)LUI::WM_RENDERER_THREAD_SLEEP_TIME);
                 } else
                     WMSSharedData::windowCanClose[i].leave();
             }
@@ -140,54 +143,8 @@ void WindowManager::init_image(){
 void WindowManager::init_fonts(){
     if(!WMSSharedData::SYSTEM_FONTS_ARE_VALID)
     {
-        Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans.ttf", Font::Style::Regular);
-        Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans-Bold.ttf", Font::Style::Bold);
-        Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans-BoldOblique.ttf", Font::Style::BoldOblique);
-        Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans-ExtraLight.ttf", Font::Style::ExtraLight);
-        Fonts::DejaVuSans.fromFile("Fonts:DejaVuSans-Oblique.ttf", Font::Style::Oblique);
-        Fonts::DejaVuSans.fromFile("Fonts:DejaVuSansCondensed-Bold.ttf", Font::Style::Condensed_Bold);
-        Fonts::DejaVuSans.fromFile("Fonts:DejaVuSansCondensed-BoldOblique.ttf", Font::Condensed_BoldOblique);
-        Fonts::DejaVuSans.fromFile("Fonts:DejaVuSansCondensed.ttf", Font::Style::Condensed);
-        Fonts::DejaVuSans.set_global_name("DejaVuSans");
-        
-        Fonts::OpenSans.fromFile("Fonts:OpenSans-Bold.ttf", Font::Bold);
-        Fonts::OpenSans.fromFile("Fonts:OpenSans-BoldItalic.ttf", Font::BoldItalic);
-        Fonts::OpenSans.fromFile("Fonts:OpenSans-ExtraBold.ttf", Font::ExtraBold);
-        Fonts::OpenSans.fromFile("Fonts:OpenSans-ExtraBoldItalic.ttf", Font::ExtraBoldItalic);
-        Fonts::OpenSans.fromFile("Fonts:OpenSans-Italic.ttf", Font::Italic);
-        Fonts::OpenSans.fromFile("Fonts:OpenSans-Light.ttf", Font::Light);
-        Fonts::OpenSans.fromFile("Fonts:OpenSans-LightItalic.ttf", Font::LightItalic);
-        Fonts::OpenSans.fromFile("Fonts:OpenSans-Medium.ttf", Font::Medium);
-        Fonts::OpenSans.fromFile("Fonts:OpenSans-MediumItalic.ttf", Font::MediumItalic);
-        Fonts::OpenSans.fromFile("Fonts:OpenSans-Regular.ttf", Font::Regular);
-        Fonts::OpenSans.fromFile("Fonts:OpenSans-SemiBold.ttf", Font::SemiBold);
-        Fonts::OpenSans.fromFile("Fonts:OpenSans-SemiBoldItalic.ttf", Font::SemiBoldItalic);
-        Fonts::OpenSans.set_global_name("OpenSans");
-        
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-Black.ttf", Font::Black);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-BlackItalic.ttf", Font::BlackItalic);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-Bold.ttf", Font::Bold);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-BoldItalic.ttf", Font::BoldItalic);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-ExtraBold.ttf", Font::ExtraBold);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-ExtraBoldItalic.ttf", Font::ExtraBoldItalic);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-ExtraLight.ttf", Font::ExtraLight);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-ExtraLightItalic.ttf", Font::ExtraLightItalic);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-Italic.ttf", Font::Italic);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-Light.ttf", Font::Light);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-LightItalic.ttf", Font::LightItalic);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-Medium.ttf", Font::Medium);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-MediumItalic.ttf", Font::MediumItalic);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-Regular.ttf", Font::Regular);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-SemiBold.ttf", Font::SemiBold);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-SemiBoldItalic.ttf", Font::SemiBoldItalic);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-Thin.ttf", Font::Thin);
-        Fonts::WorkSans.fromFile("Fonts:WorkSans-ThinItalic.ttf", Font::ThinItalic);
-        Fonts::WorkSans.set_global_name("WorkSans");
-        
-        WMSSharedData::SYSTEM_FONTS_ARE_VALID = Fonts::DejaVuSans.isValid() && Fonts::OpenSans.isValid() && Fonts::WorkSans.isValid();
-        
-        CustomFonts::_loadCustomFonts();
-        
+        WMSSharedData::SYSTEM_FONTS_ARE_VALID = Fonts::DejaVuSans.is_valid() && Fonts::OpenSans.is_valid() && Fonts::WorkSans.is_valid();
+                
         Themes::_default._set_default_font();
     }
 }
@@ -202,7 +159,28 @@ void WindowManager::init(){
 
 void WindowManager::start(const WindowInitParams params){
     ((Window*)(window))->_create(params.title.c_str(), (Window::Definition) params.definition, params.width, params.height);
+    start_init_window_ft_library();
     start_rendererHandler_thread();
+}
+
+void WindowManager::start_init_global_ft_library(){
+    if(!WMSSharedData::GLOBAL_FL_LIBRARY_READY){
+        FT_Error error;
+        const int32_t id = 0;
+        if((error = FT_Init_FreeType(&WMSSharedData::WindowFTLibraries[id]))){
+            log(Error, (std::string("Unable to init FreeType2 for global library. FT_Error: ")+ std::to_string(error)).c_str());
+        } else {
+            WMSSharedData::GLOBAL_FL_LIBRARY_READY = true;
+        }
+    }
+}
+
+void WindowManager::start_init_window_ft_library(){
+    FT_Error error;
+    const int32_t id = ((Window*)(window))->sdlWindowId.get_copy();
+    if((error = FT_Init_FreeType(&WMSSharedData::WindowFTLibraries[id]))){
+        log(Error, (std::string("Unable to init FreeType2 for window id(") + std::to_string(id) + "). FT_Error: " + std::to_string(error)).c_str());
+    }
 }
 
 void WindowManager::start_rendererHandler_thread(){
@@ -241,7 +219,7 @@ const void * WindowManager::get_selected_object(){
 }
 
 void WindowManager::close_all(){
-    for(int i = 0 ; i < LUI_MAX_PROGRAM_WINDOWS ; i++){
+    for(int i = 0 ; i < LUI::MAX_PROGRAM_WINDOWS ; i++){
         if(WMSSharedData::programWindows[i]){
             if(WMSSharedData::programWindows[i]->callbacks[Window::OnClosed].get()){
                 WMSSharedData::programWindows[i]->on_closed_callback();
@@ -264,6 +242,7 @@ bool WindowManager::close_disable_decr_window(){
     bool last_WM = !(WMSSharedData::WMCount.get());
     WMSSharedData::WMCount.leave();
     if(close_disable_window()){
+        close_done_window_ft_library();
         last_WM = !(--WMSSharedData::WMCount.get());
         WMSSharedData::WMCount.leave();
         WMSSharedData::SYSTEM_READY = !last_WM;
@@ -275,12 +254,30 @@ void WindowManager::close_stop_renderer_thread(){
     WMSSharedData::rendererHandler.join();
 }
 
+void WindowManager::close_done_global_ft_library(){
+    if(WMSSharedData::GLOBAL_FL_LIBRARY_READY){
+        FT_Error error;
+        if((error = FT_Done_FreeType(WMSSharedData::WindowFTLibraries[0]))){
+            log(Error, (std::string("Unable to done FreeType2 for global library. FT_Error: ") + std::to_string(error)).c_str());
+        } else {
+            WMSSharedData::GLOBAL_FL_LIBRARY_READY = false;
+        }
+    }
+}
+
+void WindowManager::close_done_window_ft_library(){
+    FT_Error error;
+    const int32_t id = ((Window*)(window))->sdlWindowId.get_copy();
+    if((error = FT_Done_FreeType(WMSSharedData::WindowFTLibraries[id]))){
+        log(Error, (std::string("Unable to done FreeType2 for window id(") + std::to_string(id) + "). FT_Error: " + std::to_string(error)).c_str());
+    }
+}
+
 void WindowManager::close_sdl(){
     SDL_Quit();
 }
 
 void WindowManager::close_ttf(){
-    close_fonts();
     TTF_Quit();
 }
 
@@ -288,23 +285,13 @@ void WindowManager::close_image(){
     IMG_Quit();
 }
 
-void WindowManager::close_fonts(){
-    FontsSharedData::allFonts.hold();
-    for (auto& font  : FontsSharedData::allFonts.data) {
-        if(font.second){
-            TTF_CloseFont(font.second);
-            font.second = nullptr;
-        }
-    } FontsSharedData::allFonts.leave();
-}
-
 void WindowManager::close(){
     // last WM in LUI eco-system
     if(ready && close_disable_decr_window()){
         ready = false;
+        close_done_global_ft_library();
         close_stop_renderer_thread();
         close_sdl();
-        close_fonts();
         close_ttf();
         close_image();
     }

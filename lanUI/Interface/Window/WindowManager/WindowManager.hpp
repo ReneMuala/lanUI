@@ -65,10 +65,14 @@ public:
     void init_image();
     
     void init_fonts();
-        
+            
     void init();
     
     void start(const WindowInitParams);
+    
+    void start_init_global_ft_library();
+    
+    void start_init_window_ft_library();
     
     void start_rendererHandler_thread();
     
@@ -95,13 +99,16 @@ private:
     
     void close_stop_renderer_thread();
     
+    void close_done_global_ft_library();
+    
+    void close_done_window_ft_library();
+    
     void close_sdl();
     
     void close_ttf();
         
     void close_image();
     
-    void close_fonts();
 };
 
 #endif /* WindowManager_hpp */

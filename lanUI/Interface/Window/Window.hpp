@@ -16,17 +16,17 @@
 #include "../Color/Color.hpp"
 #include "../Object/Object.hpp"
 #include "WindowManager/WindowManager.hpp"
+#include "../../Types.hpp"
+#include "../Text/TextParams/TextParams.hpp"
 
 //! A program window
 class Window: public Object {
-public:
-    typedef std::function<void()> VoidCallback;
 private:
     
     WindowManager manager;
     bool firstRun;
+    bool HDWindow;
     
-    // Request data
     Semaphore<std::string> title;
     Semaphore<Color> windowClearColor;
     Semaphore<float> opacity;
@@ -67,6 +67,8 @@ public:
     Semaphore<bool> isMaximized;
     Semaphore<bool> hasMouseFocus;
     Semaphore<bool> hasKeyboardFocus;
+    
+    TextParams textParams;
     
     typedef enum {
         HighDefinition = SDL_WINDOW_ALLOW_HIGHDPI,
@@ -123,9 +125,9 @@ public:
     
     void _run_default_animation() override;
     
-    void _compute_DPIConstant();
+    void _compute_dpiK();
     
-    void _compile();
+    void _compose();
     
     void _clear();
     

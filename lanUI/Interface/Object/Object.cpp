@@ -12,8 +12,9 @@
 #include <string>
 #include <stack>
 #include <map>
+#include <vector>
 
-std::stack<SDL_Rect> rendererClips[LUI_MAX_PROGRAM_WINDOWS];
+std::vector<std::stack<SDL_Rect>> rendererClips(LUI::MAX_PROGRAM_WINDOWS);
 
 namespace InteractiveObjectsData
 {
@@ -149,8 +150,12 @@ Object& Object::disable_reloading(){
 
 Object& Object::set_size(const float size_w, const float size_h){
     size.hold();
-    size.data.w = (size_w >= 0) ? size_w : size.data.w;
-    size.data.h = (size_h >= 0) ? size_h : size.data.h;
+    sizeCompensation.hold();
+    isSurfaceValid.set(size_w == size.data.w && size_h == size.data.h ? isSurfaceValid.data : false);
+    wasCompiled.set(false);
+    size.data.w = (size_w >= 0) ? size_w + sizeCompensation.data.first : size.data.w;
+    size.data.h = (size_h >= 0) ? size_h + sizeCompensation.data.second : size.data.h;
+    sizeCompensation.leave();
     size.leave();
     if(root.get()) {
         root.leave();
@@ -160,8 +165,17 @@ Object& Object::set_size(const float size_w, const float size_h){
     return (*this);
 }
 
-void Object::_fix_size(const float w, const float h){
+Object& Object::set_size_compensation(const float w, const float h){
+    sizeCompensation.set({w,h});
+    return (*this);
+}
+
+void Object::_fix_size(const float w, const float h, bool require_composition){
     size.get();
+    if(require_composition){
+        isSurfaceValid.set(false);
+        wasCompiled.set(false);
+    }
     size.data.w += w;
     size.data.h += h;
     size.leave();
@@ -478,7 +492,7 @@ void Object::_handle_events(Event & event, const float dpiK, const bool no_focus
         inRootBoundsBuffer.leave();
             if(_has_focus(dpiK) && nextInZ.get()){
                 nextInZ.leave();
-                if(renderMode.get() != CompositionMode) {
+                if(renderMode.get() != PrecompositionMode) {
                     renderMode.leave();
                     _handle_others_routine(event, nextInZ.data, dpiK, false);
                 } else {
@@ -501,21 +515,21 @@ void Object::_handle_events(Event & event, const float dpiK, const bool no_focus
 void Object::_run_others_default_animation(){
     if(nextInZ.get()){
         nextInZ.leave();
-        nextInZ.data->param_dpiK = param_dpiK;
+        nextInZ.data->rendererParams.dpik = rendererParams.dpik;
         nextInZ.data->_run_default_animation();
     } else
         nextInZ.leave();
     
     if(nextInX.get()){
         nextInX.leave();
-        nextInX.data->param_dpiK = param_dpiK;
+        nextInX.data->rendererParams.dpik = rendererParams.dpik;
         nextInX.data->_run_default_animation();
     } else
         nextInX.leave();
     
     if(nextInY.get()){
         nextInY.leave();
-        nextInY.data->param_dpiK = param_dpiK;
+        nextInY.data->rendererParams.dpik = rendererParams.dpik;
         nextInY.data->_run_default_animation();
     } else
      nextInY.leave();
@@ -541,14 +555,15 @@ void Object::_set_position(const float x, const float y){
     size.hold(); padding.hold(); scrollingFactor.hold(); size.data.x = x + padding.data.left + scrollingFactor.data.horizontal; size.data.y = y + padding.data.top + scrollingFactor.data.vertical; size.leave(); padding.leave(); scrollingFactor.leave();
 }
 
-Object::Object(): size({0,0,50,50}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr), nextInZ(nullptr), usingRootBounds(false), inRootBoundsBuffer(false), reloadingDisabled(false) /*rootType(OtherRoot)*/, canvas(nullptr), compositionCanvas(nullptr), withBackground(false), withBorder(false), foregroundColor(Colors::Transparent), backgroundColor(Colors::Transparent), borderColor(Colors::Transparent), angle(0), renderMode(RenderMode::DefaultMode), delay(0), wasCompiled(false), index(0), no_focus_repeated(false) {
+Object::Object(): size({0,0,50,50}), sizeCompensation({0,0}), padding({0,0,0,0}), scrollingFactor({0,0}), root(nullptr), nextInX(nullptr), nextInY(nullptr), nextInZ(nullptr), usingRootBounds(false), using_composer_callback(false), composerManuallyScaleCairo(false), inRootBoundsBuffer(false), reloadingDisabled(false) /*rootType(OtherRoot)*/, surface(nullptr) , canvas(nullptr), precompositionCanvas(nullptr), foregroundPattern(nullptr), backgroundPattern(nullptr), foregroundColor(Colors::Transparent), backgroundColor(Colors::Transparent), angle(0), renderMode(RenderMode::DefaultMode), delay(0), wasCompiled(false), isSurfaceValid(false), index(0), no_focus_repeated(false) {
+    wasCompiled.leave();
     aligment.set(Alignment::None);
     for(int i = 0 ; i < Requests::totalRequests ; i++){
         requests[i].set(false);
     }
-    default_animation.get()._using = false;
-    default_animation.data.delay = 0;
-    default_animation.leave();
+    wasCompiled.leave();
+    isAnimationBeingUsed = false;
+    animationDelay.set(0);
 }
 
 void Object::_delete_tree(){
@@ -581,6 +596,7 @@ void Object::_delete_tree(){
 
 Object::~Object(){
 //    _deleteOthers();
-    _free_canvas();
-    _free_canvas(compositionCanvas);
+    _free_surface(surface);
+    _free_canvas(canvas);
+    _free_canvas(precompositionCanvas);
 }
