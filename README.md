@@ -35,7 +35,8 @@ Send me an email: [mualarene@gmail.com](mailto:mualarene@gmail.com)
 - SDL2_image
 - lanUTF(intern)
 - GNU Cmake (3.7+)
-- OS (Linux or MacOS)
+- OS (Linux, MacOS, Windows)
+- Cairo
 
 ## 🛠 Construindo | Building
 
